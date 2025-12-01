@@ -14,7 +14,7 @@ export default async function StudentRecordPage({
 
   return (
     <div className="flex flex-col p-10 gap-5">
-      Hello You are in staff profile page.
+      Hello You are in student profile page.
     </div>
   );
 }
