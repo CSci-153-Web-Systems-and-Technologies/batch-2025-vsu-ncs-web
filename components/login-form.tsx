@@ -31,33 +31,15 @@ export function LoginForm({
     const supabase = createClient();
     setIsLoading(true);
     setError(null);
+
     try {
-      // Sign in first and use the returned user from the sign-in response.
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
-
-      // The sign-in response includes the user; prefer that role.
-      const userRole = data.user?.app_metadata?.role;
-
-      // If role is not present yet in the response (edge cases), re-fetch the user.
-      const finalRole =
-        userRole ??
-        (await (async () => {
-          const {
-            data: { user: freshUser },
-          } = await supabase.auth.getUser();
-          return freshUser?.app_metadata?.role;
-        })());
-
-      if (finalRole) {
-        router.push(`/protected/${finalRole}/dashboard`);
-      } else {
-        // If still no role, send to unauthorized or a safe default page.
-        router.push(`/unauthorized`);
-      }
+      // Update this route to redirect to an authenticated route. The user already has an active session.
+      router.push("/protected");
     } catch (error: unknown) {
       setError(error instanceof Error ? error.message : "An error occurred");
     } finally {
@@ -110,6 +92,15 @@ export function LoginForm({
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? "Logging in..." : "Login"}
               </Button>
+            </div>
+            <div className="mt-4 text-center text-sm">
+              Don&apos;t have an account?{" "}
+              <Link
+                href="/auth/sign-up"
+                className="underline underline-offset-4"
+              >
+                Sign up
+              </Link>
             </div>
           </form>
         </CardContent>
