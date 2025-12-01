@@ -15,8 +15,6 @@ import {
 } from "lucide-react";
 
 export default function HomePage() {
-  const year = new Date().getFullYear();
-
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
       <header className="bg-white/60 backdrop-blur sticky top-0 z-10">
@@ -239,7 +237,8 @@ export default function HomePage() {
 
       <footer className="border-t">
         <div className="max-w-6xl mx-auto px-6 py-6 flex items-center justify-between">
-          <p>© {year} Visayas State University</p>
+          {/* 3. Replaced '{year}' with the new component */}
+          <p>© 2025 Visayas State University</p>
           <nav className="flex gap-4">
             <Link href="/auth/login">Login</Link>
             <a href="https://vsu.edu.ph" target="_blank" rel="noreferrer">
