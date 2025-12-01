@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import React from "react";
 import { Button } from "@/components/ui/button";
+import { ThemeSwitcher } from "@/components/theme-switcher";
 import logo from "./assets/logo.png";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -22,7 +23,8 @@ export default function HomePage() {
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center gap-4">
           <Image src={logo} alt="VSU NCS" height={48} width={48} />
           <h1 className="text-lg font-semibold">VSU Nursing Conduct System</h1>
-          <nav className="ml-auto">
+          <nav className="ml-auto flex items-center gap-4">
+            <ThemeSwitcher />
             <Link href="/auth/login">
               <Button>Login</Button>
             </Link>
