@@ -1,4 +1,4 @@
-import { notFound } from "next/navigation";
+//import { notFound } from "next/navigation";
 
 export default async function StudentRecordPage({
   params,
@@ -14,7 +14,7 @@ export default async function StudentRecordPage({
 
   return (
     <div className="flex flex-col p-10 gap-5">
-      Hello You are in staff profile page.
+      Hello, {staffID}! You are in staff profile page.
     </div>
   );
 }
