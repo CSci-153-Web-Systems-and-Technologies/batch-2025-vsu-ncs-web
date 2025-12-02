@@ -1,3 +1,9 @@
+import { Suspense } from "react";
+
 export default function FacultyDashboard() {
-  return <div>This is faculty dashboard.</div>;
+  return (
+    <Suspense>
+      <div>This is faculty dashboard.</div>
+    </Suspense>
+  );
 }
