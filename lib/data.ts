@@ -145,3 +145,37 @@ export function transformReportForFaculty(raw: any): ConductReportWithStudent | 
     return null;
   }
 }
+
+// ==============================================================================
+// 4. TRANSFORMER: Admin View (The Ticket Queue)
+// ==============================================================================
+export function transformSeriousTicket(raw: any): SeriousInfractionTicket | null {
+  try {
+    if (!raw) return null;
+
+    const responseData = raw.infraction_responses?.[0];
+    const hasResponse = !!responseData;
+    const status: InfractionStatus = hasResponse ? "Resolved" : "Pending";
+
+    return {
+      ...raw,
+      status,
+      response_id: responseData?.id || null,
+      student: raw.student ? {
+        id: raw.student.id,
+        first_name: raw.student.first_name,
+        last_name: raw.student.last_name,
+        student_id: raw.student.student_id,
+      } : null,
+      reporter: raw.reporter ? {
+        first_name: raw.reporter.first_name,
+        last_name: raw.reporter.last_name,
+        title: raw.reporter.title,
+      } : null,
+    };
+
+  } catch (error) {
+    console.error(`Error transforming serious ticket (Report ID: ${raw?.id}):`, error);
+    return null;
+  }
+}
