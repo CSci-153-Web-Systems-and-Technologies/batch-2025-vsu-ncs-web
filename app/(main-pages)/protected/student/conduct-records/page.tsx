@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { columns } from "@/app/(detail-pages)/records/_components/conduct-records-column";
 import ConductCardList from "@/app/(detail-pages)/records/_components/conduct-card-list";
 import { ConductRecordsTable } from "@/app/(detail-pages)/records/_components/conduct-records-table";
-import { transformReportForStudent, safeMap } from "@/lib/transformers"; // <--- Import Transformer
+import { transformReportForStudent, safeMap } from "@/lib/data"; // <--- Import Transformer
 import { ConductReportWithReporter } from "@/types";
 
 export default async function ConductRecords() {

@@ -80,7 +80,7 @@ export function ConductRecordsTable<TData, TValue>({
 
   return (
     <div>
-      <Card className="space-y-6 px-6">
+      <Card className="space-y-6 p-6">
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           {/* ... (Header Text) ... */}
           <div className="text-[18px]">
