@@ -11,7 +11,7 @@ import TotalsCard from "./_components/totals-card";
 import QuickActionCard from "./_components/quick-action-card";
 import RecordCard from "./_components/record-card";
 import { StaffProfile, ConductReportWithStudent } from "@/types";
-import { transformReportForFaculty, safeMap } from "@/lib/data"; // <--- NEW UTILS
+import { transformReportForFaculty, safeMap } from "@/lib/data";
 
 export default async function FacultyDashboard() {
   const supabase = await createClient();
