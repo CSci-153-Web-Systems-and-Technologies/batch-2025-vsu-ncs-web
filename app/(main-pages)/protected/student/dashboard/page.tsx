@@ -1,3 +1,9 @@
+import { Suspense } from "react";
+
 export default function StudentDashboard() {
-  return <div>This is student dashboard.</div>;
+  return (
+    <Suspense>
+      <div>This is admin dashboard.</div>
+    </Suspense>
+  );
 }
