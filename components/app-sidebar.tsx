@@ -55,21 +55,23 @@ export default function AppSidebar({ items, profile, role }: AppSidebarProps) {
       </SidebarContent>
 
       <SidebarFooter className="w-full p-4 flex flex-col gap-4 border-t border-gray-300">
-        {" "}
-        <div className="w-full">
-          <Card className="h-fit py-0">
-            <CardHeader>
-              <CardTitle>{profile}</CardTitle>
-              <CardDescription>{role}</CardDescription>
-            </CardHeader>
-          </Card>
-        </div>
-        <SidebarMenuItem className="w-full">
-          <SidebarMenuButton asChild>
-            <LogoutButton />
-          </SidebarMenuButton>
-        </SidebarMenuItem>
+        <SidebarMenu>
+          {" "}
+          <div className="w-full">
+            <Card className="h-fit py-0">
+              <CardHeader>
+                <CardTitle>{profile}</CardTitle>
+                <CardDescription>{role}</CardDescription>
+              </CardHeader>
+            </Card>
+          </div>
+        </SidebarMenu>
       </SidebarFooter>
+      <SidebarMenuItem className="w-full flex flex-col border-t border-gray-300">
+        <SidebarMenuButton asChild>
+          <LogoutButton />
+        </SidebarMenuButton>
+      </SidebarMenuItem>
     </Sidebar>
   );
 }
