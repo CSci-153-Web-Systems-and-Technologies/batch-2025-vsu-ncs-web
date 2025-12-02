@@ -23,8 +23,9 @@ type AppSidebarProps = {
 export default function AppSidebar({ items, profile, role }: AppSidebarProps) {
   return (
     <Sidebar
+      variant="sidebar"
       collapsible="offcanvas"
-      className="h-screen flex flex-col border-r border-gray-300 w-64 max-w-64"
+      className="h-screen flex flex-col border-r border-gray-300 w-64 max-w-64 "
     >
       <SidebarHeader className="p-5 border-b border-gray-300">
         {" "}
