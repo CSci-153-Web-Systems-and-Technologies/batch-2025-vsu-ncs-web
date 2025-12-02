@@ -5,7 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
 import { parseName } from "@/lib/utils";
 import { Suspense } from "react";
-export const dynamic = "force-dynamic";
+//export const dynamic = "force-dynamic";
 export default async function StudentLayout({
   children,
 }: Readonly<{
