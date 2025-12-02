@@ -38,3 +38,14 @@ export default async function FacultyDashboard() {
     `)
     .eq("faculty_id", user?.id)
     .order("created_at", { ascending: false });
+
+    // 3. Transform Reports
+  const records: ConductReportWithStudent[] = safeMap(rawReports, transformReportForFaculty);
+
+  // 4. Fetch Total Students Count
+  // (We use count option instead of fetching all rows for performance)
+  const { count: studentCount } = await supabase
+    .from("student_profiles")
+    .select("*", { count: "exact", head: true });
+
+  const recentRecordArr = records.slice(0, 5);
