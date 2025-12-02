@@ -1,6 +1,11 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-sidebar";
-import { LayoutDashboard, History, BriefcaseMedical } from "lucide-react";
+import {
+  LayoutDashboard,
+  History,
+  BriefcaseMedical,
+  MailWarning,
+} from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
 import { parseName } from "@/lib/utils";
@@ -36,6 +41,11 @@ export default async function StudentLayout({
         title: "Conduct Records",
         url: "/protected/student/conduct-records",
         icon: History,
+      },
+      {
+        title: "Serious Infractions",
+        url: "/protected/student/serious-infractions",
+        icon: MailWarning,
       },
     ];
   }
