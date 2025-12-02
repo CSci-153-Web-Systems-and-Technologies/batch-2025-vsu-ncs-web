@@ -110,3 +110,38 @@ export function transformReportForStudent(raw: any): ConductReportWithReporter |
     return null;
   }
 }
+
+// ==============================================================================
+// 3. TRANSFORMER: Faculty View (See who I Reported)
+// ==============================================================================
+export function transformReportForFaculty(raw: any): ConductReportWithStudent | null {
+  try {
+    if (!raw) return null;
+
+    const responseData = raw.infraction_responses?.[0];
+    const hasResponse = !!responseData;
+    const status: InfractionStatus = hasResponse ? "Resolved" : "Pending";
+    
+    // Assumes .select('..., student:student_profiles(*)')
+    const studentRaw = raw.student; 
+
+    return {
+      ...raw,
+      status,
+      student: studentRaw ? {
+        first_name: studentRaw.first_name,
+        last_name: studentRaw.last_name,
+        student_id: studentRaw.student_id,
+        year_level: studentRaw.year_level,
+      } : null,
+      response_status: status === "Resolved" ? "Resolved" : "Pending",
+      admin_name: responseData?.admin 
+        ? `${responseData.admin.first_name} ${responseData.admin.last_name}`
+        : null
+    };
+
+  } catch (error) {
+    console.error(`Error transforming report for faculty view (Report ID: ${raw?.id}):`, error);
+    return null;
+  }
+}
