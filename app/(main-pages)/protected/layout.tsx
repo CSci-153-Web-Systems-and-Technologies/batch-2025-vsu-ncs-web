@@ -70,9 +70,9 @@ export default async function StudentLayout({
         icon: History,
       },
       {
-        title: "Reports",
-        url: "/protected/faculty/reports",
-        icon: History,
+        title: "Serious Infractions",
+        url: "/protected/faculty/serious-infractions",
+        icon: MailWarning,
       },
     ];
   }
