@@ -179,3 +179,21 @@ export function transformSeriousTicket(raw: any): SeriousInfractionTicket | null
     return null;
   }
 }
+
+// ==============================================================================
+// 5. UTILITY: Safe Mapping Helper
+// ==============================================================================
+/**
+ * Applies a transformer function to an array of raw data 
+ * and filters out any null results (failures).
+ */
+export function safeMap<Raw, Transformed>(
+  data: Raw[] | null, 
+  transformer: (item: Raw) => Transformed | null
+): Transformed[] {
+  if (!data || !Array.isArray(data)) return [];
+  
+  return data
+    .map(transformer)
+    .filter((item): item is Transformed => item !== null);
+}
