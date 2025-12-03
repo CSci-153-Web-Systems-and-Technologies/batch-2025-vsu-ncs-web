@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/card";
 import { ConductReportWithReporter, StudentProfile } from "@/types";
 import { parseName } from "@/lib/utils";
-import { transformReportForStudent, safeMap } from "@/lib/transformers"; // <--- NEW UTILS
+import { transformReportForStudent, safeMap } from "@/lib/data"; // <--- NEW UTILS
 
 export default async function StudentRecordPage({
   params,
