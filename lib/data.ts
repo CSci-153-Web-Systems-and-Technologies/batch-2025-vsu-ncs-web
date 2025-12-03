@@ -161,17 +161,34 @@ export function transformSeriousTicket(raw: any): SeriousInfractionTicket | null
       ...raw,
       status,
       response_id: responseData?.id || null,
-      student: raw.student ? {
-        id: raw.student.id,
-        first_name: raw.student.first_name,
-        last_name: raw.student.last_name,
-        student_id: raw.student.student_id,
-      } : null,
-      reporter: raw.reporter ? {
-        first_name: raw.reporter.first_name,
-        last_name: raw.reporter.last_name,
-        title: raw.reporter.title,
-      } : null,
+      student: raw.student
+        ? {
+            id: raw.student.id,
+            first_name: raw.student.first_name,
+            last_name: raw.student.last_name,
+            student_id: raw.student.student_id,
+          }
+        : null,
+      reporter: raw.reporter
+        ? {
+            first_name: raw.reporter.first_name,
+            last_name: raw.reporter.last_name,
+            title: raw.reporter.title,
+          }
+        : null,
+      response: responseData
+        ? {
+            id: responseData.id,
+            resolved_at: responseData.created_at,
+            admin_name: responseData.admin
+              ? `${responseData.admin.first_name} ${responseData.admin.last_name}`
+              : "Unknown Admin",
+            final_sanction: responseData.final_sanction_days
+              ? `${responseData.final_sanction_days} days`
+              : responseData.final_sanction_other,
+            notes: responseData.notes,
+          }
+        : null,
     };
 
   } catch (error) {
