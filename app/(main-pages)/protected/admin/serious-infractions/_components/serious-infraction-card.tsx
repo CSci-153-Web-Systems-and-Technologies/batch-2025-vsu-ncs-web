@@ -8,20 +8,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+
 import { SeriousInfractionTicket } from "@/types"; // <--- UPDATED IMPORT
-import { AlertCircle, CheckCircle2, User, Gavel } from "lucide-react";
-import { useState } from "react";
+import { AlertCircle, CheckCircle2, User } from "lucide-react";
+import ReviewDialog from "./review-dialog";
 
 type SeriousInfractionCardProps = {
   record: SeriousInfractionTicket; // <--- UPDATED PROP TYPE

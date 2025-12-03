@@ -1,4 +1,5 @@
 import { Button } from "@/components/ui/button";
+import { Gavel } from "lucide-react";
 import {
   Dialog,
   DialogContent,
