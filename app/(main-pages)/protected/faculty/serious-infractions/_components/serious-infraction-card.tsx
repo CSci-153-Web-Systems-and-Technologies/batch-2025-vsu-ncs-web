@@ -7,12 +7,11 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { ConductReportWithReporter } from "@/types";
-//import { capitalizeFirstLetter } from "@/lib/utils";
+import { ConductReportWithStudent } from "@/types"; // <--- UPDATED INTERFACE
 import { AlertCircle, CheckCircle2, User } from "lucide-react";
 
 type SeriousInfractionCardProps = {
-  record: ConductReportWithReporter;
+  record: ConductReportWithStudent; // <--- UPDATED PROP TYPE
 };
 
 export default function SeriousInfractionCard({
@@ -31,9 +30,13 @@ export default function SeriousInfractionCard({
     }
   );
 
-  const reporterName = record.reporter
-    ? `${record.reporter.title || ""} ${record.reporter.last_name}`.trim()
-    : "Unknown Faculty";
+  // 3. UPDATED: Display Student Name instead of Reporter
+  const studentName = record.student
+    ? `${record.student.first_name} ${record.student.last_name}`.trim()
+    : "Unknown Student";
+
+  // Optional: Display Student ID
+  const studentId = record.student?.student_id || "No ID";
 
   return (
     <Card
@@ -67,8 +70,9 @@ export default function SeriousInfractionCard({
                 )}
               </Badge>
             </div>
+            {/* UPDATED DESCRIPTION */}
             <CardDescription>
-              {formattedDate} · Reported by {reporterName}
+              {formattedDate} · Student: {studentName} ({studentId})
             </CardDescription>
           </div>
         </div>
@@ -84,7 +88,9 @@ export default function SeriousInfractionCard({
         </div>
 
         {/* The Verdict (Only show if resolved) */}
-        {isResolved && record.response && (
+        {/* Note: ConductReportWithStudent usually only needs the status, 
+            but if your transformer includes response details, we show them here */}
+        {isResolved && record.response_status === "Resolved" && (
           <>
             <Separator />
             <div className="bg-slate-50 p-4 rounded-md space-y-3">
@@ -95,23 +101,20 @@ export default function SeriousInfractionCard({
 
               <div className="grid gap-2 text-sm">
                 <div>
-                  <span className="font-medium">Final Sanction: </span>
-                  <span className="text-red-600 font-medium">
-                    {record.response.final_sanction || "No sanction specified"}
+                  {/* Note: In the Faculty view, we might not have the full 'final_sanction' text 
+                       unless we adjusted the transformer. Assuming basic status here.
+                       If you need full details, ensure transformReportForFaculty maps 'sanction' too. */}
+                  <span className="font-medium">Status: </span>
+                  <span className="text-green-600 font-medium">
+                    Ticket Resolved
                   </span>
                 </div>
-                {record.response.notes && (
-                  <div>
-                    <span className="font-medium">Admin Notes: </span>
-                    <span className="text-muted-foreground">
-                      {record.response.notes}
-                    </span>
+
+                {record.admin_name && (
+                  <div className="text-xs text-muted-foreground pt-1">
+                    Resolved by {record.admin_name}
                   </div>
                 )}
-                <div className="text-xs text-muted-foreground pt-1">
-                  Resolved by {record.response.admin_name} on{" "}
-                  {new Date(record.response.resolved_at).toLocaleDateString()}
-                </div>
               </div>
             </div>
           </>
