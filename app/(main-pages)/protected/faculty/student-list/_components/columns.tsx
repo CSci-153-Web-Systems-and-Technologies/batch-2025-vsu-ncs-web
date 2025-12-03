@@ -78,9 +78,7 @@ export const columns: ColumnDef<StudentConductSummary>[] = [
     cell: ({ row }) => {
       return (
         <Button asChild size="sm" variant="outline">
-          <Link href={`/protected/faculty/student/${row.original.id}`}>
-            View
-          </Link>
+          <Link href={`/records/students/${row.original.id}`}>View</Link>
         </Button>
       );
     },

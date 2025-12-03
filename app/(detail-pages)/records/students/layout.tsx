@@ -1,21 +1,20 @@
 import Link from "next/link";
 import { ArrowLeft, BriefcaseMedical } from "lucide-react";
-//import { createClient } from "@/lib/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 
 export default async function RecordsLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  /*const supabase = await createClient();
-    const {
-        data: { user },
-    } = await supabase.auth.getUser();
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
-    const userRole = user?.app_metadata?.role as string;
-    const returnURL =
-        userRole === "admin" ? "/protected/admin/dashboard" : "/unauthorized";*/
-  const returnURL = "/unauthorized";
+  const userRole = user?.app_metadata?.role as string;
+  const returnURL =
+    userRole === "admin" ? "/protected/admin/dashboard" : "/unauthorized";
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
       <header className="bg-white border-b shadow-sm">
