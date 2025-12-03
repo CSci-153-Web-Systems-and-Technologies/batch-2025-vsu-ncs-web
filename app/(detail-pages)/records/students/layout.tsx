@@ -17,7 +17,7 @@ export default async function RecordsLayout({
   if (userRole === "admin") {
     returnURL = "/protected/admin/dashboard";
   } else if (userRole === "faculty") {
-    returnURL = "/protected/faculty/dashboard";
+    returnURL = "/protected/faculty/student-list";
   } else {
     returnURL = "/unauthorized";
   }
