@@ -192,14 +192,11 @@ export function safeMap<Raw, Transformed>(
   transformer: (item: Raw) => Transformed | null
 ): Transformed[] {
   if (!data || !Array.isArray(data)) return [];
-  
+
   return data
     .map(transformer)
     .filter((item): item is Transformed => item !== null);
 }
-
-import { StaffProfile } from "@/types";
-
 // ... existing imports ...
 
 // ==============================================================================
