@@ -157,7 +157,14 @@ export interface SeriousInfractionTicket extends ConductReport {
 
   // Workflow Status
   status: InfractionStatus;
-  
+
   // If resolved, include the response ID for reference
-  response_id?: number | null; 
+  response_id?: number | null;
+  response?: {
+    id: number;
+    admin_name: string;
+    resolved_at: string;
+    final_sanction: string | null;
+    notes: string | null;
+  } | null;
 }
