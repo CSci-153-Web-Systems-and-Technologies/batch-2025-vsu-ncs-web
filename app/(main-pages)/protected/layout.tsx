@@ -73,7 +73,7 @@ export default async function StudentLayout({
       },
       {
         title: "Logged Records",
-        url: "/protected/faculty/loggef-records",
+        url: "/protected/faculty/logged-records",
         icon: FileCheckIcon,
       },
       {
