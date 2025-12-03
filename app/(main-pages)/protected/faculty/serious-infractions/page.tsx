@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { transformReportForFaculty, safeMap } from "@/lib/data"; // <--- UPDATED TRANSFORMER
-import { ConductReportWithStudent } from "@/types"; // <--- UPDATED TYPE
+import { transformReportForFaculty, safeMap } from "@/lib/data";
+import { ConductReportWithStudent } from "@/types";
 import SeriousInfractionList from "./_components/serious-infraction-list";
 import { AlertTriangle } from "lucide-react";
 
@@ -11,16 +11,19 @@ export default async function FacultySeriousInfractionsPage() {
   } = await supabase.auth.getUser();
 
   // 1. FETCH RAW DATA
-  // - Filter by 'faculty_id' (me)
-  // - Join 'student:student_profiles' (who I reported)
   const { data: rawData } = await supabase
     .from("conduct_reports")
     .select(
       `
       *,
       student:student_profiles(*), 
+      
       infraction_responses (
+        id,
         created_at, 
+        final_sanction_days, 
+        final_sanction_other,
+        notes,
         admin:staff_profiles (first_name, last_name)
       )
     `
@@ -30,7 +33,6 @@ export default async function FacultySeriousInfractionsPage() {
     .order("created_at", { ascending: false });
 
   // 2. TRANSFORM
-  // Use the faculty-specific transformer
   const seriousReports: ConductReportWithStudent[] = safeMap(
     rawData,
     transformReportForFaculty
@@ -45,7 +47,8 @@ export default async function FacultySeriousInfractionsPage() {
           <h1 className="text-2xl font-bold">Filed Serious Infractions</h1>
         </div>
         <p className="text-muted-foreground">
-          Track the status of serious infraction reports you have filed.
+          Track the status and resolution of serious infractions you have
+          reported.
         </p>
       </div>
 

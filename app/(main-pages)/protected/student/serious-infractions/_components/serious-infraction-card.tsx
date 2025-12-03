@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -6,10 +8,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { ConductReportWithReporter } from "@/types";
-//import { capitalizeFirstLetter } from "@/lib/utils";
-import { AlertCircle, CheckCircle2, User } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from "lucide-react";
+import StudentResolutionDialog from "./resolution-dialog";
 
 type SeriousInfractionCardProps = {
   record: ConductReportWithReporter;
@@ -24,11 +25,7 @@ export default function SeriousInfractionCard({
   // 2. Formatting
   const formattedDate = new Date(record.created_at).toLocaleDateString(
     "en-US",
-    {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }
+    { month: "long", day: "numeric", year: "numeric" }
   );
 
   const reporterName = record.reporter
@@ -71,52 +68,25 @@ export default function SeriousInfractionCard({
               {formattedDate} · Reported by {reporterName}
             </CardDescription>
           </div>
+
+          {/* ACTION BUTTON: Only show if Resolved */}
+          {isResolved && <StudentResolutionDialog record={record} />}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* The Allegation */}
         <div>
           <h4 className="text-sm font-semibold mb-1">
             Description of Incident
           </h4>
           <p className="text-sm text-muted-foreground">{record.description}</p>
         </div>
-
-        {/* The Verdict (Only show if resolved) */}
-        {isResolved && record.response && (
-          <>
-            <Separator />
-            <div className="bg-slate-50 p-4 rounded-md space-y-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <User className="w-4 h-4" />
-                <span>Admin Decision</span>
-              </div>
-
-              <div className="grid gap-2 text-sm">
-                <div>
-                  <span className="font-medium">Final Sanction: </span>
-                  <span className="text-red-600 font-medium">
-                    {record.response.final_sanction || "No sanction specified"}
-                  </span>
-                </div>
-                {record.response.notes && (
-                  <div>
-                    <span className="font-medium">Admin Notes: </span>
-                    <span className="text-muted-foreground">
-                      {record.response.notes}
-                    </span>
-                  </div>
-                )}
-                <div className="text-xs text-muted-foreground pt-1">
-                  Resolved by {record.response.admin_name} on{" "}
-                  {new Date(record.response.resolved_at).toLocaleDateString()}
-                </div>
-              </div>
-            </div>
-          </>
-        )}
       </CardContent>
     </Card>
   );
 }
+
+// --------------------------------------------------------
+// SUB-COMPONENT: The Resolution Dialog (Student View)
+// --------------------------------------------------------
+
