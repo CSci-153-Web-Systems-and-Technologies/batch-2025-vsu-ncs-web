@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { transformReportForStudent, safeMap } from "@/lib/transformers"; // Or your utils path
+import { transformReportForStudent, safeMap } from "@/lib/data"; // Or your utils path
 import { ConductReportWithReporter } from "@/types";
 import SeriousInfractionList from "./_components/serious-infraction-list";
 import { AlertTriangle } from "lucide-react";
@@ -16,10 +16,8 @@ export default async function StudentSeriousInfractionsPage() {
     .select(
       `
       *,
-      // Fetch Reporter Details
       reporter:staff_profiles!faculty_id (first_name, last_name, title),
       
-      // FIX: Fetch ALL necessary fields for the Dialog
       infraction_responses (
         id,
         created_at, 
