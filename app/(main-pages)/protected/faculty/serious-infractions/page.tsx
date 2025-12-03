@@ -1,42 +1,39 @@
 import { createClient } from "@/lib/supabase/server";
-import { transformReportForStudent, safeMap } from "@/lib/data";
-import { ConductReportWithReporter } from "@/types";
-import SeriousInfractionCard from "../../student/serious-infractions/_components/serious-infraction-card";
-import SeriousInfractionList from "../../student/serious-infractions/_components/serious-infraction-list"; // Adjust path as needed
-
+import { transformReportForFaculty, safeMap } from "@/lib/transformers"; // <--- UPDATED TRANSFORMER
+import { ConductReportWithStudent } from "@/types"; // <--- UPDATED TYPE
+import SeriousInfractionList from "./_components/serious-infraction-list";
 import { AlertTriangle } from "lucide-react";
 
-export default async function SeriousInfractionsPage() {
+export default async function FacultySeriousInfractionsPage() {
   const supabase = await createClient();
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
   // 1. FETCH RAW DATA
-  // We fetch everything first, then filter, or you can filter in the query
+  // - Filter by 'faculty_id' (me)
+  // - Join 'student:student_profiles' (who I reported)
   const { data: rawData } = await supabase
     .from("conduct_reports")
     .select(
       `
       *,
-      reporter:staff_profiles!faculty_id (first_name, last_name, title),
+      student:student_profiles(*), 
       infraction_responses (
         created_at, 
-        final_sanction_days, 
-        final_sanction_other,
-        notes,
         admin:staff_profiles (first_name, last_name)
       )
     `
     )
-    .eq("student_id", user?.id)
-    .eq("is_serious_infraction", true) // SERVER-SIDE FILTER: Only Serious Infractions
+    .eq("faculty_id", user?.id) // Filter: My reports
+    .eq("is_serious_infraction", true) // Filter: Serious only
     .order("created_at", { ascending: false });
 
   // 2. TRANSFORM
-  const seriousReports: ConductReportWithReporter[] = safeMap(
+  // Use the faculty-specific transformer
+  const seriousReports: ConductReportWithStudent[] = safeMap(
     rawData,
-    transformReportForStudent
+    transformReportForFaculty
   );
 
   return (
@@ -45,11 +42,10 @@ export default async function SeriousInfractionsPage() {
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-red-600">
           <AlertTriangle className="w-8 h-8" />
-          <h1 className="text-2xl font-bold">Serious Infractions</h1>
+          <h1 className="text-2xl font-bold">Filed Serious Infractions</h1>
         </div>
         <p className="text-muted-foreground">
-          These are major violations that require administrative review. Please
-          monitor the status of pending cases closely.
+          Track the status of serious infraction reports you have filed.
         </p>
       </div>
 
