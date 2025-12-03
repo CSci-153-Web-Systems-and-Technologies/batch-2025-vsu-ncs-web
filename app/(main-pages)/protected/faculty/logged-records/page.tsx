@@ -1,6 +1,6 @@
 import ReportCardList from "./_components/report-card-list";
 import { createClient } from "@/lib/supabase/server";
-import { transformReportForFaculty, safeMap } from "@/lib/transformers"; // <--- NEW UTILS
+import { transformReportForFaculty, safeMap } from "@/lib/data"; // <--- NEW UTILS
 import { ConductReportWithStudent } from "@/types";
 
 export default async function ReportsPage() {
