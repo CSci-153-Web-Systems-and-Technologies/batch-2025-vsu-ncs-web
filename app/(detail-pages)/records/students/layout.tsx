@@ -13,8 +13,14 @@ export default async function RecordsLayout({
   } = await supabase.auth.getUser();
 
   const userRole = user?.app_metadata?.role as string;
-  const returnURL =
-    userRole === "admin" ? "/protected/admin/dashboard" : "/unauthorized";
+  let returnURL = "/unauthorized";
+  if (userRole === "admin") {
+    returnURL = "/protected/admin/dashboard";
+  } else if (userRole === "faculty") {
+    returnURL = "/protected/faculty/dashboard";
+  } else {
+    returnURL = "/unauthorized";
+  }
   return (
     <div className="min-h-screen bg-[#F8F9FA]">
       <header className="bg-white border-b shadow-sm">
