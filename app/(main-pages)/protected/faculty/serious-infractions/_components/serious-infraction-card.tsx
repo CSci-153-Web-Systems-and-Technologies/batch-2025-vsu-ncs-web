@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -6,12 +8,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { ConductReportWithStudent } from "@/types"; // <--- UPDATED INTERFACE
-import { AlertCircle, CheckCircle2, User } from "lucide-react";
+import { ConductReportWithStudent } from "@/types";
+import { AlertCircle, CheckCircle2, FileText, User, Quote } from "lucide-react";
+import { useState } from "react";
 
 type SeriousInfractionCardProps = {
-  record: ConductReportWithStudent; // <--- UPDATED PROP TYPE
+  record: ConductReportWithStudent;
 };
 
 export default function SeriousInfractionCard({
@@ -23,19 +35,13 @@ export default function SeriousInfractionCard({
   // 2. Formatting
   const formattedDate = new Date(record.created_at).toLocaleDateString(
     "en-US",
-    {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }
+    { month: "long", day: "numeric", year: "numeric" }
   );
 
-  // 3. UPDATED: Display Student Name instead of Reporter
   const studentName = record.student
     ? `${record.student.first_name} ${record.student.last_name}`.trim()
     : "Unknown Student";
 
-  // Optional: Display Student ID
   const studentId = record.student?.student_id || "No ID";
 
   return (
@@ -70,56 +76,99 @@ export default function SeriousInfractionCard({
                 )}
               </Badge>
             </div>
-            {/* UPDATED DESCRIPTION */}
             <CardDescription>
               {formattedDate} · Student: {studentName} ({studentId})
             </CardDescription>
           </div>
+
+          {/* ACTION BUTTON: Only show if Resolved */}
+          {isResolved && <FacultyResolutionDialog record={record} />}
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* The Allegation */}
         <div>
           <h4 className="text-sm font-semibold mb-1">
             Description of Incident
           </h4>
           <p className="text-sm text-muted-foreground">{record.description}</p>
         </div>
-
-        {/* The Verdict (Only show if resolved) */}
-        {/* Note: ConductReportWithStudent usually only needs the status, 
-            but if your transformer includes response details, we show them here */}
-        {isResolved && record.status === "Resolved" && (
-          <>
-            <Separator />
-            <div className="bg-slate-50 p-4 rounded-md space-y-3">
-              <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
-                <User className="w-4 h-4" />
-                <span>Admin Decision</span>
-              </div>
-
-              <div className="grid gap-2 text-sm">
-                <div>
-                  {/* Note: In the Faculty view, we might not have the full 'final_sanction' text 
-                       unless we adjusted the transformer. Assuming basic status here.
-                       If you need full details, ensure transformReportForFaculty maps 'sanction' too. */}
-                  <span className="font-medium">Status: </span>
-                  <span className="text-green-600 font-medium">
-                    Ticket Resolved
-                  </span>
-                </div>
-
-                {record.admin_name && (
-                  <div className="text-xs text-muted-foreground pt-1">
-                    Resolved by {record.admin_name}
-                  </div>
-                )}
-              </div>
-            </div>
-          </>
-        )}
       </CardContent>
     </Card>
+  );
+}
+
+// --------------------------------------------------------
+// SUB-COMPONENT: The Resolution Dialog (Faculty View)
+// --------------------------------------------------------
+function FacultyResolutionDialog({
+  record,
+}: {
+  record: ConductReportWithStudent;
+}) {
+  const [open, setOpen] = useState(false);
+  const response = record.response;
+
+  // Guard clause: if response data is missing, don't render dialog
+  if (!response) return null;
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" size="sm" className="gap-2">
+          <FileText className="w-4 h-4" />
+          View Decision
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Admin Decision</DialogTitle>
+          <DialogDescription>
+            Resolution details for the report filed against{" "}
+            {record.student?.last_name}.
+          </DialogDescription>
+        </DialogHeader>
+
+        <div className="grid gap-4 py-4">
+          {/* 1. The Verdict */}
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-slate-500">
+              Final Sanction
+            </h4>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-green-800">
+                {response.final_sanction || "No sanction applied"}
+              </span>
+            </div>
+          </div>
+
+          {/* 2. Admin Notes */}
+          {response.notes && (
+            <div className="space-y-2">
+              <h4 className="text-sm font-medium text-slate-500">
+                Admin Remarks
+              </h4>
+              <div className="relative">
+                <Quote className="absolute top-3 left-3 w-4 h-4 text-slate-300 transform -scale-x-100" />
+                <p className="text-sm text-slate-600 italic bg-slate-50 p-4 pl-9 rounded-md border border-slate-100">
+                  {response.notes}
+                </p>
+              </div>
+            </div>
+          )}
+
+          <Separator />
+
+          {/* 3. Footer Info */}
+          <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
+            <User className="w-3 h-3" />
+            <span>
+              Resolved by {response.admin_name} on{" "}
+              {new Date(response.resolved_at).toLocaleDateString()}
+            </span>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }

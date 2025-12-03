@@ -129,10 +129,16 @@ export interface ConductReportWithStudent extends ConductReport {
   } | null;
 
   // Has the admin acted on my serious report?
-  status: InfractionStatus; 
-  
+  status: InfractionStatus;
+
   // Optional: Who resolved it?
   admin_name?: string | null;
+  response?: {
+    resolved_at: string;
+    admin_name: string;
+    final_sanction: string | null;
+    notes: string | null;
+  } | null;
 }
 
 // --- ADMIN VIEW MODELS ---
