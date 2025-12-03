@@ -6,9 +6,6 @@ import { AlertTriangle } from "lucide-react";
 
 export default async function FacultySeriousInfractionsPage() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
 
   // 1. FETCH RAW DATA
   // - Filter by 'faculty_id' (me)
@@ -25,7 +22,6 @@ export default async function FacultySeriousInfractionsPage() {
       )
     `
     )
-    .eq("faculty_id", user?.id) // Filter: My reports
     .eq("is_serious_infraction", true) // Filter: Serious only
     .order("created_at", { ascending: false });
 
