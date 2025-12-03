@@ -90,7 +90,7 @@ export default function SeriousInfractionCard({
         {/* The Verdict (Only show if resolved) */}
         {/* Note: ConductReportWithStudent usually only needs the status, 
             but if your transformer includes response details, we show them here */}
-        {isResolved && record.response_status === "Resolved" && (
+        {isResolved && record.status === "Resolved" && (
           <>
             <Separator />
             <div className="bg-slate-50 p-4 rounded-md space-y-3">
