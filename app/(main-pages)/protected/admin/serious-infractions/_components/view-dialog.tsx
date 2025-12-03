@@ -10,8 +10,8 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
-import { FileText, User } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { FileText, User, CalendarDays, Gavel, Quote } from "lucide-react";
 import { SeriousInfractionTicket } from "@/types";
 
 export default function ViewDecisionDialog({
@@ -19,6 +19,21 @@ export default function ViewDecisionDialog({
 }: {
   record: SeriousInfractionTicket;
 }) {
+  // Safe access to response data
+  const decision = record.response;
+
+  // Fallback if data is missing (shouldn't happen if status is Resolved)
+  if (!decision) return null;
+
+  const formattedDate = new Date(decision.resolved_at).toLocaleDateString(
+    "en-US",
+    {
+      month: "long",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -29,48 +44,65 @@ export default function ViewDecisionDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Case Resolution</DialogTitle>
-          <DialogDescription>
-            This case was closed on{" "}
-            {/* If you have resolved_at in your ticket DTO, use it. Fallback to updated_at */}
-            {new Date(record.created_at).toLocaleDateString()}.
+          <DialogTitle className="flex items-center gap-2">
+            <Gavel className="w-5 h-5 text-green-600" />
+            Case Resolution
+          </DialogTitle>
+          <DialogDescription className="flex items-center gap-1">
+            <CalendarDays className="w-3.5 h-3.5" />
+            Case closed on {formattedDate}
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-6 py-4">
-          {/* Admin Info */}
-          <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-full bg-slate-100 flex items-center justify-center">
+        <div className="space-y-6 py-2">
+          {/* 1. Admin Info */}
+          <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border">
+            <div className="h-10 w-10 rounded-full bg-white border flex items-center justify-center shadow-sm">
               <User className="h-5 w-5 text-slate-500" />
             </div>
             <div>
-              <p className="text-sm font-medium">Resolved by Admin</p>
-              <p className="text-xs text-muted-foreground">
-                (Admin details would appear here)
+              <p className="text-xs text-muted-foreground uppercase font-semibold">
+                Resolved By
+              </p>
+              <p className="text-sm font-medium text-slate-900">
+                {decision.admin_name}
               </p>
             </div>
           </div>
 
-          <Separator />
-
-          {/* Outcome Mockup (Since Ticket DTO might only have status for list view) */}
+          {/* 2. The Verdict */}
           <div className="space-y-2">
-            <Label className="text-muted-foreground">Final Verdict</Label>
-            <div className="p-4 bg-green-50 border border-green-100 rounded-md">
-              <p className="text-sm font-medium text-green-800">
-                Ticket Resolved
-              </p>
-              <p className="text-xs text-green-700 mt-1">
-                The necessary sanctions have been applied to the student&apos;s
-                record.
-              </p>
+            <Label className="text-muted-foreground">Final Sanction</Label>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-green-800">
+                {decision.final_sanction || "No sanction applied"}
+              </span>
+              <Badge
+                variant="outline"
+                className="border-green-600 text-green-700 bg-white"
+              >
+                Resolved
+              </Badge>
             </div>
           </div>
+
+          {/* 3. Admin Notes (If any) */}
+          {decision.notes && (
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">Admin Notes</Label>
+              <div className="relative">
+                <Quote className="absolute top-2 left-2 w-4 h-4 text-slate-300 transform -scale-x-100" />
+                <p className="text-sm text-slate-600 italic bg-slate-50 p-4 pl-8 rounded-md border border-slate-100">
+                  {decision.notes}
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         <DialogFooter>
           <DialogClose asChild>
-            <Button variant="secondary" className="w-full">
+            <Button variant="secondary" className="w-full sm:w-auto">
               Close
             </Button>
           </DialogClose>
