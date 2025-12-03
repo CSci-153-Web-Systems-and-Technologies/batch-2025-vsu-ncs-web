@@ -121,27 +121,36 @@ export function transformReportForFaculty(raw: any): ConductReportWithStudent | 
     const responseData = raw.infraction_responses?.[0];
     const hasResponse = !!responseData;
     const status: InfractionStatus = hasResponse ? "Resolved" : "Pending";
-    
-    // Assumes .select('..., student:student_profiles(*)')
-    const studentRaw = raw.student; 
+    const studentRaw = raw.student;
 
     return {
       ...raw,
       status,
-      student: studentRaw ? {
-        first_name: studentRaw.first_name,
-        last_name: studentRaw.last_name,
-        student_id: studentRaw.student_id,
-        year_level: studentRaw.year_level,
-      } : null,
-      response_status: status === "Resolved" ? "Resolved" : "Pending",
-      admin_name: responseData?.admin 
-        ? `${responseData.admin.first_name} ${responseData.admin.last_name}`
-        : null
-    };
+      student: studentRaw
+        ? {
+            first_name: studentRaw.first_name,
+            last_name: studentRaw.last_name,
+            student_id: studentRaw.student_id,
+            year_level: studentRaw.year_level,
+          }
+        : null,
 
+      // POPULATE THIS
+      response: hasResponse
+        ? {
+            resolved_at: responseData.created_at,
+            admin_name: responseData.admin
+              ? `${responseData.admin.first_name} ${responseData.admin.last_name}`
+              : "Admin",
+            final_sanction: responseData.final_sanction_days
+              ? `${responseData.final_sanction_days} days`
+              : responseData.final_sanction_other,
+            notes: responseData.notes,
+          }
+        : null,
+    };
   } catch (error) {
-    console.error(`Error transforming report for faculty view (Report ID: ${raw?.id}):`, error);
+    console.error(`Error transforming faculty report:`, error);
     return null;
   }
 }
