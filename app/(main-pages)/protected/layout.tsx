@@ -5,6 +5,8 @@ import {
   History,
   BriefcaseMedical,
   MailWarning,
+  FileCheckIcon,
+  BookUser,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
@@ -65,9 +67,14 @@ export default async function StudentLayout({
         icon: LayoutDashboard,
       },
       {
-        title: "Student Records",
+        title: "Student List",
         url: "/protected/faculty/student-list",
-        icon: History,
+        icon: BookUser,
+      },
+      {
+        title: "Logged Records",
+        url: "/protected/faculty/loggef-records",
+        icon: FileCheckIcon,
       },
       {
         title: "Serious Infractions",
