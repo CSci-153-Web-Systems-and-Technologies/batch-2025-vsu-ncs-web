@@ -2,8 +2,8 @@ import { createClient } from "@/lib/supabase/server";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table"; // Assumes you have this generic component
 import FacultyCardList from "./_components/faculty-card-list";
-import { transformStudentSummary, safeMap } from "@/lib/data"; // <--- NEW UTILS
-import { StudentConductSummary } from "@/types";
+import { safeMap, transformStaffProfile } from "@/lib/data"; // <--- NEW UTILS
+import { StaffProfile } from "@/types";
 
 export default async function FacultyListPage() {
   const supabase = await createClient();
@@ -19,10 +19,7 @@ export default async function FacultyListPage() {
     .neq("id", user?.id);
 
   // 2. Transform into Summary Shape
-  const data: StudentConductSummary[] = safeMap(
-    rawData,
-    transformStudentSummary
-  );
+  const data: StaffProfile[] = safeMap(rawData, transformStaffProfile);
 
   return (
     <div className="flex flex-col w-full p-8 gap-5">

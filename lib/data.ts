@@ -197,3 +197,33 @@ export function safeMap<Raw, Transformed>(
     .map(transformer)
     .filter((item): item is Transformed => item !== null);
 }
+
+import { StaffProfile } from "@/types";
+
+// ... existing imports ...
+
+// ==============================================================================
+// 6. TRANSFORMER: Staff Profile (Simple Identity Mapping + Safety)
+// ==============================================================================
+export function transformStaffProfile(raw: any): StaffProfile | null {
+  try {
+    if (!raw) return null;
+
+    return {
+      id: raw.id,
+      employee_id: raw.employee_id || "",
+      title: raw.title || null,
+      sex: raw.sex || null,
+      created_at: raw.created_at,
+      updated_at: raw.updated_at,
+      role: raw.role || "faculty",
+      first_name: raw.first_name,
+      middle_name: raw.middle_name,
+      last_name: raw.last_name,
+      suffix: raw.suffix,
+    };
+  } catch (error) {
+    console.error(`Error transforming staff profile ${raw?.id}:`, error);
+    return null;
+  }
+}
