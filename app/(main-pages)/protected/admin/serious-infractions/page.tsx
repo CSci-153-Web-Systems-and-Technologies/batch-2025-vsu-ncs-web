@@ -13,10 +13,15 @@ export default async function AdminSeriousInfractionsPage() {
     .select(
       `
       *,
-      student:student_profiles(*),
+      student:student_profiles(*), 
       reporter:staff_profiles!faculty_id (first_name, last_name, title),
+      
       infraction_responses (
+        id,
         created_at, 
+        final_sanction_days,
+        final_sanction_other,
+        notes,
         admin:staff_profiles (first_name, last_name)
       )
     `
