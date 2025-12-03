@@ -1,7 +1,7 @@
 "use client";
 
 import SeriousInfractionCard from "./serious-infraction-card";
-import { ConductReportWithReporter, InfractionStatus } from "@/types";
+import { ConductReportWithStudent, InfractionStatus } from "@/types"; // <--- UPDATED IMPORT
 import * as React from "react";
 import {
   DropdownMenu,
@@ -16,10 +16,10 @@ import { ChevronDown, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 type SeriousInfractionListProps = {
-  data: ConductReportWithReporter[];
+  data: ConductReportWithStudent[]; // <--- UPDATED TYPE
 };
 
-type FilterStatus = "All" | InfractionStatus; // "All" | "Pending" | "Resolved"
+type FilterStatus = "All" | InfractionStatus; 
 
 export default function SeriousInfractionList({ data }: SeriousInfractionListProps) {
   const [status, setStatus] = React.useState<FilterStatus>("All");
