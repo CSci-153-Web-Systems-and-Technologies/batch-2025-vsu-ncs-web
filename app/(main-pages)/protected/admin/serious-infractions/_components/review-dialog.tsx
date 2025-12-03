@@ -1,3 +1,16 @@
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { SeriousInfractionTicket } from "@/types"; // <--- UPDATED IMPORT
+import { useState } from "react";
+
 export default function ReviewDialog({
   record,
   isResolved,
@@ -51,3 +64,4 @@ export default function ReviewDialog({
       </DialogContent>
     </Dialog>
   );
+}
