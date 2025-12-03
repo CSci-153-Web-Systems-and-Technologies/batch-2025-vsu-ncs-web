@@ -1,3 +1,5 @@
+"use client";
+
 import {
   Card,
   CardContent,
@@ -6,37 +8,44 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { ConductReportWithStudent } from "@/types"; // <--- UPDATED INTERFACE
-import { AlertCircle, CheckCircle2, User } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { SeriousInfractionTicket } from "@/types"; // <--- UPDATED IMPORT
+import { AlertCircle, CheckCircle2, User, Gavel } from "lucide-react";
+import { useState } from "react";
 
 type SeriousInfractionCardProps = {
-  record: ConductReportWithStudent; // <--- UPDATED PROP TYPE
+  record: SeriousInfractionTicket; // <--- UPDATED PROP TYPE
 };
 
 export default function SeriousInfractionCard({
   record,
 }: SeriousInfractionCardProps) {
-  // 1. Status Logic
   const isResolved = record.status === "Resolved";
 
-  // 2. Formatting
+  // Formatting
   const formattedDate = new Date(record.created_at).toLocaleDateString(
     "en-US",
-    {
-      month: "long",
-      day: "numeric",
-      year: "numeric",
-    }
+    { month: "long", day: "numeric", year: "numeric" }
   );
 
-  // 3. UPDATED: Display Student Name instead of Reporter
+  // Extract Names safely
   const studentName = record.student
-    ? `${record.student.first_name} ${record.student.last_name}`.trim()
+    ? `${record.student.first_name} ${record.student.last_name}`
     : "Unknown Student";
 
-  // Optional: Display Student ID
-  const studentId = record.student?.student_id || "No ID";
+  const reporterName = record.reporter
+    ? `${record.reporter.title || ""} ${record.reporter.last_name}`.trim()
+    : "Unknown Faculty";
 
   return (
     <Card
@@ -49,7 +58,7 @@ export default function SeriousInfractionCard({
           <div className="space-y-1">
             <div className="flex items-center gap-2">
               <CardTitle className="text-lg text-red-600">
-                Serious Infraction
+                Serious Infraction Ticket
               </CardTitle>
               <Badge
                 variant="outline"
@@ -70,56 +79,103 @@ export default function SeriousInfractionCard({
                 )}
               </Badge>
             </div>
-            {/* UPDATED DESCRIPTION */}
-            <CardDescription>
-              {formattedDate} · Student: {studentName} ({studentId})
+
+            {/* UPDATED: Shows BOTH parties involved */}
+            <CardDescription className="flex flex-col gap-1">
+              <span>{formattedDate}</span>
+              <span className="font-medium text-slate-700">
+                Accused: {studentName} ({record.student?.student_id || "N/A"})
+              </span>
+              <span className="text-slate-500">Reporter: {reporterName}</span>
             </CardDescription>
           </div>
+
+          {/* ACTION BUTTON */}
+          <ReviewDialog record={record} isResolved={isResolved} />
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* The Allegation */}
         <div>
-          <h4 className="text-sm font-semibold mb-1">
-            Description of Incident
-          </h4>
+          <h4 className="text-sm font-semibold mb-1">Incident Report</h4>
           <p className="text-sm text-muted-foreground">{record.description}</p>
         </div>
 
-        {/* The Verdict (Only show if resolved) */}
-        {/* Note: ConductReportWithStudent usually only needs the status, 
-            but if your transformer includes response details, we show them here */}
-        {isResolved && record.status === "Resolved" && (
+        {/* Existing Admin Decision Display (if resolved) */}
+        {isResolved && (
           <>
             <Separator />
             <div className="bg-slate-50 p-4 rounded-md space-y-3">
               <div className="flex items-center gap-2 text-sm font-semibold text-slate-800">
                 <User className="w-4 h-4" />
-                <span>Admin Decision</span>
+                <span>Current Resolution</span>
               </div>
-
-              <div className="grid gap-2 text-sm">
-                <div>
-                  {/* Note: In the Faculty view, we might not have the full 'final_sanction' text 
-                       unless we adjusted the transformer. Assuming basic status here.
-                       If you need full details, ensure transformReportForFaculty maps 'sanction' too. */}
-                  <span className="font-medium">Status: </span>
-                  <span className="text-green-600 font-medium">
-                    Ticket Resolved
-                  </span>
-                </div>
-
-                {record.admin_name && (
-                  <div className="text-xs text-muted-foreground pt-1">
-                    Resolved by {record.admin_name}
-                  </div>
-                )}
+              <div className="text-sm text-muted-foreground">
+                This ticket has been marked as resolved.
+                {/* Add more details here if your ticket DTO includes the response body */}
               </div>
             </div>
           </>
         )}
       </CardContent>
     </Card>
+  );
+}
+
+// --------------------------------------------------------
+// SUB-COMPONENT: The Review Dialog
+// --------------------------------------------------------
+function ReviewDialog({
+  record,
+  isResolved,
+}: {
+  record: SeriousInfractionTicket;
+  isResolved: boolean;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger asChild>
+        <Button
+          variant={isResolved ? "outline" : "default"}
+          className={!isResolved ? "bg-red-600 hover:bg-red-700" : ""}
+        >
+          <Gavel className="w-4 h-4 mr-2" />
+          {isResolved ? "View Decision" : "Review Case"}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[500px]">
+        <DialogHeader>
+          <DialogTitle>Admin Review</DialogTitle>
+          <DialogDescription>
+            Determine the sanction for {record.student?.last_name}.
+          </DialogDescription>
+        </DialogHeader>
+
+        {/* Placeholder Form Content */}
+        <div className="grid gap-4 py-4">
+          <div className="space-y-2">
+            <h4 className="font-medium text-sm">Incident Description</h4>
+            <div className="p-3 bg-muted rounded-md text-sm text-muted-foreground">
+              {record.description}
+            </div>
+          </div>
+
+          <div className="p-4 border-2 border-dashed rounded-lg text-center text-sm text-muted-foreground">
+            [Form inputs for Sanction Days, Context, and Notes will go here]
+          </div>
+        </div>
+
+        <DialogFooter>
+          <Button variant="outline" onClick={() => setOpen(false)}>
+            Cancel
+          </Button>
+          <Button disabled={isResolved} className="bg-red-600">
+            Submit Decision
+          </Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
