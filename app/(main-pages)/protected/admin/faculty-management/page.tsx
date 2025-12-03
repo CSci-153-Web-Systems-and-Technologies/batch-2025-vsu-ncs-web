@@ -7,12 +7,16 @@ import { StudentConductSummary } from "@/types";
 
 export default async function FacultyListPage() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   // 1. Fetch Raw Data + Reports
   const { data: rawData } = await supabase
-    .from("student_profiles")
-    .select("*, conduct_reports(*)")
-    .order("last_name", { ascending: true });
+    .from("staff_profiles")
+    .select("*")
+    .order("last_name", { ascending: true })
+    .neq("id", user?.id);
 
   // 2. Transform into Summary Shape
   const data: StudentConductSummary[] = safeMap(
