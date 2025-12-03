@@ -38,10 +38,7 @@ export default function ReportCardList({ data }: ReportCardListProps) {
           search === "" ||
           (s?.student_id || "").includes(search) ||
           (s?.first_name || "").toLowerCase().includes(lowerSearch) ||
-          (s?.middle_name || "").toLowerCase().includes(lowerSearch) ||
-          (s?.last_name || "").toLowerCase().includes(lowerSearch) ||
-          (s?.suffix || "").toLowerCase().includes(lowerSearch);
-
+          (s?.last_name || "").toLowerCase().includes(lowerSearch);
         // 2. Type Filter (Using strict 'type' field)
         const matchesType =
           filterType === "All Types"
