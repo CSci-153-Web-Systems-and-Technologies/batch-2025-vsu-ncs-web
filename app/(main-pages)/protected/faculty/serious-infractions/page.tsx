@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { transformReportForFaculty, safeMap } from "@/lib/transformers";
+import { transformReportForFaculty, safeMap } from "@/lib/data";
 import { ConductReportWithStudent } from "@/types";
 import SeriousInfractionList from "./_components/serious-infraction-list";
 import { AlertTriangle } from "lucide-react";
