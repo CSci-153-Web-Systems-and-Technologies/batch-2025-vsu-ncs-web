@@ -16,7 +16,7 @@ export default async function RecordsLayout({
   console.log(userRole);
   let returnURL = "/unauthorized";
   if (userRole === "admin") {
-    returnURL = "/protected/admin/student-management";
+    returnURL = "/protected/admin/faculty-management";
   } else {
     returnURL = "/unauthorized";
   }
