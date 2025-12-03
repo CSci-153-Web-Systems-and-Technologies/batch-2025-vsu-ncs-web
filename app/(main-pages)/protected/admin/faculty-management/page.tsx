@@ -1,7 +1,7 @@
 import { createClient } from "@/lib/supabase/server";
 import { columns } from "./_components/columns";
 import { DataTable } from "./_components/data-table"; // Assumes you have this generic component
-import StudentCardList from "./_components/student-card-list";
+import FacultyCardList from "./_components/faculty-card-list";
 import { transformStudentSummary, safeMap } from "@/lib/data"; // <--- NEW UTILS
 import { StudentConductSummary } from "@/types";
 
@@ -36,7 +36,7 @@ export default async function FacultyListPage() {
         <DataTable columns={columns} data={data} />
       </div>
       <div className="md:hidden">
-        <StudentCardList data={data} />
+        <FacultyCardList data={data} />
       </div>
     </div>
   );

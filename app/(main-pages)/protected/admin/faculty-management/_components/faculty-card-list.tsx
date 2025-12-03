@@ -1,15 +1,15 @@
 "use client";
 
-import { StudentConductSummary } from "@/types";
+import { StaffProfile } from "@/types";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import StudentCard from "./student-card";
+import FacultyCard from "./faculty-card";
 
-type StudentCardListProps = {
-  data: StudentConductSummary[];
+type FacultyCardListProps = {
+  data: StaffProfile[];
 };
 
-export default function StudentCardList({ data }: StudentCardListProps) {
+export default function FacultyCardList({ data }: FacultyCardListProps) {
   const [query, setQuery] = useState("");
 
   // Client-side filtering is usually fast enough for < 1000 records
@@ -17,7 +17,7 @@ export default function StudentCardList({ data }: StudentCardListProps) {
     if (!query) return true;
     const lowerQuery = query.toLowerCase();
     const fullName = `${record.first_name} ${record.last_name}`.toLowerCase();
-    const id = (record.student_id || "").toLowerCase();
+    const id = (record.employee_id || "").toLowerCase();
 
     return fullName.includes(lowerQuery) || id.includes(lowerQuery);
   });
@@ -31,7 +31,7 @@ export default function StudentCardList({ data }: StudentCardListProps) {
       />
 
       {filteredRecords.map((record) => (
-        <StudentCard
+        <FacultyCard
           key={record.id}
           {...record} // Spreads all properties of StudentConductSummary
         />
