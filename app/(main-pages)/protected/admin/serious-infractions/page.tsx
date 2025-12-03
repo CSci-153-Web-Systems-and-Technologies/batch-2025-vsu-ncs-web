@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { transformReportForFaculty, safeMap } from "@/lib/data"; // <--- UPDATED TRANSFORMER
-import { ConductReportWithStudent } from "@/types"; // <--- UPDATED TYPE
+import { safeMap, transformSeriousTicket } from "@/lib/data"; // <--- UPDATED TRANSFORMER
+import { SeriousInfractionTicket } from "@/types"; // <--- UPDATED TYPE
 import SeriousInfractionList from "./_components/serious-infraction-list";
 import { AlertTriangle } from "lucide-react";
 
@@ -27,9 +27,9 @@ export default async function FacultySeriousInfractionsPage() {
 
   // 2. TRANSFORM
   // Use the faculty-specific transformer
-  const seriousReports: ConductReportWithStudent[] = safeMap(
+  const seriousReports: SeriousInfractionTicket[] = safeMap(
     rawData,
-    transformReportForFaculty
+    transformSeriousTicket
   );
 
   return (
