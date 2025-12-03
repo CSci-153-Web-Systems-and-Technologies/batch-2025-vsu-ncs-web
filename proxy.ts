@@ -48,22 +48,22 @@ export async function proxy(request: NextRequest) {
 
   if (pathname.startsWith("/protected/student")) {
     if (!user) return NextResponse.redirect(loginURL);
-    if (userRole != "student") return NextResponse.redirect(unauthorized);
+    if (userRole !== "student") return NextResponse.redirect(unauthorized);
   }
 
   if (pathname.startsWith("/protected/faculty")) {
     if (!user) return NextResponse.redirect(loginURL);
-    if (userRole != "faculty") return NextResponse.redirect(unauthorized);
+    if (userRole !== "faculty") return NextResponse.redirect(unauthorized);
   }
 
   if (pathname.startsWith("/protected/admin")) {
     if (!user) return NextResponse.redirect(loginURL);
-    if (userRole != "admin") return NextResponse.redirect(unauthorized);
+    if (userRole !== "admin") return NextResponse.redirect(unauthorized);
   }
 
   if (pathname.startsWith("/records")) {
     if (!user) return NextResponse.redirect(loginURL);
-    if (userRole == "student") return NextResponse.redirect(unauthorized);
+    if (userRole === "student") return NextResponse.redirect(unauthorized);
   }
 
   return response;
