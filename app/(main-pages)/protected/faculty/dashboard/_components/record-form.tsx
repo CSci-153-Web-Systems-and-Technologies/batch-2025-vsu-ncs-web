@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -24,7 +24,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { AlertCircle, Check } from "lucide-react";
-import { StaffProfile } from "@/types";
+import { StaffProfile, ConductReport } from "@/types";
 import {
   Command,
   CommandEmpty,
@@ -56,6 +56,9 @@ export function RecordForm({ students, faculty }: RecordFormProps) {
   const [open, setOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentOption | null>(
+    null
+  );
+  const [conductRecord, setConductRecord] = useState<ConductReport | null>(
     null
   );
 
