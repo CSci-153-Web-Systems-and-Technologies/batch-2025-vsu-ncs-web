@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { useState, useEffect, useActionState } from "react"; // Added useActionState
+import { useState, useEffect, useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Check, Loader2 } from "lucide-react";
+import { AlertCircle, Check, Loader2, ChevronsUpDown } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -32,10 +32,16 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { cn } from "@/lib/utils";
 import { submitConductReport } from "@/lib/actions";
-import { toast } from "sonner";
+import { toast } from "sonner"; // <--- Using Sonner
 
+// Types
 export type StudentOption = {
   id: string;
   student_id: string;
@@ -43,22 +49,26 @@ export type StudentOption = {
 };
 
 type FormCategory = "merit" | "demerit" | "serious";
+type SanctionContext = "office" | "rle";
 
 type RecordFormProps = {
   students: StudentOption[];
 };
 
 export function RecordForm({ students }: RecordFormProps) {
+  // 1. Server Action Hook
   const [state, formAction, isPending] = useActionState(
     submitConductReport,
     null
   );
 
+  // 2. Local State
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<FormCategory>("demerit");
+  const [context, setContext] = useState<SanctionContext>("office");
 
+  // Combobox State
   const [comboboxOpen, setComboboxOpen] = useState(false);
-  const [inputValue, setInputValue] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentOption | null>(
     null
   );
@@ -66,22 +76,15 @@ export function RecordForm({ students }: RecordFormProps) {
   const isSerious = category === "serious";
   const isMerit = category === "merit";
 
-  const filteredStudents = students.filter((student) => {
-    if (!inputValue) return false;
-    const search = inputValue.toLowerCase();
-    return (
-      student.full_name.toLowerCase().includes(search) ||
-      student.student_id.toLowerCase().includes(search)
-    );
-  });
-
+  // 3. Effect: Handle Server Response
   useEffect(() => {
     if (state?.success) {
       toast.success(state.message);
       setOpen(false);
+      // Reset Form
       setSelectedStudent(null);
-      setInputValue("");
       setCategory("demerit");
+      setContext("office");
     } else if (state?.error) {
       toast.error(state.error);
     }
@@ -90,10 +93,7 @@ export function RecordForm({ students }: RecordFormProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button
-          className="w-full bg-[#0A58A3] hover:bg-[#094b8a]"
-          variant="default"
-        >
+        <Button className="w-full bg-[#0A58A3] hover:bg-[#094b8a]">
           Log Conduct
         </Button>
       </DialogTrigger>
@@ -107,97 +107,89 @@ export function RecordForm({ students }: RecordFormProps) {
         </DialogHeader>
 
         <form action={formAction} className="grid gap-6 py-4">
+          {/* --- HIDDEN INPUTS (The glue between UI state and FormData) --- */}
           <input
             type="hidden"
             name="student_uuid"
             value={selectedStudent?.id || ""}
           />
           <input type="hidden" name="category" value={category} />
+          <input type="hidden" name="context" value={context} />
 
+          {/* STUDENT SEARCH */}
           <div className="grid gap-2 relative">
             <Label>Student</Label>
-            {selectedStudent ? (
-              <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
-                <div className="flex items-center gap-2">
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">
-                      {selectedStudent.full_name}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {selectedStudent.student_id}
-                    </span>
-                  </div>
-                </div>
+            <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+              <PopoverTrigger asChild>
                 <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-8 text-xs hover:text-destructive"
-                  onClick={() => {
-                    setSelectedStudent(null);
-                    setInputValue("");
-                  }}
-                  type="button"
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={comboboxOpen}
+                  className="w-full justify-between font-normal"
                 >
-                  Change
+                  {selectedStudent ? (
+                    <div className="flex flex-col items-start text-left">
+                      <span className="font-semibold">
+                        {selectedStudent.full_name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">
+                        {selectedStudent.student_id}
+                      </span>
+                    </div>
+                  ) : (
+                    "Search name or ID..."
+                  )}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
-              </div>
-            ) : (
-              <Command className="rounded-lg border shadow-md overflow-visible">
-                <CommandInput
-                  placeholder="Type name or ID to search..."
-                  value={inputValue}
-                  onValueChange={(val) => {
-                    setInputValue(val);
-                    setComboboxOpen(!!val);
-                  }}
-                />
-
-                {comboboxOpen && inputValue.length > 0 && (
-                  <div className="absolute top-full z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md animate-in fade-in-0 zoom-in-95">
-                    <CommandList>
-                      {filteredStudents.length === 0 ? (
-                        <CommandEmpty className="p-2 text-sm text-center text-muted-foreground">
-                          No student found.
-                        </CommandEmpty>
-                      ) : (
-                        <CommandGroup>
-                          {filteredStudents.map((student) => (
-                            <CommandItem
-                              key={student.id}
-                              value={`${student.full_name} ${student.student_id}`}
-                              onSelect={() => {
-                                setSelectedStudent(student);
-                                setComboboxOpen(false);
-                              }}
-                              className="cursor-pointer"
-                            >
-                              <Check className="mr-2 h-4 w-4 opacity-0" />
-                              <div className="flex flex-col">
-                                <span>{student.full_name}</span>
-                                <span className="text-xs text-muted-foreground">
-                                  {student.student_id}
-                                </span>
-                              </div>
-                            </CommandItem>
-                          ))}
-                        </CommandGroup>
-                      )}
-                    </CommandList>
-                  </div>
-                )}
-              </Command>
-            )}
+              </PopoverTrigger>
+              <PopoverContent className="w-[460px] p-0" align="start">
+                <Command>
+                  <CommandInput placeholder="Type name or ID..." />
+                  <CommandList>
+                    <CommandEmpty>No student found.</CommandEmpty>
+                    <CommandGroup>
+                      {students.map((student) => (
+                        <CommandItem
+                          key={student.id}
+                          value={`${student.full_name} ${student.student_id}`}
+                          onSelect={() => {
+                            setSelectedStudent(student);
+                            setComboboxOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              selectedStudent?.id === student.id
+                                ? "opacity-100"
+                                : "opacity-0"
+                            )}
+                          />
+                          <div className="flex flex-col">
+                            <span>{student.full_name}</span>
+                            <span className="text-xs text-muted-foreground">
+                              {student.student_id}
+                            </span>
+                          </div>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
           </div>
 
+          {/* CATEGORY & CONTEXT */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label htmlFor="category">Category</Label>
+              <Label>Category</Label>
               <Select
                 value={category}
-                onValueChange={(val) => setCategory(val as FormCategory)}
+                onValueChange={(v) => setCategory(v as FormCategory)}
               >
-                <SelectTrigger id="category">
-                  <SelectValue placeholder="Select category" />
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="demerit">Demerit (Minor)</SelectItem>
@@ -208,10 +200,13 @@ export function RecordForm({ students }: RecordFormProps) {
             </div>
 
             <div className="grid gap-2">
-              <Label htmlFor="context">Context</Label>
-              <Select name="context" defaultValue="office">
-                <SelectTrigger id="context">
-                  <SelectValue placeholder="Select context" />
+              <Label>Context</Label>
+              <Select
+                value={context}
+                onValueChange={(v) => setContext(v as SanctionContext)}
+              >
+                <SelectTrigger>
+                  <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="office">Office</SelectItem>
@@ -221,14 +216,15 @@ export function RecordForm({ students }: RecordFormProps) {
             </div>
           </div>
 
+          {/* SANCTION DAYS (Hidden if Serious) */}
           {!isSerious && (
             <div className="grid gap-2">
               <Label htmlFor="sanction_days">
                 {isMerit ? "Merit Points" : "Demerit Days / Hours"}
               </Label>
               <Input
-                name="sanction_days"
                 id="sanction_days"
+                name="sanction_days" // Required for FormData
                 type="number"
                 placeholder="0"
                 min={0}
@@ -237,6 +233,7 @@ export function RecordForm({ students }: RecordFormProps) {
             </div>
           )}
 
+          {/* WARNING FOR SERIOUS */}
           {isSerious && (
             <div className="flex items-start gap-3 bg-red-50 text-red-800 p-4 rounded-md text-sm border border-red-100">
               <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
@@ -244,22 +241,19 @@ export function RecordForm({ students }: RecordFormProps) {
                 <span className="font-semibold">Admin Review Required</span>
                 <span className="text-red-700/80 leading-relaxed">
                   No immediate sanction will be applied. This report will be
-                  queued for administrative investigation.
+                  queued for investigation.
                 </span>
               </div>
             </div>
           )}
 
+          {/* DESCRIPTION */}
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
-              name="description"
               id="description"
-              placeholder={
-                isSerious
-                  ? "Describe the serious incident details..."
-                  : "Describe the incident or reason..."
-              }
+              name="description" // Required for FormData
+              placeholder="Describe the incident..."
               className="resize-none h-24"
               required
             />
@@ -271,7 +265,6 @@ export function RecordForm({ students }: RecordFormProps) {
                 Cancel
               </Button>
             </DialogClose>
-
             <Button
               type="submit"
               disabled={isPending || !selectedStudent}
