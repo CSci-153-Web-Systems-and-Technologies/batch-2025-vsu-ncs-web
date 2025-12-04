@@ -39,9 +39,8 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { submitConductReport } from "@/lib/actions";
-import { toast } from "sonner"; // <--- Using Sonner
+import { toast } from "sonner";
 
-// Types
 export type StudentOption = {
   id: string;
   student_id: string;
@@ -56,18 +55,15 @@ type RecordFormProps = {
 };
 
 export function RecordForm({ students }: RecordFormProps) {
-  // 1. Server Action Hook
   const [state, formAction, isPending] = useActionState(
     submitConductReport,
     null
   );
 
-  // 2. Local State
   const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<FormCategory>("demerit");
   const [context, setContext] = useState<SanctionContext>("office");
 
-  // Combobox State
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<StudentOption | null>(
     null
@@ -76,18 +72,23 @@ export function RecordForm({ students }: RecordFormProps) {
   const isSerious = category === "serious";
   const isMerit = category === "merit";
 
-  // 3. Effect: Handle Server Response
   useEffect(() => {
+    let timer: NodeJS.Timeout;
+
     if (state?.success) {
       toast.success(state.message);
-      setOpen(false);
-      // Reset Form
-      setSelectedStudent(null);
-      setCategory("demerit");
-      setContext("office");
+
+      timer = setTimeout(() => {
+        setOpen(false);
+        setSelectedStudent(null);
+        setCategory("demerit");
+        setContext("office");
+      }, 1000);
     } else if (state?.error) {
       toast.error(state.error);
     }
+
+    return () => clearTimeout(timer);
   }, [state]);
 
   return (
@@ -107,7 +108,6 @@ export function RecordForm({ students }: RecordFormProps) {
         </DialogHeader>
 
         <form action={formAction} className="grid gap-6 py-4">
-          {/* --- HIDDEN INPUTS (The glue between UI state and FormData) --- */}
           <input
             type="hidden"
             name="student_uuid"
@@ -116,7 +116,6 @@ export function RecordForm({ students }: RecordFormProps) {
           <input type="hidden" name="category" value={category} />
           <input type="hidden" name="context" value={context} />
 
-          {/* STUDENT SEARCH */}
           <div className="grid gap-2 relative">
             <Label>Student</Label>
             <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
@@ -180,7 +179,6 @@ export function RecordForm({ students }: RecordFormProps) {
             </Popover>
           </div>
 
-          {/* CATEGORY & CONTEXT */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label>Category</Label>
@@ -216,7 +214,6 @@ export function RecordForm({ students }: RecordFormProps) {
             </div>
           </div>
 
-          {/* SANCTION DAYS (Hidden if Serious) */}
           {!isSerious && (
             <div className="grid gap-2">
               <Label htmlFor="sanction_days">
@@ -224,7 +221,7 @@ export function RecordForm({ students }: RecordFormProps) {
               </Label>
               <Input
                 id="sanction_days"
-                name="sanction_days" // Required for FormData
+                name="sanction_days"
                 type="number"
                 placeholder="0"
                 min={0}
@@ -233,7 +230,6 @@ export function RecordForm({ students }: RecordFormProps) {
             </div>
           )}
 
-          {/* WARNING FOR SERIOUS */}
           {isSerious && (
             <div className="flex items-start gap-3 bg-red-50 text-red-800 p-4 rounded-md text-sm border border-red-100">
               <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
@@ -247,12 +243,11 @@ export function RecordForm({ students }: RecordFormProps) {
             </div>
           )}
 
-          {/* DESCRIPTION */}
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
               id="description"
-              name="description" // Required for FormData
+              name="description"
               placeholder="Describe the incident..."
               className="resize-none h-24"
               required
