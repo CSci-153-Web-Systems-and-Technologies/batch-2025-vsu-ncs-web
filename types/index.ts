@@ -1,157 +1,167 @@
-"use client";
+import { LucideProps } from "lucide-react";
 
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
-import { Switch } from "@/components/ui/switch"; // Assuming you have this, or use Checkbox
-import { ConductReportType, SanctionContext } from "@/types";
-import { AlertCircle } from "lucide-react";
+export interface SidebarProps {
+  title: string;
+  url: string;
+  icon: React.ComponentType<LucideProps>;
+}
 
-export function RecordForm() {
-  // State for conditional logic
-  const [type, setType] = useState<ConductReportType>("demerit");
-  const [isSerious, setIsSerious] = useState(false);
+export type ConductReportType = 'merit' | 'demerit';
+export type SanctionContext = "office" | "rle";
+export type InfractionStatus = "Pending" | "Resolved";
 
-  return (
-    <Dialog>
-      <DialogTrigger asChild>
-        <Button
-          className="w-full bg-[#0A58A3] hover:bg-[#094b8a]"
-          variant="default"
-        >
-          Log Conduct
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Log Conduct Report</DialogTitle>
-          <DialogDescription>
-            Submit a new merit or demerit record for a student.
-          </DialogDescription>
-        </DialogHeader>
 
-        <form className="grid gap-6 py-4">
-          {/* 1. Student Identification */}
-          {/* Ideally this is a Combobox to search students, but Input for now */}
-          <div className="grid gap-2">
-            <Label htmlFor="student_id">Student ID</Label>
-            <Input id="student_id" placeholder="e.g., 2023-12345" required />
-          </div>
+export interface StudentProfile {
+  id: string; // UUID
+  student_id: string | null;
+  year_level: number | null;
+  sex: string | null;
+  created_at: string;
+  updated_at: string | null;
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  suffix: string;
+}
 
-          <div className="grid grid-cols-2 gap-4">
-            {/* 2. Report Type */}
-            <div className="grid gap-2">
-              <Label htmlFor="type">Type</Label>
-              <Select
-                onValueChange={(val) => setType(val as ConductReportType)}
-                defaultValue="demerit"
-              >
-                <SelectTrigger id="type">
-                  <SelectValue placeholder="Select type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="demerit">Demerit</SelectItem>
-                  <SelectItem value="merit">Merit</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+export interface StaffProfile {
+  id: string; // UUID
+  employee_id: string;
+  title: string | null;
+  sex: string | null;
+  created_at: string;
+  updated_at: string | null;
+  role: string | null; 
+  first_name: string;
+  middle_name: string;
+  last_name: string;
+  suffix: string;
+}
 
-            {/* 3. Sanction Context */}
-            <div className="grid gap-2">
-              <Label htmlFor="context">Context</Label>
-              <Select defaultValue="office">
-                <SelectTrigger id="context">
-                  <SelectValue placeholder="Select context" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="office">Office</SelectItem>
-                  <SelectItem value="rle">RLE / Duty</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+export interface ConductReport {
+  id: string; // UUID
+  created_at: string;
+  student_id: string | null;
+  faculty_id: string | null;
+  description: string | null;
+  is_serious_infraction: boolean | null;
+  sanction_days: number | null;
+  sanction_other: string | null;
+  sanction_context: SanctionContext | null; 
+  type: ConductReportType;
+}
 
-          {/* 4. Serious Infraction Toggle (Only for Demerits) */}
-          {type === "demerit" && (
-            <div className="flex flex-row items-center justify-between rounded-lg border p-4 shadow-sm">
-              <div className="space-y-0.5">
-                <Label className="text-base">Serious Infraction</Label>
-                <p className="text-sm text-muted-foreground">
-                  Flag for admin review
-                </p>
-              </div>
-              <Switch checked={isSerious} onCheckedChange={setIsSerious} />
-            </div>
-          )}
+export interface InfractionResponse {
+  id: number; // bigint
+  report_id: string | null;
+  admin_id: string | null;
+  created_at: string;
+  final_sanction_days: number | null;
+  final_sanction_other: string | null;
+  notes: string | null;
+  final_sanction_context: SanctionContext | null; 
+}
 
-          {/* 5. Sanction Amount (Hidden if Serious) */}
-          {!isSerious && (
-            <div className="grid gap-2">
-              <Label htmlFor="sanction_days">
-                {type === "merit" ? "Merit Points" : "Demerit Days / Hours"}
-              </Label>
-              <Input id="sanction_days" type="number" placeholder="0" min={0} />
-            </div>
-          )}
+// ==========================================
+// 3. Application DTOs (Data Transfer Objects)
+// ==========================================
 
-          {/* 6. Description */}
-          <div className="grid gap-2">
-            <Label htmlFor="description">Description</Label>
-            <Textarea
-              id="description"
-              placeholder="Describe the incident or reason for merit..."
-              className="resize-none h-24"
-              required
-            />
-          </div>
+// --- DASHBOARD METRICS ---
+export interface DashboardMetrics {
+  total_students: number;
+  total_merits: number;
+  total_demerits: number;
+  total_serious_cases: number;
+}
 
-          {/* Warning Message for Serious Infractions */}
-          {isSerious && (
-            <div className="flex items-center gap-2 bg-yellow-50 text-yellow-800 p-3 rounded-md text-sm">
-              <AlertCircle className="h-4 w-4" />
-              <span>
-                This report will be forwarded to the admin for final
-                sanctioning.
-              </span>
-            </div>
-          )}
+// --- STUDENT VIEW MODELS ---
 
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline" type="button">
-                Cancel
-              </Button>
-            </DialogClose>
-            <Button
-              type="submit"
-              className={
-                isSerious ? "bg-red-600 hover:bg-red-700" : "bg-[#0A58A3]"
-              }
-            >
-              Submit Report
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
-  );
+// 1. For the "My Sanctions Summary" Table (Aggregates)
+export interface StudentConductSummary extends StudentProfile {
+  total_merits: number;
+  total_demerits: number;
+  net_rle_sanction: number;
+  net_office_sanction: number;
+}
+
+// 2. For the "My Conduct History" Table (Ticket View)
+// Shows: "I was reported by [Reporter Name]"
+export interface ConductReportWithReporter extends ConductReport {
+  // Who filed this?
+  reporter: {
+    first_name: string;
+    last_name: string;
+    title: string | null;
+  } | null;
+
+  // Has the admin decided?
+  status: InfractionStatus; 
+
+  // What was the decision? (Optional/Nullable)
+  response?: {
+    resolved_at: string;
+    admin_name: string;
+    final_sanction: string | null;
+    notes: string | null;
+  } | null;
+}
+
+// --- FACULTY VIEW MODELS ---
+
+// 1. For the "My Sent Reports" Table (Ticket View)
+// Shows: "I reported [Student Name]"
+export interface ConductReportWithStudent extends ConductReport {
+  // Who did I report?
+  student: {
+    first_name: string;
+    last_name: string;
+    student_id: string | null;
+    year_level: number | null;
+  } | null;
+
+  // Has the admin acted on my serious report?
+  status: InfractionStatus;
+
+  // Optional: Who resolved it?
+  admin_name?: string | null;
+  response?: {
+    resolved_at: string;
+    admin_name: string;
+    final_sanction: string | null;
+    notes: string | null;
+  } | null;
+}
+
+// --- ADMIN VIEW MODELS ---
+
+// 1. For the "Serious Infractions Queue" Table (Full Ticket View)
+// Shows: "[Faculty] reported [Student]"
+export interface SeriousInfractionTicket extends ConductReport {
+  // The Accused
+  student: {
+    id: string; // Needed for navigation to profile
+    first_name: string;
+    last_name: string;
+    student_id: string | null;
+  } | null;
+
+  // The Reporter
+  reporter: {
+    first_name: string;
+    last_name: string;
+    title: string | null;
+  } | null;
+
+  // Workflow Status
+  status: InfractionStatus;
+
+  // If resolved, include the response ID for reference
+  response_id?: number | null;
+  response?: {
+    id: number;
+    admin_name: string;
+    resolved_at: string;
+    final_sanction: string | null;
+    notes: string | null;
+  } | null;
 }
