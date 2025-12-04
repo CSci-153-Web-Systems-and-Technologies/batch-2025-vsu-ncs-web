@@ -1,8 +1,8 @@
 "use client";
 
 import ConductCard from "./conduct-card";
-import { ConductReportWithReporter, SanctionContext } from "@/types"; // <--- Updated Import
 import * as React from "react";
+import { ConductReportWithReporter, SanctionContext } from "@/types";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
