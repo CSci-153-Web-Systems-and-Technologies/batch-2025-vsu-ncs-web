@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/card";
 import { RecordForm } from "./record-form";
 import { createClient } from "@/lib/supabase/server";
+import { StaffProfile } from "@/types";
 
 /*type QuickActionCardProps = {
   title: string;
@@ -17,6 +18,17 @@ import { createClient } from "@/lib/supabase/server";
 
 export default async function QuickActionCard() {
   const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  // 1. Fetch Profile
+  const { data: profileData } = await supabase
+    .from("staff_profiles")
+    .select("*")
+    .eq("id", user?.id)
+    .single();
+  const profile = profileData as StaffProfile;
 
   // 1. Fetch minimal student data for the dropdown
   // We only need names and IDs to make the search work
@@ -38,7 +50,7 @@ export default async function QuickActionCard() {
         <CardDescription>Record student conduct.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col">
-        <RecordForm students={studentOptions} />
+        <RecordForm students={studentOptions} faculty={profile} />
       </CardContent>
     </Card>
   );

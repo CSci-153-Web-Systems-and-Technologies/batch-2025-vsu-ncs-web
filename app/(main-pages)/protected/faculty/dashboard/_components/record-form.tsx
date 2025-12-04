@@ -23,7 +23,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Check, User } from "lucide-react";
+import { AlertCircle, Check } from "lucide-react";
+import { StaffProfile } from "@/types";
 import {
   Command,
   CommandEmpty,
@@ -45,9 +46,10 @@ type FormCategory = "merit" | "demerit" | "serious";
 
 type RecordFormProps = {
   students: StudentOption[];
+  faculty: StaffProfile;
 };
 
-export function RecordForm({ students }: RecordFormProps) {
+export function RecordForm({ students, faculty }: RecordFormProps) {
   const [category, setCategory] = useState<FormCategory>("demerit");
 
   // State for Autocomplete
