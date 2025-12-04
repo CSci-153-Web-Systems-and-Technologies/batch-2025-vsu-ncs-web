@@ -1,29 +1,26 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ConductReportWithStudent } from "@/types"; // <--- NEW IMPORT
-
+import { ConductReportWithStudent } from "@/types";
 export type RecordCardProps = {
-  record: ConductReportWithStudent; // <--- NEW PROP
+  record: ConductReportWithStudent;
 };
 
 export default function RecordCard({ record }: RecordCardProps) {
-  // 1. LOGIC: Determine Colors
   let badgeColor = "";
   let borderColor = "";
 
   if (record.is_serious_infraction) {
-    badgeColor = "bg-[#FB2C36]"; // Red
+    badgeColor = "bg-[#FB2C36]";
     borderColor = "border-[#FB2C36]";
   } else if (record.type === "merit") {
-    badgeColor = "bg-[#00C950]"; // Green
+    badgeColor = "bg-[#00C950]";
     borderColor = "border-[#00C950]";
   } else {
-    badgeColor = "bg-[#FF6900]"; // Orange
+    badgeColor = "bg-[#FF6900]";
     borderColor = "border-[#FF6900]";
   }
 
-  // 2. LOGIC: Determine Badge Text
   const value = Math.abs(record.sanction_days ?? 0);
   let badgeText = "";
 
@@ -38,14 +35,12 @@ export default function RecordCard({ record }: RecordCardProps) {
     badgeText = "Warning";
   }
 
-  // 3. LOGIC: Student Name & ID
   const studentName = record.student
     ? `${record.student.first_name} ${record.student.last_name}`
     : "Unknown Student";
 
   const studentId = record.student?.student_id || "No ID";
 
-  // 4. LOGIC: Date Formatting
   const dateStr = new Date(record.created_at).toISOString().split("T")[0];
 
   return (

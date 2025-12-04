@@ -6,19 +6,10 @@ export interface SidebarProps {
   icon: React.ComponentType<LucideProps>;
 }
 
-// types.ts
-
-// ==========================================
-// 1. Enums and Shared Unions
-// ==========================================
-
 export type ConductReportType = 'merit' | 'demerit';
 export type SanctionContext = "office" | "rle";
 export type InfractionStatus = "Pending" | "Resolved";
 
-// ==========================================
-// 2. Base Database Entities (Mirror of SQL)
-// ==========================================
 
 export interface StudentProfile {
   id: string; // UUID

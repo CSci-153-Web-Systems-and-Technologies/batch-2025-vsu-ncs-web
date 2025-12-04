@@ -5,8 +5,9 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ConductReportWithReporter } from "@/types"; // <--- UPDATED IMPORT
 import { capitalizeFirstLetter } from "@/lib/utils";
+import { ConductReportWithReporter } from "@/types"; 
+
 
 // 1. UPDATED: Use the new strict interface
 type ConductCardProps = {
