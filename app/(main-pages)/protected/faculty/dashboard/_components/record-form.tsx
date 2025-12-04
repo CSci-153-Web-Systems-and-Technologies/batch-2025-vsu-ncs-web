@@ -97,7 +97,6 @@ export function RecordForm({ students }: RecordFormProps) {
             {selectedStudent ? (
               <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
                 <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-primary" />
                   <div className="flex flex-col">
                     <span className="text-sm font-medium">
                       {selectedStudent.full_name}
@@ -120,17 +119,13 @@ export function RecordForm({ students }: RecordFormProps) {
                 </Button>
               </div>
             ) : (
-              <Command className="rounded-lg border shadow-md overflow-visible">
+              <Command>
                 <CommandInput
                   placeholder="Type name or ID to search..."
                   value={inputValue}
                   onValueChange={(val) => {
                     setInputValue(val);
                     setOpen(!!val); // Open dropdown if there is text
-                  }}
-                  onBlur={() => {
-                    // Optional: Close on blur logic if needed,
-                    // usually better handled by Command primitive
                   }}
                 />
 
