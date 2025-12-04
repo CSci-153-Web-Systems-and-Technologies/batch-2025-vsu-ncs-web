@@ -36,7 +36,6 @@ import {
 import { submitConductReport } from "@/lib/actions";
 import { toast } from "sonner";
 
-// 1. Define Student Shape
 export type StudentOption = {
   id: string;
   student_id: string;
