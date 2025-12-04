@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Check, ChevronsUpDown } from "lucide-react";
+import { AlertCircle, Check, User } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -32,23 +32,17 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils"; // Ensure you have this utility
+import { cn } from "@/lib/utils";
 
-// 1. Define the shape of the student data we need for searching
+// 1. Define Student Shape
 export type StudentOption = {
-  id: string; // Database UUID
-  student_id: string; // Readable ID (e.g., 2023-1024)
-  full_name: string; // Pre-combined first + last name
+  id: string;
+  student_id: string;
+  full_name: string;
 };
 
 type FormCategory = "merit" | "demerit" | "serious";
 
-// 2. Accept students as a prop
 type RecordFormProps = {
   students: StudentOption[];
 };
@@ -56,14 +50,25 @@ type RecordFormProps = {
 export function RecordForm({ students }: RecordFormProps) {
   const [category, setCategory] = useState<FormCategory>("demerit");
 
-  // State for Combobox
-  const [openCombobox, setOpenCombobox] = useState(false);
+  // State for Autocomplete
+  const [open, setOpen] = useState(false);
+  const [inputValue, setInputValue] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentOption | null>(
     null
   );
 
   const isSerious = category === "serious";
   const isMerit = category === "merit";
+
+  // Filter logic for the autocomplete
+  const filteredStudents = students.filter((student) => {
+    if (!inputValue) return false;
+    const search = inputValue.toLowerCase();
+    return (
+      student.full_name.toLowerCase().includes(search) ||
+      student.student_id.toLowerCase().includes(search)
+    );
+  });
 
   return (
     <Dialog>
@@ -84,73 +89,93 @@ export function RecordForm({ students }: RecordFormProps) {
         </DialogHeader>
 
         <form className="grid gap-6 py-4">
-          {/* 3. COMBOBOX: Search by Name or ID */}
-          <div className="grid gap-2">
+          {/* 3. AUTOCOMPLETE INPUT */}
+          <div className="grid gap-2 relative">
             <Label>Student</Label>
-            <Popover open={openCombobox} onOpenChange={setOpenCombobox}>
-              <PopoverTrigger asChild>
+
+            {/* If selected, show a locked view or allow clearing */}
+            {selectedStudent ? (
+              <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
+                <div className="flex items-center gap-2">
+                  <User className="h-4 w-4 text-primary" />
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {selectedStudent.full_name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {selectedStudent.student_id}
+                    </span>
+                  </div>
+                </div>
                 <Button
-                  variant="outline"
-                  role="combobox"
-                  aria-expanded={openCombobox}
-                  className="w-full justify-between font-normal text-left"
+                  variant="ghost"
+                  size="sm"
+                  className="h-8 text-xs hover:text-destructive"
+                  onClick={() => {
+                    setSelectedStudent(null);
+                    setInputValue("");
+                  }}
                 >
-                  {selectedStudent ? (
-                    <span className="flex flex-col items-start leading-tight">
-                      <span className="font-semibold">
-                        {selectedStudent.full_name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {selectedStudent.student_id}
-                      </span>
-                    </span>
-                  ) : (
-                    <span className="text-muted-foreground">
-                      Search name or ID number...
-                    </span>
-                  )}
-                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  Change
                 </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-[460px] p-0" align="start">
-                <Command>
-                  <CommandInput placeholder="Type name or ID..." />
-                  <CommandList>
-                    <CommandEmpty>No student found.</CommandEmpty>
-                    <CommandGroup>
-                      {students.map((student) => (
-                        <CommandItem
-                          key={student.id}
-                          // 4. IMPORTANT: We combine both strings into the value
-                          // so the fuzzy search matches EITHER the name OR the ID
-                          value={`${student.full_name} ${student.student_id}`}
-                          onSelect={() => {
-                            setSelectedStudent(student);
-                            setOpenCombobox(false);
-                          }}
-                        >
-                          <Check
-                            className={cn(
-                              "mr-2 h-4 w-4",
-                              selectedStudent?.id === student.id
-                                ? "opacity-100"
-                                : "opacity-0"
-                            )}
-                          />
-                          <div className="flex flex-col">
-                            <span>{student.full_name}</span>
-                            <span className="text-xs text-muted-foreground">
-                              {student.student_id}
-                            </span>
-                          </div>
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </CommandList>
-                </Command>
-              </PopoverContent>
-            </Popover>
-            {/* Hidden Input to actually submit the UUID */}
+              </div>
+            ) : (
+              <Command className="rounded-lg border shadow-md overflow-visible">
+                <CommandInput
+                  placeholder="Type name or ID to search..."
+                  value={inputValue}
+                  onValueChange={(val) => {
+                    setInputValue(val);
+                    setOpen(!!val); // Open dropdown if there is text
+                  }}
+                  onBlur={() => {
+                    // Optional: Close on blur logic if needed,
+                    // usually better handled by Command primitive
+                  }}
+                />
+
+                {/* Only show list if open AND we have text */}
+                {open && inputValue.length > 0 && (
+                  <div className="absolute top-full z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md animate-in fade-in-0 zoom-in-95">
+                    <CommandList>
+                      {filteredStudents.length === 0 ? (
+                        <CommandEmpty className="p-2 text-sm text-center text-muted-foreground">
+                          No student found.
+                        </CommandEmpty>
+                      ) : (
+                        <CommandGroup>
+                          {filteredStudents.map((student) => (
+                            <CommandItem
+                              key={student.id}
+                              value={`${student.full_name} ${student.student_id}`}
+                              onSelect={() => {
+                                setSelectedStudent(student);
+                                setOpen(false);
+                              }}
+                              className="cursor-pointer"
+                            >
+                              <Check
+                                className={cn(
+                                  "mr-2 h-4 w-4 opacity-0" // Icon hidden by default
+                                )}
+                              />
+                              <div className="flex flex-col">
+                                <span>{student.full_name}</span>
+                                <span className="text-xs text-muted-foreground">
+                                  {student.student_id}
+                                </span>
+                              </div>
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      )}
+                    </CommandList>
+                  </div>
+                )}
+              </Command>
+            )}
+
+            {/* Hidden Input for Form Submission */}
             <input
               type="hidden"
               name="student_uuid"
@@ -240,7 +265,7 @@ export function RecordForm({ students }: RecordFormProps) {
             </DialogClose>
             <Button
               type="submit"
-              disabled={!selectedStudent} // Prevent submit if no student selected
+              disabled={!selectedStudent}
               className={
                 isSerious
                   ? "bg-red-600 hover:bg-red-700"
