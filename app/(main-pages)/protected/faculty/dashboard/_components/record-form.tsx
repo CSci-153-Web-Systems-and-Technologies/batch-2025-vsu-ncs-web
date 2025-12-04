@@ -1,7 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { submitConductReport } from "@/lib/actions"; // Import the action
+import * as React from "react";
+import { useState, useEffect, useActionState } from "react"; // Added useActionState
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Check, ChevronsUpDown, Loader2 } from "lucide-react";
+import { AlertCircle, Check, Loader2 } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -32,15 +32,11 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { cn } from "@/lib/utils";
-import { useToast } from "@/hooks/use-toast"; // Assuming you have Shadcn Toast
 
-// --- Types ---
+import { submitConductReport } from "@/lib/actions";
+import { toast } from "sonner";
+
+// 1. Define Student Shape
 export type StudentOption = {
   id: string;
   student_id: string;
@@ -53,16 +49,15 @@ type RecordFormProps = {
   students: StudentOption[];
 };
 
-// --- Component ---
 export function RecordForm({ students }: RecordFormProps) {
-  const [open, setOpen] = useState(false); // Controls Dialog open state
-  const { toast } = useToast();
+  const [state, formAction, isPending] = useActionState(
+    submitConductReport,
+    null
+  );
 
-  // 1. Setup Server Action Hook
-  const [state, action, isPending] = useActionState(submitConductReport, null);
-
-  // Local state for UI logic
+  const [open, setOpen] = useState(false);
   const [category, setCategory] = useState<FormCategory>("demerit");
+
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [inputValue, setInputValue] = useState("");
   const [selectedStudent, setSelectedStudent] = useState<StudentOption | null>(
@@ -72,7 +67,6 @@ export function RecordForm({ students }: RecordFormProps) {
   const isSerious = category === "serious";
   const isMerit = category === "merit";
 
-  // Filter students for autocomplete
   const filteredStudents = students.filter((student) => {
     if (!inputValue) return false;
     const search = inputValue.toLowerCase();
@@ -82,28 +76,25 @@ export function RecordForm({ students }: RecordFormProps) {
     );
   });
 
-  // 2. Handle Action Success/Error
   useEffect(() => {
     if (state?.success) {
-      toast({ title: "Success", description: state.message });
-      setOpen(false); // Close modal
-      // Reset form state if needed
+      toast.success(state.message);
+      setOpen(false);
       setSelectedStudent(null);
       setInputValue("");
       setCategory("demerit");
     } else if (state?.error) {
-      toast({
-        title: "Error",
-        description: state.error,
-        variant: "destructive",
-      });
+      toast.error(state.error);
     }
-  }, [state, toast]);
+  }, [state]);
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full bg-[#0A58A3] hover:bg-[#094b8a]">
+        <Button
+          className="w-full bg-[#0A58A3] hover:bg-[#094b8a]"
+          variant="default"
+        >
           Log Conduct
         </Button>
       </DialogTrigger>
@@ -116,9 +107,7 @@ export function RecordForm({ students }: RecordFormProps) {
           </DialogDescription>
         </DialogHeader>
 
-        {/* 3. Connect the form to the Server Action */}
-        <form action={action} className="grid gap-6 py-4">
-          {/* --- Hidden Inputs to pass non-input state to Server Action --- */}
+        <form action={formAction} className="grid gap-6 py-4">
           <input
             type="hidden"
             name="student_uuid"
@@ -126,18 +115,19 @@ export function RecordForm({ students }: RecordFormProps) {
           />
           <input type="hidden" name="category" value={category} />
 
-          {/* Student Search UI (Same as before) */}
           <div className="grid gap-2 relative">
             <Label>Student</Label>
             {selectedStudent ? (
               <div className="flex items-center justify-between p-2 border rounded-md bg-muted/50">
-                <div className="flex flex-col">
-                  <span className="text-sm font-medium">
-                    {selectedStudent.full_name}
-                  </span>
-                  <span className="text-xs text-muted-foreground">
-                    {selectedStudent.student_id}
-                  </span>
+                <div className="flex items-center gap-2">
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">
+                      {selectedStudent.full_name}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      {selectedStudent.student_id}
+                    </span>
+                  </div>
                 </div>
                 <Button
                   variant="ghost"
@@ -147,7 +137,7 @@ export function RecordForm({ students }: RecordFormProps) {
                     setSelectedStudent(null);
                     setInputValue("");
                   }}
-                  type="button" // Important: type="button" prevents form submit
+                  type="button"
                 >
                   Change
                 </Button>
@@ -162,11 +152,12 @@ export function RecordForm({ students }: RecordFormProps) {
                     setComboboxOpen(!!val);
                   }}
                 />
+
                 {comboboxOpen && inputValue.length > 0 && (
                   <div className="absolute top-full z-50 w-full mt-1 bg-popover text-popover-foreground rounded-md border shadow-md animate-in fade-in-0 zoom-in-95">
                     <CommandList>
                       {filteredStudents.length === 0 ? (
-                        <CommandEmpty className="p-2 text-sm text-center">
+                        <CommandEmpty className="p-2 text-sm text-center text-muted-foreground">
                           No student found.
                         </CommandEmpty>
                       ) : (
@@ -181,7 +172,7 @@ export function RecordForm({ students }: RecordFormProps) {
                               }}
                               className="cursor-pointer"
                             >
-                              <Check className={cn("mr-2 h-4 w-4 opacity-0")} />
+                              <Check className="mr-2 h-4 w-4 opacity-0" />
                               <div className="flex flex-col">
                                 <span>{student.full_name}</span>
                                 <span className="text-xs text-muted-foreground">
@@ -201,14 +192,13 @@ export function RecordForm({ students }: RecordFormProps) {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
-              <Label>Category</Label>
-              {/* UI Control for Category */}
+              <Label htmlFor="category">Category</Label>
               <Select
                 value={category}
                 onValueChange={(val) => setCategory(val as FormCategory)}
               >
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger id="category">
+                  <SelectValue placeholder="Select category" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="demerit">Demerit (Minor)</SelectItem>
@@ -220,10 +210,9 @@ export function RecordForm({ students }: RecordFormProps) {
 
             <div className="grid gap-2">
               <Label htmlFor="context">Context</Label>
-              {/* Native name attribute allows automatic capture */}
               <Select name="context" defaultValue="office">
-                <SelectTrigger>
-                  <SelectValue />
+                <SelectTrigger id="context">
+                  <SelectValue placeholder="Select context" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="office">Office</SelectItem>
@@ -239,7 +228,8 @@ export function RecordForm({ students }: RecordFormProps) {
                 {isMerit ? "Merit Points" : "Demerit Days / Hours"}
               </Label>
               <Input
-                name="sanction_days" // Name attribute captures this value
+                name="sanction_days"
+                id="sanction_days"
                 type="number"
                 placeholder="0"
                 min={0}
@@ -254,7 +244,8 @@ export function RecordForm({ students }: RecordFormProps) {
               <div className="flex flex-col gap-1">
                 <span className="font-semibold">Admin Review Required</span>
                 <span className="text-red-700/80 leading-relaxed">
-                  No immediate sanction applied. Queued for admin investigation.
+                  No immediate sanction will be applied. This report will be
+                  queued for administrative investigation.
                 </span>
               </div>
             </div>
@@ -263,8 +254,13 @@ export function RecordForm({ students }: RecordFormProps) {
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
             <Textarea
-              name="description" // Name attribute captures this value
-              placeholder="Describe the details..."
+              name="description"
+              id="description"
+              placeholder={
+                isSerious
+                  ? "Describe the serious incident details..."
+                  : "Describe the incident or reason..."
+              }
               className="resize-none h-24"
               required
             />
@@ -276,6 +272,7 @@ export function RecordForm({ students }: RecordFormProps) {
                 Cancel
               </Button>
             </DialogClose>
+
             <Button
               type="submit"
               disabled={isPending || !selectedStudent}
