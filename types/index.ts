@@ -51,7 +51,7 @@ export interface ConductReport {
 }
 
 export interface InfractionResponse {
-  id: number;
+  id: number | null;
   report_id: string | null;
   admin_id: string | null;
   created_at: string;

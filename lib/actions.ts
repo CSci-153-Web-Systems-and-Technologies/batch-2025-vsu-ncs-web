@@ -129,7 +129,7 @@ export async function submitInfractionResponse(
       sanction_days: final_sanction_days,
       sanction_other: final_sanction_other,
     })
-    .eq("report_id", report.id);
+    .eq("id", report.id);
 
   if (updateError) {
     console.error("Supabase Error:", updateError);
