@@ -16,9 +16,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SeriousInfractionTicket } from "@/types";
-import { useActionState, useState } from "react";
+import { useActionState, useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
-import { submitConductReport } from "@/lib/actions";
+import { submitInfractionResponse } from "@/lib/actions";
+import { toast, Toaster } from "sonner";
 
 export default function ReviewDialog({
   record,
@@ -28,7 +29,7 @@ export default function ReviewDialog({
   studentName: string;
 }) {
   const [state, formAction, isPending] = useActionState(
-    submitInfractionTicket,
+    submitInfractionResponse,
     null
   );
   const [open, setOpen] = useState(false);
@@ -42,6 +43,22 @@ export default function ReviewDialog({
     }
   );
 
+  useEffect(() => {
+    let timer: NodeJS.Timeout;
+
+    if (state?.success) {
+      toast.success(state.message);
+
+      timer = setTimeout(() => {
+        setOpen(false);
+      }, 1000);
+    } else if (state?.error) {
+      toast.error(state.error);
+    }
+
+    return () => clearTimeout(timer);
+  }, [state]);
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -52,6 +69,7 @@ export default function ReviewDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
+          <Toaster position="top-right" />
           <DialogTitle className="flex items-center gap-2">
             <Gavel className="w-5 h-5 text-red-600" />
             Admin Adjudication
@@ -115,52 +133,57 @@ export default function ReviewDialog({
           </div>
 
           <Separator />
+          <form action={formAction}>
+            <div className="space-y-4">
+              <h4 className="font-semibold text-sm">Verdict & Sanctions</h4>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="days">Final Sanction Days</Label>
+                  <Input
+                    id="days"
+                    type="number"
+                    name="final_sanction_days"
+                    placeholder={record.sanction_days?.toString() || "0"}
+                  />
+                  <p className="text-[0.8rem] text-muted-foreground">
+                    Leave 0 if not applicable.
+                  </p>
+                </div>
+              </div>
 
-          <div className="space-y-4">
-            <h4 className="font-semibold text-sm">Verdict & Sanctions</h4>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="days">Final Sanction Days</Label>
-                <Input
-                  id="days"
-                  type="number"
-                  placeholder={record.sanction_days?.toString() || "0"}
+                <Label htmlFor="other_sanction">
+                  Other Sanctions / Actions
+                </Label>
+                <Textarea
+                  id="other_sanction"
+                  name="final_sanction_other"
+                  placeholder="E.g., Suspension, Community Service, Referral to Guidance..."
+                  className="h-[80px]"
                 />
-                <p className="text-[0.8rem] text-muted-foreground">
-                  Leave 0 if not applicable.
-                </p>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="notes">Official Resolution Notes</Label>
+                <Textarea
+                  id="notes"
+                  name="notes"
+                  placeholder="Enter the official justification or notes for this decision..."
+                  className="h-[100px]"
+                />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="other_sanction">Other Sanctions / Actions</Label>
-              <Textarea
-                id="other_sanction"
-                placeholder="E.g., Suspension, Community Service, Referral to Guidance..."
-                className="h-[80px]"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="notes">Official Resolution Notes</Label>
-              <Textarea
-                id="notes"
-                placeholder="Enter the official justification or notes for this decision..."
-                className="h-[100px]"
-              />
-            </div>
-          </div>
+            <DialogFooter>
+              <DialogClose asChild>
+                <Button variant="outline">Cancel</Button>
+              </DialogClose>
+              <Button className="bg-red-600 hover:bg-red-700">
+                Submit Final Decision
+              </Button>
+            </DialogFooter>
+          </form>
         </div>
-
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button variant="outline">Cancel</Button>
-          </DialogClose>
-          <Button className="bg-red-600 hover:bg-red-700">
-            Submit Final Decision
-          </Button>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
   );

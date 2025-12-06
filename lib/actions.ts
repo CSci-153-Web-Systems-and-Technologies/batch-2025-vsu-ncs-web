@@ -84,7 +84,7 @@ export async function submitConductReport(prevState: any, formData: FormData) {
   return { success: true, message: "Record logged successfully" };
 }
 
-export async function SubmitInfractionResponse(
+export async function submitInfractionResponse(
   prevState: any,
   formData: FormData,
   report: ConductReport
