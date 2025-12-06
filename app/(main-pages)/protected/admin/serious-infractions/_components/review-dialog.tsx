@@ -16,8 +16,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SeriousInfractionTicket } from "@/types";
-import { useState } from "react";
+import { useActionState, useState } from "react";
 import { Separator } from "@/components/ui/separator";
+import { submitConductReport } from "@/lib/actions";
 
 export default function ReviewDialog({
   record,
@@ -26,9 +27,12 @@ export default function ReviewDialog({
   record: SeriousInfractionTicket;
   studentName: string;
 }) {
+  const [state, formAction, isPending] = useActionState(
+    submitInfractionTicket,
+    null
+  );
   const [open, setOpen] = useState(false);
 
-  // Helper to format date
   const formattedDate = new Date(record.created_at).toLocaleDateString(
     "en-US",
     {
@@ -60,7 +64,6 @@ export default function ReviewDialog({
         </DialogHeader>
 
         <div className="flex flex-col gap-6 py-4">
-          {/* --- SECTION 1: REPORT DETAILS (Read Only) --- */}
           <div className="rounded-lg border bg-muted/40 p-4 space-y-4 text-sm">
             <div className="flex items-center justify-between">
               <h4 className="font-semibold flex items-center gap-2">
@@ -113,7 +116,6 @@ export default function ReviewDialog({
 
           <Separator />
 
-          {/* --- SECTION 2: ADJUDICATION FORM --- */}
           <div className="space-y-4">
             <h4 className="font-semibold text-sm">Verdict & Sanctions</h4>
 
