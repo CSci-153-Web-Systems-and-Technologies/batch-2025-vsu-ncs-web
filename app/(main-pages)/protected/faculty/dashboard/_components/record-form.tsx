@@ -93,6 +93,7 @@ export function RecordForm({ students }: RecordFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <Toaster position="top-right" />
       <DialogTrigger asChild>
         <Button className="w-full bg-[#0A58A3] hover:bg-[#094b8a]">
           Log Conduct
@@ -101,7 +102,6 @@ export function RecordForm({ students }: RecordFormProps) {
 
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <Toaster position="top-right" />
           <DialogTitle>Log Conduct Report</DialogTitle>
           <DialogDescription>
             Search for a student and submit a new record.

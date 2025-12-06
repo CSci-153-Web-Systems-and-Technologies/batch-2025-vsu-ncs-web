@@ -63,6 +63,7 @@ export default function ReviewDialog({
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
+      <Toaster position="top-right" />
       <DialogTrigger asChild>
         <Button className="bg-red-600 hover:bg-red-700 text-white gap-2">
           <Gavel className="w-4 h-4" />
@@ -71,7 +72,6 @@ export default function ReviewDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <Toaster position="bottom-left" />
           <DialogTitle className="flex items-center gap-2">
             <Gavel className="w-5 h-5 text-red-600" />
             Admin Adjudication
