@@ -11,6 +11,7 @@ import {
 import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
 import { parseName } from "@/lib/utils";
+import { Toaster } from "sonner";
 //export const dynamic = "force-dynamic";
 export default async function StudentLayout({
   children,
@@ -142,6 +143,7 @@ export default async function StudentLayout({
         />
         <main className="flex-1 overflow-y-auto bg-[#F8F9FA] pt-16 md:ml-64 md:pt-0">
           {children}
+          <Toaster position="top-right" richColors closeButton />
         </main>
       </div>
     </SidebarProvider>

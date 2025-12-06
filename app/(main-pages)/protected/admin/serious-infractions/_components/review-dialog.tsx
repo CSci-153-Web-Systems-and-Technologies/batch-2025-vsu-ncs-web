@@ -19,8 +19,8 @@ import { SeriousInfractionTicket } from "@/types";
 import { useActionState, useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import { submitInfractionResponse } from "@/lib/actions";
-import { toast, Toaster } from "sonner";
-import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { Loader2, CheckCircle2, XCircle } from "lucide-react";
 
 export default function ReviewDialog({
   record,
@@ -53,7 +53,7 @@ export default function ReviewDialog({
 
       timer = setTimeout(() => {
         setOpen(false);
-      }, 1000);
+      }, 3000);
     } else if (state?.error) {
       toast.error(state.error);
     }
@@ -61,9 +61,43 @@ export default function ReviewDialog({
     return () => clearTimeout(timer);
   }, [state]);
 
+  const getButtonContent = () => {
+    if (isPending) {
+      return (
+        <>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Submitting...
+        </>
+      );
+    }
+    if (state?.success) {
+      return (
+        <>
+          <CheckCircle2 className="mr-2 h-4 w-4" />
+          Success!
+        </>
+      );
+    }
+    if (state?.error) {
+      return (
+        <>
+          <XCircle className="mr-2 h-4 w-4" />
+          Failed. Try Again.
+        </>
+      );
+    }
+    return "Submit Final Decision";
+  };
+
+  const getButtonClass = () => {
+    if (state?.success) return "bg-green-600 hover:bg-green-700 text-white";
+    if (state?.error)
+      return "bg-destructive hover:bg-destructive/90 text-white";
+    return "bg-red-600 hover:bg-red-700";
+  };
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Toaster position="top-right" />
       <DialogTrigger asChild>
         <Button className="bg-red-600 hover:bg-red-700 text-white gap-2">
           <Gavel className="w-4 h-4" />
@@ -181,11 +215,11 @@ export default function ReviewDialog({
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
               <Button
-                className="bg-red-600 hover:bg-red-700"
-                disabled={isPending}
+                type="submit"
+                className={`transition-all duration-300 ${getButtonClass()}`}
+                disabled={isPending || state?.success}
               >
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                Submit Final Decision
+                {getButtonContent()}
               </Button>
             </DialogFooter>
           </form>

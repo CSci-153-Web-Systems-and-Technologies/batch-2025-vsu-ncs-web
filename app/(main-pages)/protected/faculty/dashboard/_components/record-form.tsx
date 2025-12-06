@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { submitConductReport } from "@/lib/actions";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 
 export type StudentOption = {
   id: string;
@@ -93,7 +93,6 @@ export function RecordForm({ students }: RecordFormProps) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Toaster position="top-right" />
       <DialogTrigger asChild>
         <Button className="w-full bg-[#0A58A3] hover:bg-[#094b8a]">
           Log Conduct
