@@ -39,7 +39,7 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 import { submitConductReport } from "@/lib/actions";
-import { toast } from "sonner";
+import { toast, Toaster } from "sonner";
 
 export type StudentOption = {
   id: string;
@@ -101,6 +101,7 @@ export function RecordForm({ students }: RecordFormProps) {
 
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
+          <Toaster position="top-right" />
           <DialogTitle>Log Conduct Report</DialogTitle>
           <DialogDescription>
             Search for a student and submit a new record.
