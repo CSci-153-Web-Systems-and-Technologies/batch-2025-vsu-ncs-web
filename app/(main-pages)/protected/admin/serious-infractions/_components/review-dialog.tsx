@@ -20,6 +20,7 @@ import { useActionState, useState, useEffect } from "react";
 import { Separator } from "@/components/ui/separator";
 import { submitInfractionResponse } from "@/lib/actions";
 import { toast, Toaster } from "sonner";
+import { Loader2 } from "lucide-react";
 
 export default function ReviewDialog({
   record,
@@ -183,6 +184,7 @@ export default function ReviewDialog({
                 className="bg-red-600 hover:bg-red-700"
                 disabled={isPending}
               >
+                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Submit Final Decision
               </Button>
             </DialogFooter>
