@@ -70,14 +70,16 @@ export function transformStudentSummary(
 // ==============================================================================
 // 2. TRANSFORMER: Student View (See who Reported Me)
 // ==============================================================================
-export function transformReportForStudent(raw: any): ConductReportWithReporter | null {
+export function transformReportForStudent(
+  raw: any
+): ConductReportWithReporter | null {
   try {
     if (!raw) return null;
 
     // Check if an admin has responded
     const responseData = raw.infraction_responses?.[0]; // Assumes join
     const hasResponse = !!responseData;
-    
+
     // Determine Status
     const status: InfractionStatus = hasResponse ? "Resolved" : "Pending";
 
@@ -87,26 +89,32 @@ export function transformReportForStudent(raw: any): ConductReportWithReporter |
     return {
       ...raw,
       status,
-      reporter: reporterRaw ? {
-        first_name: reporterRaw.first_name,
-        last_name: reporterRaw.last_name,
-        title: reporterRaw.title,
-      } : null,
-      response: hasResponse ? {
-        resolved_at: responseData.created_at,
-        // If Admin was joined in the response
-        admin_name: responseData.admin 
-          ? `${responseData.admin.first_name} ${responseData.admin.last_name}` 
-          : "Admin",
-        final_sanction: responseData.final_sanction_days 
-          ? `${responseData.final_sanction_days} days` 
-          : responseData.final_sanction_other,
-        notes: responseData.notes,
-      } : null
+      reporter: reporterRaw
+        ? {
+            first_name: reporterRaw.first_name,
+            last_name: reporterRaw.last_name,
+            title: reporterRaw.title,
+          }
+        : null,
+      response: hasResponse
+        ? {
+            resolved_at: responseData.created_at,
+            // If Admin was joined in the response
+            admin_name: responseData.admin
+              ? `${responseData.admin.first_name} ${responseData.admin.last_name}`
+              : "Admin",
+            final_sanction: responseData.final_sanction_days
+              ? `${responseData.final_sanction_days}`
+              : responseData.final_sanction_other,
+            notes: responseData.notes,
+          }
+        : null,
     };
-
   } catch (error) {
-    console.error(`Error transforming report for student view (Report ID: ${raw?.id}):`, error);
+    console.error(
+      `Error transforming report for student view (Report ID: ${raw?.id}):`,
+      error
+    );
     return null;
   }
 }
@@ -114,7 +122,9 @@ export function transformReportForStudent(raw: any): ConductReportWithReporter |
 // ==============================================================================
 // 3. TRANSFORMER: Faculty View (See who I Reported)
 // ==============================================================================
-export function transformReportForFaculty(raw: any): ConductReportWithStudent | null {
+export function transformReportForFaculty(
+  raw: any
+): ConductReportWithStudent | null {
   try {
     if (!raw) return null;
 
@@ -143,7 +153,7 @@ export function transformReportForFaculty(raw: any): ConductReportWithStudent | 
               ? `${responseData.admin.first_name} ${responseData.admin.last_name}`
               : "Admin",
             final_sanction: responseData.final_sanction_days
-              ? `${responseData.final_sanction_days} days`
+              ? `${responseData.final_sanction_days}`
               : responseData.final_sanction_other,
             notes: responseData.notes,
           }
@@ -158,7 +168,9 @@ export function transformReportForFaculty(raw: any): ConductReportWithStudent | 
 // ==============================================================================
 // 4. TRANSFORMER: Admin View (The Ticket Queue)
 // ==============================================================================
-export function transformSeriousTicket(raw: any): SeriousInfractionTicket | null {
+export function transformSeriousTicket(
+  raw: any
+): SeriousInfractionTicket | null {
   try {
     if (!raw) return null;
 
@@ -193,15 +205,17 @@ export function transformSeriousTicket(raw: any): SeriousInfractionTicket | null
               ? `${responseData.admin.first_name} ${responseData.admin.last_name}`
               : "Unknown Admin",
             final_sanction: responseData.final_sanction_days
-              ? `${responseData.final_sanction_days} days`
+              ? `${responseData.final_sanction_days}`
               : responseData.final_sanction_other,
             notes: responseData.notes,
           }
         : null,
     };
-
   } catch (error) {
-    console.error(`Error transforming serious ticket (Report ID: ${raw?.id}):`, error);
+    console.error(
+      `Error transforming serious ticket (Report ID: ${raw?.id}):`,
+      error
+    );
     return null;
   }
 }

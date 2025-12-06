@@ -87,7 +87,7 @@ export interface ConductReportWithReporter extends ConductReport {
   response?: {
     resolved_at: string;
     admin_name: string;
-    final_sanction: string | null;
+    final_sanction: number | null;
     notes: string | null;
   } | null;
 }
