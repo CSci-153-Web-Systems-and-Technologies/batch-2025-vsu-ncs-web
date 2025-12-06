@@ -6,13 +6,12 @@ export interface SidebarProps {
   icon: React.ComponentType<LucideProps>;
 }
 
-export type ConductReportType = 'merit' | 'demerit';
+export type ConductReportType = "merit" | "demerit";
 export type SanctionContext = "office" | "rle";
 export type InfractionStatus = "Pending" | "Resolved";
 
-
 export interface StudentProfile {
-  id: string; // UUID
+  id: string;
   student_id: string | null;
   year_level: number | null;
   sex: string | null;
@@ -25,13 +24,13 @@ export interface StudentProfile {
 }
 
 export interface StaffProfile {
-  id: string; // UUID
+  id: string;
   employee_id: string;
   title: string | null;
   sex: string | null;
   created_at: string;
   updated_at: string | null;
-  role: string | null; 
+  role: string | null;
   first_name: string;
   middle_name: string;
   last_name: string;
@@ -39,7 +38,7 @@ export interface StaffProfile {
 }
 
 export interface ConductReport {
-  id: string; // UUID
+  id: string;
   created_at: string;
   student_id: string | null;
   faculty_id: string | null;
@@ -47,26 +46,21 @@ export interface ConductReport {
   is_serious_infraction: boolean | null;
   sanction_days: number | null;
   sanction_other: string | null;
-  sanction_context: SanctionContext | null; 
+  sanction_context: SanctionContext | null;
   type: ConductReportType;
 }
 
 export interface InfractionResponse {
-  id: number; // bigint
+  id: number;
   report_id: string | null;
   admin_id: string | null;
   created_at: string;
   final_sanction_days: number | null;
   final_sanction_other: string | null;
   notes: string | null;
-  final_sanction_context: SanctionContext | null; 
+  final_sanction_context: SanctionContext | null;
 }
 
-// ==========================================
-// 3. Application DTOs (Data Transfer Objects)
-// ==========================================
-
-// --- DASHBOARD METRICS ---
 export interface DashboardMetrics {
   total_students: number;
   total_merits: number;
@@ -74,9 +68,6 @@ export interface DashboardMetrics {
   total_serious_cases: number;
 }
 
-// --- STUDENT VIEW MODELS ---
-
-// 1. For the "My Sanctions Summary" Table (Aggregates)
 export interface StudentConductSummary extends StudentProfile {
   total_merits: number;
   total_demerits: number;
@@ -84,20 +75,15 @@ export interface StudentConductSummary extends StudentProfile {
   net_office_sanction: number;
 }
 
-// 2. For the "My Conduct History" Table (Ticket View)
-// Shows: "I was reported by [Reporter Name]"
 export interface ConductReportWithReporter extends ConductReport {
-  // Who filed this?
   reporter: {
     first_name: string;
     last_name: string;
     title: string | null;
   } | null;
 
-  // Has the admin decided?
-  status: InfractionStatus; 
+  status: InfractionStatus;
 
-  // What was the decision? (Optional/Nullable)
   response?: {
     resolved_at: string;
     admin_name: string;
@@ -106,12 +92,7 @@ export interface ConductReportWithReporter extends ConductReport {
   } | null;
 }
 
-// --- FACULTY VIEW MODELS ---
-
-// 1. For the "My Sent Reports" Table (Ticket View)
-// Shows: "I reported [Student Name]"
 export interface ConductReportWithStudent extends ConductReport {
-  // Who did I report?
   student: {
     first_name: string;
     last_name: string;
@@ -119,10 +100,8 @@ export interface ConductReportWithStudent extends ConductReport {
     year_level: number | null;
   } | null;
 
-  // Has the admin acted on my serious report?
   status: InfractionStatus;
 
-  // Optional: Who resolved it?
   admin_name?: string | null;
   response?: {
     resolved_at: string;
@@ -132,30 +111,22 @@ export interface ConductReportWithStudent extends ConductReport {
   } | null;
 }
 
-// --- ADMIN VIEW MODELS ---
-
-// 1. For the "Serious Infractions Queue" Table (Full Ticket View)
-// Shows: "[Faculty] reported [Student]"
 export interface SeriousInfractionTicket extends ConductReport {
-  // The Accused
   student: {
-    id: string; // Needed for navigation to profile
+    id: string;
     first_name: string;
     last_name: string;
     student_id: string | null;
   } | null;
 
-  // The Reporter
   reporter: {
     first_name: string;
     last_name: string;
     title: string | null;
   } | null;
 
-  // Workflow Status
   status: InfractionStatus;
 
-  // If resolved, include the response ID for reference
   response_id?: number | null;
   response?: {
     id: number;
