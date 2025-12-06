@@ -71,7 +71,7 @@ export default function ReviewDialog({
       </DialogTrigger>
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <Toaster position="top-right" />
+          <Toaster position="bottom-left" />
           <DialogTitle className="flex items-center gap-2">
             <Gavel className="w-5 h-5 text-red-600" />
             Admin Adjudication
@@ -175,7 +175,7 @@ export default function ReviewDialog({
                 />
               </div>
             </div>
-
+            <div className="my-6"></div>
             <DialogFooter>
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
