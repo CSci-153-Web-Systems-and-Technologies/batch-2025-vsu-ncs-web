@@ -29,7 +29,8 @@ export default function ReviewDialog({
   studentName: string;
 }) {
   const [state, formAction, isPending] = useActionState(
-    submitInfractionResponse,
+    (prevState: any, formData: any) =>
+      submitInfractionResponse(prevState, formData, record),
     null
   );
   const [open, setOpen] = useState(false);
@@ -178,7 +179,10 @@ export default function ReviewDialog({
               <DialogClose asChild>
                 <Button variant="outline">Cancel</Button>
               </DialogClose>
-              <Button className="bg-red-600 hover:bg-red-700">
+              <Button
+                className="bg-red-600 hover:bg-red-700"
+                disabled={isPending}
+              >
                 Submit Final Decision
               </Button>
             </DialogFooter>

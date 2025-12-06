@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { ConductReport } from "@/types";
+import { ConductReport, SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -87,7 +87,7 @@ export async function submitConductReport(prevState: any, formData: FormData) {
 export async function submitInfractionResponse(
   prevState: any,
   formData: FormData,
-  report: ConductReport
+  report: SeriousInfractionTicket
 ) {
   const supabase = await createClient();
 
