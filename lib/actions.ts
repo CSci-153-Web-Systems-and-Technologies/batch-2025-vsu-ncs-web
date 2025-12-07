@@ -33,11 +33,11 @@ const StudentAccountSchema = z.object({
     .number()
     .max(4, { message: "Invalid year level" })
     .min(1, { message: "Invalid year level" }),
-  sex: z.string().min(4, "Invalid sex").max(5, "Invalid sex"),
+  sex: z.string().min(4, "Invalid sex").max(6, "Invalid sex"),
   first_name: z.string().min(1, { message: "First name required" }),
-  middle_name: z.string(),
+  middle_name: z.string().optional().default(""),
   last_name: z.string().min(1, { message: "First name required" }),
-  suffix: z.string(),
+  suffix: z.string().optional().default(""),
   email: z.email(),
   temp_password: z.string().min(1, { message: "Password required" }),
 });
