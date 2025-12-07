@@ -3,6 +3,7 @@
 import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { z } from "zod";
 
 // 1. Zod Schema with Coercion
@@ -41,6 +42,18 @@ const StudentAccountSchema = z.object({
   email: z.email(),
   temp_password: z.string().min(1, { message: "Password required" }),
 });
+
+const PasswordSchema = z
+  .object({
+    password: z
+      .string()
+      .min(6, { message: "Password must be at least 6 characters" }),
+    confirm: z.string(),
+  })
+  .refine((data) => data.password === data.confirm, {
+    message: "Passwords do not match",
+    path: ["confirm"], // Error will appear on the 'confirm' field
+  });
 
 export async function createStudentAccount(prevState: any, formData: FormData) {
   const supabase = await createClient();
@@ -90,7 +103,8 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
       email: email,
       password: temp_password,
       email_confirm: true,
-      user_metadata: { role: "student", must_change_password: "true" },
+      app_metadata: { role: "student" },
+      user_metadata: { must_change_password: "true" },
     });
 
   if (authError) {
@@ -241,4 +255,40 @@ export async function submitInfractionResponse(
   revalidatePath("/protected/admin/serious-infractions");
 
   return { success: true, message: "Review logged successfully" };
+}
+
+export async function updateInitialPassword(
+  prevState: any,
+  formData: FormData
+) {
+  const supabase = await createClient();
+
+  const validated = PasswordSchema.safeParse({
+    password: formData.get("password"),
+    confirm: formData.get("confirm_password"),
+  });
+
+  if (!validated.success) {
+    const firstError =
+      validated.error.flatten().fieldErrors.confirm?.[0] ||
+      validated.error.flatten().fieldErrors.password?.[0];
+    return { error: firstError || "Invalid password data" };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: validated.data.password,
+    data: { must_change_password: false },
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const role = user?.app_metadata?.role || "student";
+
+  redirect(`/protected/${role}/dashboard`);
 }
