@@ -28,7 +28,7 @@ export default async function StudentLayout({
   let items: SidebarProps[] = [];
 
   if (user?.user_metadata.must_change_password === true) {
-    redirect("/change-password");
+    redirect("/app/auth/change-password");
   }
 
   if (userRole === "student") {
