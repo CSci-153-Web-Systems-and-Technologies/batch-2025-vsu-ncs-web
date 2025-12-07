@@ -39,6 +39,7 @@ const StudentAccountSchema = z.object({
   last_name: z.string().min(1, { message: "First name required" }),
   suffix: z.string(),
   email: z.email(),
+  temp_password: z.string().min(1, { message: "Password required" }),
 });
 
 export async function createStudentAccount(prevState: any, formData: FormData) {
@@ -63,6 +64,7 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
     last_name: formData.get("last_name"),
     suffix: formData.get("suffix"),
     email: formData.get("email"),
+    temp_password: formData.get("temp_password"),
   });
 
   if (!validated.success) {
@@ -78,6 +80,7 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
     last_name,
     suffix,
     email,
+    temp_password,
   } = validated.data;
 
   const supabaseAdmin = await createAdminClient();
@@ -85,7 +88,7 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
   const { data: authData, error: authError } =
     await supabaseAdmin.auth.admin.createUser({
       email: email,
-      password: "student123",
+      password: temp_password,
       email_confirm: true,
       user_metadata: { role: "student", must_change_password: "true" },
     });
