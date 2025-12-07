@@ -14,8 +14,15 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"; // ✅ Added Select imports
 import { Loader2, UserPlus } from "lucide-react";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner"; // Removed local Toaster (using global layout toaster)
 import { createStudentAccount } from "@/lib/actions";
 
 export function CreateStudentDialog() {
@@ -34,7 +41,7 @@ export function CreateStudentDialog() {
 
       timer = setTimeout(() => {
         setOpen(false);
-      }, 3000);
+      }, 2000); // 2 seconds is usually enough
     } else if (state?.error) {
       toast.error(state.error);
     }
@@ -44,13 +51,13 @@ export function CreateStudentDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <Toaster position="top-right" />
       <DialogTrigger asChild>
         <Button className="bg-[#0A58A3] hover:bg-[#094b8a]">
           <UserPlus className="mr-2 h-4 w-4" />
           Create Student
         </Button>
       </DialogTrigger>
+
       <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create Student Account</DialogTitle>
@@ -61,7 +68,8 @@ export function CreateStudentDialog() {
         </DialogHeader>
 
         <form action={formAction} className="grid gap-6 py-4">
-          <div className="grid grid-cols-2 gap-4">
+          {/* --- ROW 1: ID & Email (Primary Identifiers) --- */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="student_id">Student ID</Label>
               <Input
@@ -71,21 +79,19 @@ export function CreateStudentDialog() {
                 required
               />
             </div>
-
             <div className="grid gap-2">
-              <Label htmlFor="year_level">Year Level</Label>
+              <Label htmlFor="email">VSU Email Address</Label>
               <Input
-                id="year_level"
-                name="year_level"
-                type="number"
-                min={1}
-                max={4}
-                placeholder="1"
+                id="email"
+                name="email"
+                type="email"
+                placeholder="student@vsu.edu.ph"
                 required
               />
             </div>
           </div>
 
+          {/* --- ROW 2: First & Last Name --- */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="first_name">First Name</Label>
@@ -107,6 +113,7 @@ export function CreateStudentDialog() {
             </div>
           </div>
 
+          {/* --- ROW 3: Middle Name & Suffix (Optional) --- */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="middle_name">
@@ -132,15 +139,32 @@ export function CreateStudentDialog() {
             </div>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="email">VSU Email Address</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="student@vsu.edu.ph"
-              required
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="grid gap-2">
+              <Label htmlFor="year_level">Year Level</Label>
+              <Input
+                id="year_level"
+                name="year_level"
+                type="number"
+                min={1}
+                max={4}
+                placeholder="1"
+                required
+              />
+            </div>
+
+            <div className="grid gap-2">
+              <Label htmlFor="sex">Sex</Label>
+              <Select name="sex" required>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Male">Male</SelectItem>
+                  <SelectItem value="Female">Female</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="grid gap-2">
@@ -148,7 +172,7 @@ export function CreateStudentDialog() {
             <Input
               id="temp_password"
               name="temp_password"
-              defaultValue="student123"
+              defaultValue="Nursing123!"
               type="text"
             />
             <p className="text-[0.8rem] text-muted-foreground">
