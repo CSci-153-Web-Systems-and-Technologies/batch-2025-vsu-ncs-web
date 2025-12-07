@@ -249,10 +249,6 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
 export async function submitConductReport(prevState: any, formData: FormData) {
   const supabase = await createClient();
 
-  // 2. Debugging: Uncomment to see what the server is actually receiving
-  // console.log(Object.fromEntries(formData));
-
-  // 3. Validate Data
   const validatedFields = ConductFormSchema.safeParse({
     student_uuid: formData.get("student_uuid"),
     category: formData.get("category"),
@@ -272,19 +268,15 @@ export async function submitConductReport(prevState: any, formData: FormData) {
   const { student_uuid, category, context, description, sanction_days } =
     validatedFields.data;
 
-  // 4. Get Current User (Faculty)
   const {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) return { error: "Unauthorized" };
 
-  // 5. Transform Logic
   const isSerious = category === "serious";
-  // DB likely only accepts 'merit' or 'demerit', so map 'serious' to 'demerit'
   const dbType = category === "merit" ? "merit" : "demerit";
   const finalDays = isSerious ? 0 : sanction_days;
 
-  // 6. Insert
   const { error } = await supabase.from("conduct_reports").insert({
     student_id: student_uuid,
     faculty_id: user.id,
@@ -301,7 +293,6 @@ export async function submitConductReport(prevState: any, formData: FormData) {
     return { error: "Failed to log record: " + error.message };
   }
 
-  // 7. Revalidate
   revalidatePath("/protected/faculty/dashboard");
   revalidatePath("/protected/faculty/logged-records");
 
@@ -399,4 +390,21 @@ export async function updateInitialPassword(
   const role = user?.app_metadata?.role || "student";
 
   redirect(`/protected/${role}/dashboard`);
+}
+
+export async function getDashboardChartData() {
+  const supabase = await createClient();
+
+  const { data: reports, error } = await supabase
+    .from("conduct_reports")
+    .select("created_at, type, is_serious_infraction, sanction_context")
+    .neq("type", "merit")
+    .order("created_at", { ascending: true });
+
+  if (error) {
+    console.error("Error fetching chart data:", error);
+    return [];
+  }
+
+  return reports;
 }
