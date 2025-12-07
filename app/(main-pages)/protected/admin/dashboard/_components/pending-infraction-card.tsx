@@ -10,9 +10,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { SeriousInfractionTicket } from "@/types"; // <--- Admin Ticket Type
 import { AlertCircle, CheckCircle2 } from "lucide-react";
-import ReviewDialog from "./review-dialog";
-import ViewDecisionDialog from "./view-dialog";
-
+import ReviewDialog from "../../serious-infractions/_components/review-dialog";
+import ViewDecisionDialog from "../../serious-infractions/_components/view-dialog";
 type SeriousInfractionCardProps = {
   record: SeriousInfractionTicket;
 };

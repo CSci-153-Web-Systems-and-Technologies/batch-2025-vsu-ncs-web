@@ -9,18 +9,9 @@ import {
 
 import TotalsCard from "./_components/totals-card";
 import QuickActionCard from "./_components/quick-action-card";
-import RecordCard from "./_components/record-card";
-import {
-  StaffProfile,
-  ConductReportWithStudent,
-  SeriousInfractionTicket,
-} from "@/types";
-import {
-  transformReportForFaculty,
-  safeMap,
-  transformSeriousTicket,
-} from "@/lib/data";
-import SeriousInfractionList from "../serious-infractions/_components/serious-infraction-list";
+import { StaffProfile, SeriousInfractionTicket } from "@/types";
+import { safeMap, transformSeriousTicket } from "@/lib/data";
+import PendingInfractionList from "./_components/pending-infraction-list";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -60,12 +51,6 @@ export default async function AdminDashboard() {
     transformSeriousTicket
   );
 
-  // 3. Transform Reports
-  const records: ConductReportWithStudent[] = safeMap(
-    rawReports,
-    transformReportForFaculty
-  );
-
   // 4. Fetch Total Students Count
   // (We use count option instead of fetching all rows for performance)
   const today = new Date();
@@ -81,9 +66,6 @@ export default async function AdminDashboard() {
   const { count: staffCount } = await supabase
     .from("staff_profiles")
     .select("*", { count: "exact", head: true });
-
-  const recentRecordArr = records.slice(0, 5);
-
   return (
     <div className="flex flex-col w-full p-8 gap-5">
       <div className="flex flex-col gap-2">
@@ -122,7 +104,7 @@ export default async function AdminDashboard() {
             <CardDescription>Review pending infraction reports</CardDescription>
           </CardHeader>
           <CardContent className="flex flex-col gap-5">
-            <SeriousInfractionList data={pendingReports} />
+            <PendingInfractionList data={pendingReports} />
           </CardContent>
         </Card>
       </div>
