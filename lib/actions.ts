@@ -1,7 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
-import { ConductReport, SeriousInfractionTicket } from "@/types";
+import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 
@@ -20,6 +20,24 @@ const InfractionResponseFormSchema = z.object({
   final_sanction_days: z.coerce.number().optional().default(0),
   final_sanction_other: z.string(),
   notes: z.string().min(1, { message: "Note is required" }),
+});
+
+const StudentAccountSchema = z.object({
+  student_id: z
+    .string()
+    .min(1, { message: "Student ID required" })
+    .regex(/^2\d-1-\d{5}$/, {
+      message: "Invalid Student ID. Must be like 23-1-12345.",
+    }),
+  year_level: z.coerce
+    .number()
+    .max(4, { message: "Invalid year level" })
+    .min(1, { message: "Invalid year level" }),
+  sex: z.string().min(4, "Invalid sex").max(5, "Invalid sex"),
+  first_name: z.string().min(1, { message: "First name required" }),
+  middle_name: z.string(),
+  last_name: z.string().min(1, { message: "First name required" }),
+  suffix: z.string(),
 });
 
 export async function submitConductReport(prevState: any, formData: FormData) {
