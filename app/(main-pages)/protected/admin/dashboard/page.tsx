@@ -8,7 +8,6 @@ import {
 } from "@/components/ui/card";
 
 import TotalsCard from "./_components/totals-card";
-import QuickActionCard from "./_components/quick-action-card";
 import { StaffProfile, SeriousInfractionTicket } from "@/types";
 import { safeMap, transformSeriousTicket } from "@/lib/data";
 import PendingInfractionList from "./_components/pending-infraction-list";
@@ -77,7 +76,6 @@ export default async function AdminDashboard() {
         </p>
       </div>
       <div className="flex flex-col sm:flex-row w-full gap-5">
-        <QuickActionCard />
         <TotalsCard
           title="Total Reports Logged"
           total={recordsCount ?? 0}
@@ -95,6 +93,12 @@ export default async function AdminDashboard() {
           total={staffCount || 0}
           color="text-[#00C950]"
           description="Active staff"
+        />
+        <TotalsCard
+          title="Pending Infractions"
+          total={pendingReports.length || 0}
+          color="text-red-600"
+          description="In need of review"
         />
       </div>
       <div>
