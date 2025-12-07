@@ -223,7 +223,7 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
 
   const { error } = await supabaseAdmin.from("staff_profiles").insert({
     id: newID,
-    student_id: employee_id,
+    employee_id: employee_id,
     title: title,
     sex: sex,
     role: role,
