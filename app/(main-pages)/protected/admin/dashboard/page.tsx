@@ -11,6 +11,8 @@ import TotalsCard from "./_components/totals-card";
 import { StaffProfile, SeriousInfractionTicket } from "@/types";
 import { safeMap, transformSeriousTicket } from "@/lib/data";
 import PendingInfractionList from "./_components/pending-infraction-list";
+import { AdminCharts } from "./_components/admin-charts";
+import { getDashboardChartData } from "@/lib/actions";
 
 export default async function AdminDashboard() {
   const supabase = await createClient();
@@ -49,9 +51,7 @@ export default async function AdminDashboard() {
     pendingRawReports,
     transformSeriousTicket
   );
-
-  // 4. Fetch Total Students Count
-  // (We use count option instead of fetching all rows for performance)
+  const chartData = await getDashboardChartData();
   const today = new Date();
   const thirtyDaysAgo = new Date();
   thirtyDaysAgo.setDate(today.getDate() - 30);
@@ -100,6 +100,12 @@ export default async function AdminDashboard() {
           color="text-red-600"
           description="In need of review"
         />
+      </div>
+      <div className="space-y-6 p-6">
+        <h1 className="text-3xl font-bold tracking-tight">
+          Dashboard Overview
+        </h1>
+        <AdminCharts data={chartData} />
       </div>
       <div>
         <Card className="flex-1">
