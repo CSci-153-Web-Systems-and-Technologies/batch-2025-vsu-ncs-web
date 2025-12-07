@@ -104,7 +104,7 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
       password: temp_password,
       email_confirm: true,
       app_metadata: { role: "student" },
-      user_metadata: { must_change_password: "true" },
+      user_metadata: { must_change_password: true },
     });
 
   if (authError) {

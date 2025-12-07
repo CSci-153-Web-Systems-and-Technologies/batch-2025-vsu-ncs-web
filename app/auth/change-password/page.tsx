@@ -1,5 +1,5 @@
 import { ChangePasswordForm } from "@/components/change-password-form";
 
-export default function ChangePassword() {
+export default function Page() {
   return <ChangePasswordForm />;
 }
