@@ -1,6 +1,6 @@
 "use server";
 
-import { createClient } from "@/lib/supabase/server";
+import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
@@ -38,7 +38,88 @@ const StudentAccountSchema = z.object({
   middle_name: z.string(),
   last_name: z.string().min(1, { message: "First name required" }),
   suffix: z.string(),
+  email: z.email(),
 });
+
+export async function createStudentAccount(prevState: any, formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const userRole = user?.app_metadata?.role;
+
+  if (userRole !== "admin") {
+    return { error: "Unauthorized: Only Admins can create accounts." };
+  }
+
+  const validated = StudentAccountSchema.safeParse({
+    student_id: formData.get("student_id"),
+    year_level: formData.get("year_level"),
+    sex: formData.get("sex"),
+    first_name: formData.get("first_name"),
+    middle_name: formData.get("middle_name"),
+    last_name: formData.get("last_name"),
+    suffix: formData.get("suffix"),
+    email: formData.get("email"),
+  });
+
+  if (!validated.success) {
+    return { error: "Invalid data provided." };
+  }
+
+  const {
+    student_id,
+    year_level,
+    sex,
+    first_name,
+    middle_name,
+    last_name,
+    suffix,
+    email,
+  } = validated.data;
+
+  const supabaseAdmin = await createAdminClient();
+
+  const { data: authData, error: authError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email: email,
+      password: "student123",
+      email_confirm: true,
+      user_metadata: { role: "student", must_change_password: "true" },
+    });
+
+  if (authError) {
+    console.error("Auth Creation Error", authError);
+    return { error: "failed to create auth user: " + authError.message };
+  }
+
+  const newID = authData.user.id;
+
+  const { error } = await supabaseAdmin.from("student_profiles").insert({
+    id: newID,
+    student_id: student_id,
+    year_level: year_level,
+    sex: sex,
+    first_name: first_name,
+    middle_name: middle_name,
+    last_name: last_name,
+    suffix: suffix,
+  });
+
+  if (error) {
+    return { error: "Failed to create student profile: " + error.message };
+  }
+
+  revalidatePath("/protected/admin/student-management");
+  return {
+    success: true,
+    message: `Account created for ${first_name} ${middle_name.charAt(
+      0
+    )}. ${last_name} ${suffix}`,
+  };
+}
 
 export async function submitConductReport(prevState: any, formData: FormData) {
   const supabase = await createClient();
