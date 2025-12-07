@@ -43,6 +43,28 @@ const StudentAccountSchema = z.object({
   temp_password: z.string().min(1, { message: "Password required" }),
 });
 
+const StaffAccountSchema = z.object({
+  employee_id: z
+    .string()
+    .min(1, { message: "Student ID required" })
+    .regex(/^2\d-1-\d{5}$/, {
+      message: "Invalid Student ID. Must be like 23-1-12345.",
+    }),
+  title: z.string().optional().default(""),
+
+  sex: z.string().min(4, "Invalid sex").max(6, "Invalid sex"),
+  role: z
+    .string()
+    .min(5, { message: "Invalid role" })
+    .max(7, { message: "Invalid role" }),
+  first_name: z.string().min(1, { message: "First name required" }),
+  middle_name: z.string().optional().default(""),
+  last_name: z.string().min(1, { message: "First name required" }),
+  suffix: z.string().optional().default(""),
+  email: z.email(),
+  temp_password: z.string().min(1, { message: "Password required" }),
+});
+
 const PasswordSchema = z
   .object({
     password: z
@@ -130,6 +152,92 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
   }
 
   revalidatePath("/protected/admin/student-management");
+  return {
+    success: true,
+    message: `Account created for ${first_name} ${middle_name.charAt(
+      0
+    )}. ${last_name} ${suffix}`,
+  };
+}
+
+export async function createStaffAccount(prevState: any, formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  const userRole = user?.app_metadata?.role;
+
+  if (userRole !== "admin") {
+    return { error: "Unauthorized: Only Admins can create accounts." };
+  }
+
+  const validated = StaffAccountSchema.safeParse({
+    employee_id: formData.get("employee_id"),
+    title: formData.get("title"),
+    sex: formData.get("sex"),
+    role: formData.get("role"),
+    first_name: formData.get("first_name"),
+    middle_name: formData.get("middle_name"),
+    last_name: formData.get("last_name"),
+    suffix: formData.get("suffix"),
+    email: formData.get("email"),
+    temp_password: formData.get("temp_password"),
+  });
+
+  if (!validated.success) {
+    return { error: "Invalid data provided." };
+  }
+
+  const {
+    employee_id,
+    title,
+    sex,
+    role,
+    first_name,
+    middle_name,
+    last_name,
+    suffix,
+    email,
+    temp_password,
+  } = validated.data;
+
+  const supabaseAdmin = await createAdminClient();
+
+  const { data: authData, error: authError } =
+    await supabaseAdmin.auth.admin.createUser({
+      email: email,
+      password: temp_password,
+      email_confirm: true,
+      app_metadata: { role: role },
+      user_metadata: { must_change_password: true },
+    });
+
+  if (authError) {
+    console.error("Auth Creation Error", authError);
+    return { error: "failed to create auth user: " + authError.message };
+  }
+
+  const newID = authData.user.id;
+
+  const { error } = await supabaseAdmin.from("staff_profiles").insert({
+    id: newID,
+    employee_id: employee_id,
+    title: title,
+    sex: sex,
+    role: role,
+    first_name: first_name,
+    middle_name: middle_name,
+    last_name: last_name,
+    suffix: suffix,
+  });
+
+  if (error) {
+    return { error: "Failed to create staff profile: " + error.message };
+  }
+
+  revalidatePath("/protected/admin/faculty-management");
   return {
     success: true,
     message: `Account created for ${first_name} ${middle_name.charAt(

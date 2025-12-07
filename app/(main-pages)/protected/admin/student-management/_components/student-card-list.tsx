@@ -4,6 +4,7 @@ import { StudentConductSummary } from "@/types";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import StudentCard from "./student-card";
+import { CreateStudentDialog } from "./create-student-account-form";
 
 type StudentCardListProps = {
   data: StudentConductSummary[];
@@ -24,6 +25,9 @@ export default function StudentCardList({ data }: StudentCardListProps) {
 
   return (
     <div className="flex flex-col gap-5">
+      <div>
+        <CreateStudentDialog />
+      </div>
       <Input
         placeholder="Search by id or name..."
         onChange={(event) => setQuery(event.target.value)}
