@@ -12,7 +12,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
 import { parseName } from "@/lib/utils";
 import { Toaster } from "sonner";
-//export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation"; //export const dynamic = "force-dynamic";
 export default async function StudentLayout({
   children,
 }: Readonly<{
@@ -26,6 +26,10 @@ export default async function StudentLayout({
   const userRole = user?.app_metadata?.role as string;
   let userProfile = null;
   let items: SidebarProps[] = [];
+
+  if (user?.user_metadata.must_change_password === true) {
+    redirect("/auth/change-password");
+  }
 
   if (userRole === "student") {
     const { data: profile } = await supabase
