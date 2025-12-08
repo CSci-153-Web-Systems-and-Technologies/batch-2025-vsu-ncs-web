@@ -15,6 +15,7 @@ import { Label } from "@/components/ui/label";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 export function LoginForm({
   className,
@@ -32,17 +33,14 @@ export function LoginForm({
     setIsLoading(true);
     setError(null);
     try {
-      // Sign in first and use the returned user from the sign-in response.
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       if (error) throw error;
 
-      // The sign-in response includes the user; prefer that role.
       const userRole = data.user?.app_metadata?.role;
 
-      // If role is not present yet in the response (edge cases), re-fetch the user.
       const finalRole =
         userRole ??
         (await (async () => {
@@ -55,7 +53,6 @@ export function LoginForm({
       if (finalRole) {
         router.push(`/protected/${finalRole}/dashboard`);
       } else {
-        // If still no role, send to unauthorized or a safe default page.
         router.push(`/unauthorized`);
       }
     } catch (error: unknown) {
@@ -67,9 +64,11 @@ export function LoginForm({
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+      <Card className="border-none shadow-none sm:border sm:shadow-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            Login
+          </CardTitle>
           <CardDescription>
             Enter your email below to login to your account
           </CardDescription>
@@ -86,6 +85,7 @@ export function LoginForm({
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  className="h-11"
                 />
               </div>
               <div className="grid gap-2">
@@ -93,7 +93,7 @@ export function LoginForm({
                   <Label htmlFor="password">Password</Label>
                   <Link
                     href="/auth/forgot-password"
-                    className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
+                    className="ml-auto inline-block text-sm font-medium text-[#0A58A3] underline-offset-4 hover:underline"
                   >
                     Forgot your password?
                   </Link>
@@ -104,11 +104,30 @@ export function LoginForm({
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  className="h-11"
                 />
               </div>
-              {error && <p className="text-sm text-red-500">{error}</p>}
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Logging in..." : "Login"}
+
+              {error && (
+                <div className="flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive animate-in fade-in slide-in-from-top-1">
+                  <AlertCircle className="h-4 w-4" />
+                  <p>{error}</p>
+                </div>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full h-11 bg-[#0A58A3] hover:bg-[#094b8a] transition-all"
+                disabled={isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Logging in...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </div>
           </form>
