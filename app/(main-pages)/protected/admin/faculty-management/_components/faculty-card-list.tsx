@@ -4,6 +4,7 @@ import { StaffProfile } from "@/types";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import FacultyCard from "./faculty-card";
+import { CreateStaffDialog } from "./create-staff-account-form";
 
 type FacultyCardListProps = {
   data: StaffProfile[];
@@ -24,6 +25,9 @@ export default function FacultyCardList({ data }: FacultyCardListProps) {
 
   return (
     <div className="flex flex-col gap-5">
+      <div>
+        <CreateStaffDialog />
+      </div>
       <Input
         placeholder="Search by id or name..."
         onChange={(event) => setQuery(event.target.value)}
