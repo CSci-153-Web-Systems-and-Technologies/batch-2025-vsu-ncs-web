@@ -2,6 +2,7 @@ import { LoginForm } from "@/components/login-form";
 import Image from "next/image";
 import logo from "../../assets/logo.png";
 import { ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 export default function LoginPage() {
   return (
@@ -10,20 +11,22 @@ export default function LoginPage() {
         <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/40" />
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-white/5 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="relative z-20 flex items-center text-lg font-medium gap-2">
-          <div className="bg-white/10 p-1.5 rounded-lg backdrop-blur-sm border border-white/20">
-            <Image
-              src={logo}
-              alt="VSU Logo"
-              width={24}
-              height={24}
-              className="w-6 h-6 object-contain"
-            />
+        <Link href="/">
+          <div className="relative z-20 flex items-center text-lg font-medium gap-2">
+            <div className="bg-white/10 p-1.5 rounded-lg backdrop-blur-sm border border-white/20">
+              <Image
+                src={logo}
+                alt="VSU Logo"
+                width={24}
+                height={24}
+                className="w-6 h-6 object-contain"
+              />
+            </div>
+            <span className="tracking-tight font-semibold">
+              VSU Nursing Conduct System
+            </span>
           </div>
-          <span className="tracking-tight font-semibold">
-            VSU Nursing Conduct System
-          </span>
-        </div>
+        </Link>
 
         <div className="relative z-20 flex-1 flex flex-col justify-center items-start gap-8">
           <div className="space-y-2">
