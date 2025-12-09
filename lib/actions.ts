@@ -156,8 +156,8 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
 
   try {
     await resend.emails.send({
-      from: "VSU NCS <onboarding@resend.dev>",
-      to: email,
+      from: "onboarding@resend.dev",
+      to: "jamirandrade4270@gmail.com",
       subject: "Your VSU NCS Account Credentials",
       html: generateWelcomeEmail(
         first_name,
@@ -263,8 +263,8 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
 
   try {
     await resend.emails.send({
-      from: "VSU NCS <onboarding@resend.dev>",
-      to: email,
+      from: "onboarding@resend.dev",
+      to: "jamirandrade4270@gmail.com",
       subject: "Your VSU NCS Account Credentials",
       html: generateWelcomeEmail(
         first_name,
