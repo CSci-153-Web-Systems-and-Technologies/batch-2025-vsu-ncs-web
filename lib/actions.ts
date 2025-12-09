@@ -6,6 +6,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Resend } from "resend";
 import { generateWelcomeEmail } from "./email";
+import { headers } from "next/headers";
 import { z } from "zod";
 
 const ConductFormSchema = z.object({
@@ -156,7 +157,7 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
 
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "VSU NCS <onboarding@resend.dev>",
       to: "jamirandrade4270@gmail.com",
       subject: "Your VSU NCS Account Credentials",
       html: generateWelcomeEmail(
@@ -263,7 +264,7 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
 
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "VSU NCS <onboarding@resend.dev>",
       to: "jamirandrade4270@gmail.com",
       subject: "Your VSU NCS Account Credentials",
       html: generateWelcomeEmail(
@@ -447,4 +448,51 @@ export async function getDashboardChartData() {
   }
 
   return reports;
+}
+
+export async function forgotPasswordAction(prevState: any, formData: FormData) {
+  const email = formData.get("email") as string;
+  const supabase = await createClient();
+
+  const origin = (await headers()).get("origin");
+  const callbackUrl = `${origin}/auth/callback?next=/auth/reset-password`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: callbackUrl,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return {
+    success: true,
+    message: "If an account exists, a reset link has been sent to your email.",
+  };
+}
+
+export async function resetPasswordAction(prevState: any, formData: FormData) {
+  const supabase = await createClient();
+
+  const password = formData.get("password") as string;
+  const confirm = formData.get("confirm_password") as string;
+
+  if (password !== confirm) {
+    return { error: "Passwords do not match" };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const role = user?.app_metadata?.role || "student";
+
+  redirect(`/protected/${role}/dashboard`);
 }
