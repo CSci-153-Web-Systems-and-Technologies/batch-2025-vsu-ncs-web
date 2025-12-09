@@ -4,16 +4,16 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Resend } from "resend";
+import { generateWelcomeEmail } from "./email";
+import { headers } from "next/headers";
 import { z } from "zod";
 
-// 1. Zod Schema with Coercion
-// We use z.coerce.number() to turn the form string "5" into number 5
 const ConductFormSchema = z.object({
   student_uuid: z.string().uuid({ message: "Invalid Student ID" }),
   category: z.enum(["merit", "demerit", "serious"]),
   context: z.enum(["office", "rle"]),
   description: z.string().min(1, { message: "Description is required" }),
-  // Allow optional because serious infractions might not have days yet
   sanction_days: z.coerce.number().optional().default(0),
 });
 
@@ -148,13 +148,34 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
   });
 
   if (error) {
+    await supabaseAdmin.auth.admin.deleteUser(newID);
     return { error: "Failed to create student profile: " + error.message };
   }
 
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  try {
+    await resend.emails.send({
+      from: "VSU NCS <onboarding@resend.dev>",
+      to: "jamirandrade4270@gmail.com",
+      subject: "Your VSU NCS Account Credentials",
+      html: generateWelcomeEmail(
+        first_name,
+        email,
+        temp_password,
+        `${loginUrl}/auth/login`
+      ),
+    });
+  } catch (emailError) {
+    console.error("Failed to send email:", emailError);
+  }
+
   revalidatePath("/protected/admin/student-management");
+
   return {
     success: true,
-    message: `Account created for ${first_name} ${middle_name.charAt(
+    message: `Account created & email sent for ${first_name} ${middle_name.charAt(
       0
     )}. ${last_name} ${suffix}`,
   };
@@ -234,13 +255,33 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
   });
 
   if (error) {
-    return { error: "Failed to create staff profile: " + error.message };
+    await supabaseAdmin.auth.admin.deleteUser(newID);
+    return { error: "Failed to create student profile: " + error.message };
+  }
+
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  try {
+    await resend.emails.send({
+      from: "VSU NCS <onboarding@resend.dev>",
+      to: "jamirandrade4270@gmail.com",
+      subject: "Your VSU NCS Account Credentials",
+      html: generateWelcomeEmail(
+        first_name,
+        email,
+        temp_password,
+        `${loginUrl}/auth/login`
+      ),
+    });
+  } catch (emailError) {
+    console.error("Failed to send email:", emailError);
   }
 
   revalidatePath("/protected/admin/faculty-management");
   return {
     success: true,
-    message: `Account created for ${first_name} ${middle_name.charAt(
+    message: `Account created and email sent for ${first_name} ${middle_name.charAt(
       0
     )}. ${last_name} ${suffix}`,
   };
@@ -407,4 +448,51 @@ export async function getDashboardChartData() {
   }
 
   return reports;
+}
+
+export async function forgotPasswordAction(prevState: any, formData: FormData) {
+  const email = formData.get("email") as string;
+  const supabase = await createClient();
+
+  const origin = (await headers()).get("origin");
+  const callbackUrl = `${origin}/auth/callback?next=/auth/reset-password`;
+
+  const { error } = await supabase.auth.resetPasswordForEmail(email, {
+    redirectTo: callbackUrl,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  return {
+    success: true,
+    message: "If an account exists, a reset link has been sent to your email.",
+  };
+}
+
+export async function resetPasswordAction(prevState: any, formData: FormData) {
+  const supabase = await createClient();
+
+  const password = formData.get("password") as string;
+  const confirm = formData.get("confirm_password") as string;
+
+  if (password !== confirm) {
+    return { error: "Passwords do not match" };
+  }
+
+  const { error } = await supabase.auth.updateUser({
+    password: password,
+  });
+
+  if (error) {
+    return { error: error.message };
+  }
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  const role = user?.app_metadata?.role || "student";
+
+  redirect(`/protected/${role}/dashboard`);
 }
