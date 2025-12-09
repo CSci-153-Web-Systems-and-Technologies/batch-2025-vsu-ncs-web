@@ -254,13 +254,33 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
   });
 
   if (error) {
-    return { error: "Failed to create staff profile: " + error.message };
+    await supabaseAdmin.auth.admin.deleteUser(newID);
+    return { error: "Failed to create student profile: " + error.message };
+  }
+
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  try {
+    await resend.emails.send({
+      from: "VSU NCS <onboarding@resend.dev>",
+      to: email,
+      subject: "Your VSU NCS Account Credentials",
+      html: generateWelcomeEmail(
+        first_name,
+        email,
+        temp_password,
+        `${loginUrl}/auth/login`
+      ),
+    });
+  } catch (emailError) {
+    console.error("Failed to send email:", emailError);
   }
 
   revalidatePath("/protected/admin/faculty-management");
   return {
     success: true,
-    message: `Account created for ${first_name} ${middle_name.charAt(
+    message: `Account created and email sent for ${first_name} ${middle_name.charAt(
       0
     )}. ${last_name} ${suffix}`,
   };
