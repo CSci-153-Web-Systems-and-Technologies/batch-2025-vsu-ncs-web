@@ -11,10 +11,9 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useActionState, useEffect } from "react";
+import { useActionState } from "react";
 import { updateInitialPassword } from "@/lib/actions";
-import { toast } from "sonner";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 
 export function ChangePasswordForm({
   className,
@@ -25,17 +24,13 @@ export function ChangePasswordForm({
     null
   );
 
-  useEffect(() => {
-    if (state?.error) {
-      toast.error(state.error);
-    }
-  }, [state]);
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <Card>
+      <Card className="border-none shadow-none sm:border sm:shadow-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Setup Your Account</CardTitle>
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            Setup Your Account
+          </CardTitle>
           <CardDescription>
             Please create a new, secure password to activate your account.
           </CardDescription>
@@ -52,6 +47,7 @@ export function ChangePasswordForm({
                   placeholder="Enter new password"
                   required
                   minLength={6}
+                  className="h-11"
                 />
               </div>
 
@@ -64,18 +60,30 @@ export function ChangePasswordForm({
                   placeholder="Confirm new password"
                   required
                   minLength={6}
+                  className="h-11"
                 />
               </div>
 
               {state?.error && (
-                <p className="text-sm text-destructive font-medium">
-                  {state.error}
-                </p>
+                <div className="flex items-center gap-2 rounded-md bg-destructive/15 p-3 text-sm text-destructive animate-in fade-in slide-in-from-top-1">
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                  <p>{state.error}</p>
+                </div>
               )}
 
-              <Button type="submit" className="w-full" disabled={isPending}>
-                {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isPending ? "Updating..." : "Update Password & Login"}
+              <Button
+                type="submit"
+                className="w-full h-11 bg-[#0A58A3] hover:bg-[#094b8a] transition-all"
+                disabled={isPending}
+              >
+                {isPending ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  "Update Password & Login"
+                )}
               </Button>
             </div>
           </form>
