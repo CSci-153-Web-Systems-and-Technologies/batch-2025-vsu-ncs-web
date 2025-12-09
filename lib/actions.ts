@@ -4,16 +4,15 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { Resend } from "resend";
+import { generateWelcomeEmail } from "./email";
 import { z } from "zod";
 
-// 1. Zod Schema with Coercion
-// We use z.coerce.number() to turn the form string "5" into number 5
 const ConductFormSchema = z.object({
   student_uuid: z.string().uuid({ message: "Invalid Student ID" }),
   category: z.enum(["merit", "demerit", "serious"]),
   context: z.enum(["office", "rle"]),
   description: z.string().min(1, { message: "Description is required" }),
-  // Allow optional because serious infractions might not have days yet
   sanction_days: z.coerce.number().optional().default(0),
 });
 
@@ -148,13 +147,34 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
   });
 
   if (error) {
+    await supabaseAdmin.auth.admin.deleteUser(newID);
     return { error: "Failed to create student profile: " + error.message };
   }
 
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  try {
+    await resend.emails.send({
+      from: "VSU NCS <onboarding@resend.dev>",
+      to: email,
+      subject: "Your VSU NCS Account Credentials",
+      html: generateWelcomeEmail(
+        first_name,
+        email,
+        temp_password,
+        `${loginUrl}/auth/login`
+      ),
+    });
+  } catch (emailError) {
+    console.error("Failed to send email:", emailError);
+  }
+
   revalidatePath("/protected/admin/student-management");
+
   return {
     success: true,
-    message: `Account created for ${first_name} ${middle_name.charAt(
+    message: `Account created & email sent for ${first_name} ${middle_name.charAt(
       0
     )}. ${last_name} ${suffix}`,
   };
