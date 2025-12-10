@@ -263,7 +263,11 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
     return { error: "Failed to create student profile: " + error.message };
   }
 
-  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
