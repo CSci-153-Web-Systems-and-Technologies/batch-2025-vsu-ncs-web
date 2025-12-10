@@ -392,7 +392,7 @@ export async function submitConductReport(prevState: any, formData: FormData) {
   if (studentUser && studentUser.user && studentProfile) {
     const studentEmail = studentUser.user.email as string;
     const studentName = `${studentProfile.first_name} ${studentProfile.last_name}`;
-    const resend = new Resend(process.env.RESEND_API_KEY);
+    //const resend = new Resend(process.env.RESEND_API_KEY);
     const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
       ? process.env.NEXT_PUBLIC_SITE_URL
       : process.env.VERCEL_URL
@@ -400,7 +400,19 @@ export async function submitConductReport(prevState: any, formData: FormData) {
       : "http://localhost:3000";
 
     try {
-      await resend.emails.send({
+      await sendEmail(
+        studentEmail,
+        `New ${category.toUpperCase()} Record Logged`,
+        generateConductNotificationEmail(
+          studentName,
+          category as "merit" | "demerit" | "serious",
+          description,
+          new Date().toLocaleDateString(),
+          facultyName,
+          `${loginUrl}`
+        )
+      );
+      /*await resend.emails.send({
         from: "VSU NCS <notifications@resend.dev>",
         to: studentEmail,
         subject: `New ${category.toUpperCase()} Record Logged`,
@@ -412,7 +424,7 @@ export async function submitConductReport(prevState: any, formData: FormData) {
           facultyName,
           `${loginUrl}`
         ),
-      });
+      });*/
       console.log(`Notification sent to ${studentEmail}`);
     } catch (emailError) {
       console.error("Failed to send notification email:", emailError);
