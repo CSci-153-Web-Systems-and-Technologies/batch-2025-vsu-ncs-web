@@ -66,8 +66,11 @@ export default function SeriousInfractionCard({
                 )}
               </Badge>
             </div>
-            <CardDescription>
-              {formattedDate} · Student: {studentName} ({studentId})
+            <CardDescription className="flex flex-col">
+              <span>{formattedDate} </span>
+              <span>
+                Student: {studentName} ({studentId})
+              </span>
             </CardDescription>
           </div>
 
