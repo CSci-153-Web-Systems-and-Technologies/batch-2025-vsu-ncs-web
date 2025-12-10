@@ -8,12 +8,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ConductReportWithStudent } from "@/types";
+import { SeriousInfractionTicket } from "@/types";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import FacultyResolutionDialog from "./resolution-dialog";
 
 type SeriousInfractionCardProps = {
-  record: ConductReportWithStudent;
+  record: SeriousInfractionTicket;
 };
 
 export default function SeriousInfractionCard({

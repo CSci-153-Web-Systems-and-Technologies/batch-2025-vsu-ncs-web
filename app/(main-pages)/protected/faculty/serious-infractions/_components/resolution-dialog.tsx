@@ -10,19 +10,18 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { ConductReportWithStudent } from "@/types";
+import { SeriousInfractionTicket } from "@/types";
 import { FileText, User, Quote } from "lucide-react";
 import { useState } from "react";
 
 export default function FacultyResolutionDialog({
   record,
 }: {
-  record: ConductReportWithStudent;
+  record: SeriousInfractionTicket;
 }) {
   const [open, setOpen] = useState(false);
   const response = record.response;
 
-  // Guard clause: if response data is missing, don't render dialog
   if (!response) return null;
 
   return (
@@ -43,7 +42,6 @@ export default function FacultyResolutionDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          {/* 1. The Verdict */}
           <div className="space-y-2">
             <h4 className="text-sm font-medium text-slate-500">
               Final Sanction
@@ -54,8 +52,17 @@ export default function FacultyResolutionDialog({
               </span>
             </div>
           </div>
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-slate-500">
+              Other Sanctions
+            </h4>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-green-800">
+                {response.final_sanction_other || "No sanction applied"}
+              </span>
+            </div>
+          </div>
 
-          {/* 2. Admin Notes */}
           {response.notes && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-slate-500">
@@ -72,7 +79,6 @@ export default function FacultyResolutionDialog({
 
           <Separator />
 
-          {/* 3. Footer Info */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
             <User className="w-3 h-3" />
             <span>

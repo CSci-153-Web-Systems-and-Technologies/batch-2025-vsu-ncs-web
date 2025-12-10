@@ -14,7 +14,11 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, User, CalendarDays, Gavel, Quote } from "lucide-react";
 import { SeriousInfractionTicket } from "@/types";
 
-export default function ViewDecisionDialog({ record }: { record: SeriousInfractionTicket }) {
+export default function ViewDecisionDialog({
+  record,
+}: {
+  record: SeriousInfractionTicket;
+}) {
   const decision = record.response;
 
   if (!decision) return null;
@@ -80,7 +84,7 @@ export default function ViewDecisionDialog({ record }: { record: SeriousInfracti
             <Label className="text-muted-foreground">Other Sanctions</Label>
             <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
               <span className="font-semibold text-green-800">
-                {decision.final_sanction || "No sanction applied"}
+                {decision.final_sanction_other || "No sanction applied"}
               </span>
 
               <Badge
