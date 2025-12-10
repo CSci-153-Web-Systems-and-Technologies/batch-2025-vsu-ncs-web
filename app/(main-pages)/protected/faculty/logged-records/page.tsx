@@ -33,10 +33,10 @@ export default async function ReportsPage() {
   return (
     <div className="flex flex-col w-full p-8 gap-5">
       <div className="flex flex-col gap-2">
-        <h1 className="text-[#0A58A3] text-2xl">My Conduct Reports</h1>
+        <h1 className="text-[#0A58A3] text-2xl">My Logged Records</h1>
         <p className="text-[#6C757D]">
           Complete record of all merits, demerits, and serious infractions
-          reports.
+          reports you have logged.
         </p>
       </div>
       <div>

@@ -60,7 +60,7 @@ export default function RecordCard({ record }: RecordCardProps) {
             <CardTitle className="text-lg font-semibold leading-snug">
               {studentName}
               <span className="block text-sm font-normal text-muted-foreground sm:inline sm:ml-2">
-                • {studentId}
+                {studentId}
               </span>
             </CardTitle>
 
