@@ -388,7 +388,7 @@ export async function submitConductReport(prevState: any, formData: FormData) {
         description,
         new Date().toLocaleDateString(),
         facultyName,
-        loginUrl
+        `${loginUrl}/auth/login`
       ),
     });
     console.log(`Notification sent to ${studentEmail}`);
