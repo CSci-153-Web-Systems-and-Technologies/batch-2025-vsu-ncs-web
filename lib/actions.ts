@@ -543,36 +543,34 @@ export async function submitInfractionResponse(
 
     if (studentUserData.data?.user?.email) {
       emailPromises.push(
-        resend.emails.send({
-          from: "VSU NCS Admin <notifications@resend.dev>",
-          to: "jamirandrade4270@gmail.com",
-          subject: "Action Required: Serious Infraction Case Update",
-          html: generateStudentInfractionResolutionEmail(
+        sendEmail(
+          studentUserData.data.user.email,
+          "Action Required: Serious Infraction Case Update",
+          generateStudentInfractionResolutionEmail(
             studentName,
             new Date(report.created_at).toLocaleDateString(),
             verdictString,
             notes,
             loginUrl
-          ),
-        })
+          )
+        )
       );
     }
 
     if (facultyUserData.data?.user?.email) {
       emailPromises.push(
-        resend.emails.send({
-          from: "VSU NCS Admin <notifications@resend.dev>",
-          to: "jamirandrade4270@gmail.com",
-          subject: "Case Resolved: Status Update on Filed Report",
-          html: generateReporterNotificationEmail(
+        sendEmail(
+          facultyUserData.data.user.email, // Using real email via Gmail SMTP
+          "Case Resolved: Status Update on Filed Report",
+          generateReporterNotificationEmail(
             facultyName,
             studentName,
             new Date(report.created_at).toLocaleDateString(),
             verdictString,
             notes,
             loginUrl
-          ),
-        })
+          )
+        )
       );
     }
 
