@@ -19,10 +19,8 @@ type SeriousInfractionCardProps = {
 export default function SeriousInfractionCard({
   record,
 }: SeriousInfractionCardProps) {
-  // 1. Status Logic
   const isResolved = record.status === "Resolved";
 
-  // 2. Formatting
   const formattedDate = new Date(record.created_at).toLocaleDateString(
     "en-US",
     { month: "long", day: "numeric", year: "numeric" }
