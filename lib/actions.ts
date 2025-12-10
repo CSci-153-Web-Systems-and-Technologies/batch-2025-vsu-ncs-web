@@ -560,7 +560,7 @@ export async function submitInfractionResponse(
     if (facultyUserData.data?.user?.email) {
       emailPromises.push(
         sendEmail(
-          facultyUserData.data.user.email, // Using real email via Gmail SMTP
+          facultyUserData.data.user.email,
           "Case Resolved: Status Update on Filed Report",
           generateReporterNotificationEmail(
             facultyName,
