@@ -14,15 +14,9 @@ import { Badge } from "@/components/ui/badge";
 import { FileText, User, CalendarDays, Gavel, Quote } from "lucide-react";
 import { SeriousInfractionTicket } from "@/types";
 
-export default function ViewDecisionDialog({
-  record,
-}: {
-  record: SeriousInfractionTicket;
-}) {
-  // Safe access to response data
+export default function ViewDecisionDialog({ record }: { record: SeriousInfractionTicket }) {
   const decision = record.response;
 
-  // Fallback if data is missing (shouldn't happen if status is Resolved)
   if (!decision) return null;
 
   const formattedDate = new Date(decision.resolved_at).toLocaleDateString(
@@ -55,7 +49,6 @@ export default function ViewDecisionDialog({
         </DialogHeader>
 
         <div className="space-y-6 py-2">
-          {/* 1. Admin Info */}
           <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-lg border">
             <div className="h-10 w-10 rounded-full bg-white border flex items-center justify-center shadow-sm">
               <User className="h-5 w-5 text-slate-500" />
@@ -70,13 +63,26 @@ export default function ViewDecisionDialog({
             </div>
           </div>
 
-          {/* 2. The Verdict */}
           <div className="space-y-2">
             <Label className="text-muted-foreground">Final Sanction</Label>
             <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
               <span className="font-semibold text-green-800">
                 {decision.final_sanction || "No sanction applied"}
               </span>
+
+              <Badge
+                variant="outline"
+                className="border-green-600 text-green-700 bg-white"
+              >
+                Resolved
+              </Badge>
+            </div>
+            <Label className="text-muted-foreground">Other Sanctions</Label>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-green-800">
+                {decision.final_sanction || "No sanction applied"}
+              </span>
+
               <Badge
                 variant="outline"
                 className="border-green-600 text-green-700 bg-white"
@@ -86,7 +92,6 @@ export default function ViewDecisionDialog({
             </div>
           </div>
 
-          {/* 3. Admin Notes (If any) */}
           {decision.notes && (
             <div className="space-y-2">
               <Label className="text-muted-foreground">Admin Notes</Label>
