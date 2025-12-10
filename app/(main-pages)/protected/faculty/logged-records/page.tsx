@@ -1,4 +1,4 @@
-import ReportCardList from "./_components/report-card-list";
+import ReportCardList from "@/app/(detail-pages)/records/_components/report-card-list";
 import { createClient } from "@/lib/supabase/server";
 import { transformReportForFaculty, safeMap } from "@/lib/data"; // <--- NEW UTILS
 import { ConductReportWithStudent } from "@/types";
