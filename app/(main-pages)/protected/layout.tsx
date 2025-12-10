@@ -8,6 +8,9 @@ import {
   MailWarning,
   FileCheckIcon,
   BookUser,
+  GraduationCap,
+  UserCog,
+  Gavel,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
@@ -107,17 +110,17 @@ export default async function StudentLayout({
       {
         title: "Student Management",
         url: "/protected/admin/student-management",
-        icon: History,
+        icon: GraduationCap,
       },
       {
         title: "Faculty Management",
         url: "/protected/admin/faculty-management",
-        icon: History,
+        icon: UserCog,
       },
       {
         title: "Serious Infractions",
         url: "/protected/admin/serious-infractions",
-        icon: History,
+        icon: Gavel,
       },
     ];
   }
@@ -132,7 +135,6 @@ export default async function StudentLayout({
   return (
     <SidebarProvider>
       <div className="flex min-h-screen w-full">
-        {/* Mobile Header */}
         <div className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b bg-white px-4 md:hidden">
           <SidebarTrigger />
           <div className="flex items-center gap-2">
