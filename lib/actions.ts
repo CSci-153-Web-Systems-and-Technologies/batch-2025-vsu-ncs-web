@@ -74,7 +74,7 @@ const PasswordSchema = z
   })
   .refine((data) => data.password === data.confirm, {
     message: "Passwords do not match",
-    path: ["confirm"], // Error will appear on the 'confirm' field
+    path: ["confirm"],
   });
 
 export async function createStudentAccount(prevState: any, formData: FormData) {
@@ -152,7 +152,11 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
     return { error: "Failed to create student profile: " + error.message };
   }
 
-  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
@@ -259,7 +263,11 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
     return { error: "Failed to create student profile: " + error.message };
   }
 
-  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
