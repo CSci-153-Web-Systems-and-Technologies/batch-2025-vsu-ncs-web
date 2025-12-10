@@ -13,7 +13,6 @@ type StudentCardListProps = {
 export default function StudentCardList({ data }: StudentCardListProps) {
   const [query, setQuery] = useState("");
 
-  // Client-side filtering is usually fast enough for < 1000 records
   const filteredRecords = data.filter((record) => {
     if (!query) return true;
     const lowerQuery = query.toLowerCase();
@@ -35,10 +34,7 @@ export default function StudentCardList({ data }: StudentCardListProps) {
       />
 
       {filteredRecords.map((record) => (
-        <StudentCard
-          key={record.id}
-          {...record} // Spreads all properties of StudentConductSummary
-        />
+        <StudentCard key={record.id} {...record} />
       ))}
 
       {filteredRecords.length === 0 && (
