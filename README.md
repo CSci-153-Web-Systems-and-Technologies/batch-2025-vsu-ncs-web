@@ -1,109 +1,229 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# VSU NCS (Nursing Conduct System)
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+A digital platform designed for the Visayas State University Faculty of Nursing to transparently manage student merit and demerit records. Developed as a final project for the Web Systems and Technologies course, this application digitalizes the traditional logbook system to ensure data integrity, accessibility, and real-time tracking of student conduct.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+- **Version:** v1.1.1
+
+## Table of Contents
+
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Installation](#installation)
+- [Environment](#environment)
+- [Database Setup](#database-setup)
+- [Running the Application](#running-the-application)
+- [Usage](#usage)
+- [Project Structure](#project-structure)
+- [Deployment](#deployment)
+- [Contributing](#contributing)
+- [License](#license)
+- [Acknowledgments](#acknowledgments)
 
 ## Features
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+### For Students
 
-## Demo
+- **Digital Conduct Record:** View personal history of merits, demerits, and infractions 24/7.
+- **Real-time Notifications:** Receive automated emails via Resend when a new record is logged.
+- **Secure Access:** Personal dashboard protected by role-based authentication.
+- **Transparency:** View details of reported "Serious Infractions" and their resolutions.
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+### For Faculty
 
-## Deploy to Vercel
+- **Efficient Logging:** Quickly file merits or demerits using a streamlined digital form.
+- **Student Directory:** Access a searchable list of nursing students.
+- **Serious Infraction Reporting:** Escalate severe violations directly to administration for review.
+- **Mobile Responsive:** Log records on-the-go using mobile devices or tablets.
 
-Vercel deployment will guide you through creating a Supabase account and project.
+### For Admins
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+- **User Management:** Manually create and manage accounts for Students and Faculty.
+- **Infraction Review Queue:** Dedicated interface to review and resolve serious infractions.
+- **Data Visualization:** Dashboard with charts to track trends and severity ratios (desktop optimized).
+- **System Oversight:** Full control over conduct records and user data.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+## System Capabilities
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+- **Role-Based Access Control (RBAC):** Separation of privileges between Students, Faculty, and Admins.
+- **Automated Onboarding:** New users receive welcome emails with temporary credentials.
+- **Force Password Change:** Enforced on first login for security.
+- **Responsive Design:** UI adapts across devices.
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+## Tech Stack
 
-## Clone and run locally
+- Frontend: Next.js 16 (App Router), React 18, TypeScript
+- Backend: Supabase (PostgreSQL, Auth, Real-time)
+- Styling: Tailwind CSS with shadcn/ui components
+- Email: Resend API
+- State Management: React Server Actions (no client-side global state store)
+- Deployment: Vercel
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+## Prerequisites
 
-2. Create a Next.js app using the Supabase Starter template npx command
+Before you begin, ensure you have:
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+- Node.js 18+
+- A Supabase account and project
+- A Resend account (for emails)
+- Git installed
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+## Installation
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+Clone the repository and install dependencies:
 
-3. Use `cd` to change into the app's directory
+```bash
+git clone https://github.com/your-username/vsu-ncs.git
+cd vsu-ncs
+npm install
+# or
+pnpm install
+```
 
-   ```bash
-   cd with-supabase-app
-   ```
+## Environment
 
-4. Rename `.env.example` to `.env.local` and update the following:
+Create a `.env.local` file in the project root and add the following variables:
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+```env
+NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_for_admin_actions
+RESEND_API_KEY=your_resend_api_key
+```
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+## Database Setup
 
-5. You can now run the Next.js local development server:
+Run the following SQL in your Supabase SQL editor to create the core tables and policies.
 
-   ```bash
-   npm run dev
-   ```
+```sql
+-- Profiles & Roles
+CREATE TABLE student_profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  student_id TEXT UNIQUE NOT NULL,
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  year_level INTEGER,
+  sex TEXT
+);
 
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
+CREATE TABLE staff_profiles (
+  id UUID REFERENCES auth.users(id) PRIMARY KEY,
+  employee_id TEXT UNIQUE NOT NULL,
+  role TEXT CHECK (role IN ('faculty', 'admin')),
+  first_name TEXT NOT NULL,
+  last_name TEXT NOT NULL,
+  title TEXT
+);
 
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
+-- Conduct Reports
+CREATE TABLE conduct_reports (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  student_id UUID REFERENCES auth.users(id) NOT NULL,
+  faculty_id UUID REFERENCES auth.users(id) NOT NULL,
+  type TEXT CHECK (type IN ('merit', 'demerit')),
+  is_serious_infraction BOOLEAN DEFAULT false,
+  description TEXT NOT NULL,
+  sanction_days INTEGER DEFAULT 0,
+  sanction_context TEXT
+);
 
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
+-- Enable Row Level Security
+ALTER TABLE conduct_reports ENABLE ROW LEVEL SECURITY;
 
-## Feedback and issues
+-- Policies (Simplified)
+CREATE POLICY "Students view own" ON conduct_reports
+  FOR SELECT USING (auth.uid() = student_id);
 
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
+CREATE POLICY "Staff view all" ON conduct_reports
+  FOR SELECT USING (EXISTS (SELECT 1 FROM staff_profiles WHERE id = auth.uid()));
 
-## More Supabase examples
+```
 
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+## Running the Application
+
+Start the development server:
+
+```bash
+npm run dev
+```
+
+Open your browser at `http://localhost:3000`.
+
+## Usage
+
+### Initial Setup
+
+The first user must be created via the Supabase Dashboard (Auth) or SQL to establish an Admin account. Log in as Admin to access administrative tools.
+
+### Administrative Workflow
+
+- Create Accounts from Student/Faculty Management pages.
+- Onboarding emails are sent automatically with temporary passwords.
+
+### Faculty Workflow
+
+- Log in, search for a student, and file a merit or demerit.
+- Check "Serious Infraction" to flag reports for Admin review.
+
+### Student Workflow
+
+- Log in to view personal records and history.
+
+## Project Structure
+
+```
+vsu-ncs/
+├── app/                  # Next.js App Router
+│   ├── (auth)/           # Login, Forgot Password, Reset Password
+│   ├── (public)/         # Landing page
+│   ├── protected/        # Role-protected routes (Admin/Faculty/Student)
+│   ├── assets/           # Static images/logos
+│   └── layout.tsx        # Root layout with ThemeProvider
+├── components/           # Reusable UI components
+│   ├── ui/               # shadcn/ui components (Button, Card, Sidebar)
+│   ├── app-sidebar.tsx   # Main navigation logic
+│   └── ...               # Custom components
+├── lib/                  # Utilities
+│   ├── supabase/         # Client & Server Supabase clients
+│   └── actions/          # Server Actions (Auth, Data Mutation)
+├── types/                # TypeScript definitions
+└── public/               # Public assets
+```
+
+## Deployment
+
+Deploy to Vercel:
+
+1. Push code to GitHub/GitLab.
+2. Import the project into Vercel.
+3. Add environment variables in Vercel project settings (same keys as `.env.local`).
+
+Vercel will provide `VERCEL_URL` for production redirects.
+
+## Contributing
+
+This is a university project for Web Systems and Technologies. Contributions are welcome via forks and pull requests.
+
+Basic workflow:
+
+```bash
+git checkout -b feature/AmazingFeature
+git commit -m "Add some AmazingFeature"
+git push origin feature/AmazingFeature
+```
+
+Open a Pull Request for review.
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- Visayas State University — For the academic opportunity
+- shadcn/ui — Accessible component library
+- Supabase — Backend infrastructure
+- Resend — Email delivery
+
+VSU NCS — Integrity & Accountability
