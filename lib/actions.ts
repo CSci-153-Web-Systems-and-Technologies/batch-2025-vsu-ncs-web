@@ -5,12 +5,11 @@ import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Resend } from "resend";
-import {
-  generateWelcomeEmail,
-  generateConductNotificationEmail,
-  generateStudentInfractionResolutionEmail,
-  generateReporterNotificationEmail,
-} from "./email";
+
+import { generateWelcomeEmail } from "./email-template/welcome-email";
+import { generateConductNotificationEmail } from "./email-template/conduct-report-email";
+import { generateStudentInfractionResolutionEmail } from "./email-template/infraction-review-email";
+import { generateReporterNotificationEmail } from "./email-template/infraction-review-email";
 import { headers } from "next/headers";
 import { z } from "zod";
 
