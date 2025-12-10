@@ -10,7 +10,6 @@ import { generateWelcomeEmail } from "./email-template/welcome-email";
 import { generateConductNotificationEmail } from "./email-template/conduct-report-email";
 import { generateStudentInfractionResolutionEmail } from "./email-template/infraction-review-email";
 import { generateReporterNotificationEmail } from "./email-template/infraction-review-email";
-import { headers } from "next/headers";
 import { z } from "zod";
 
 const ConductFormSchema = z.object({
