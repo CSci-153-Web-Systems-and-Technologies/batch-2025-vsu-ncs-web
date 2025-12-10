@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
-import { transformReportForStudent, safeMap } from "@/lib/data"; // Or your utils path
-import { ConductReportWithReporter } from "@/types";
+import { transformSeriousTicket, safeMap } from "@/lib/data"; // Or your utils path
+import { SeriousInfractionTicket } from "@/types";
 import SeriousInfractionList from "./_components/serious-infraction-list";
 import { AlertTriangle } from "lucide-react";
 
@@ -10,32 +10,32 @@ export default async function StudentSeriousInfractionsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. FETCH RAW DATA
   const { data: rawData } = await supabase
     .from("conduct_reports")
     .select(
       `
-      *,
-      reporter:staff_profiles!faculty_id (first_name, last_name, title),
-      
-      infraction_responses (
-        id,
-        created_at, 
-        final_sanction_days, 
-        final_sanction_other,
-        notes,
-        admin:staff_profiles (first_name, last_name)
-      )
-    `
+          *,
+          student:student_profiles(*), 
+          reporter:staff_profiles!faculty_id (first_name, last_name, title),
+          
+          infraction_responses (
+            id,
+            created_at, 
+            final_sanction_days,
+            final_sanction_other,
+            notes,
+            admin:staff_profiles (first_name, last_name)
+          )
+        `
     )
-    .eq("student_id", user?.id)
     .eq("is_serious_infraction", true)
+    .eq("student_id", user?.id)
     .order("created_at", { ascending: false });
 
   // 2. TRANSFORM
-  const seriousReports: ConductReportWithReporter[] = safeMap(
+  const seriousReports: SeriousInfractionTicket[] = safeMap(
     rawData,
-    transformReportForStudent
+    transformSeriousTicket
   );
 
   return (

@@ -10,32 +10,6 @@ export default async function FacultySeriousInfractionsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  /*const { data: rawData } = await supabase
-    .from("conduct_reports")
-    .select(
-      `
-      *,
-      student:student_profiles(*), 
-      
-      infraction_responses (
-        id,
-        created_at, 
-        final_sanction_days, 
-        final_sanction_other,
-        notes,
-        admin:staff_profiles (first_name, last_name)
-      )
-    `
-    )
-    .eq("faculty_id", user?.id) // Filter: My reports
-    .eq("is_serious_infraction", true) // Filter: Serious only
-    .order("created_at", { ascending: false });
-
-  const seriousReports: ConductReportWithStudent[] = safeMap(
-    rawData,
-    transformReportForFaculty
-  );*/
-
   const { data: rawData } = await supabase
     .from("conduct_reports")
     .select(
