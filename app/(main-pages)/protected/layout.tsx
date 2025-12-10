@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/app-sidebar";
+import NextTopLoader from "nextjs-toploader";
 import {
   LayoutDashboard,
   History,
@@ -146,6 +147,17 @@ export default async function StudentLayout({
           role={capitalizeFirstLetter(userRole)}
         />
         <main className="flex-1 overflow-y-auto bg-[#F8F9FA] pt-16 md:ml-64 md:pt-0">
+          <NextTopLoader
+            color="#059669"
+            initialPosition={0.08}
+            crawlSpeed={200}
+            height={3}
+            crawl={true}
+            showSpinner={false}
+            easing="ease"
+            speed={200}
+            shadow="0 0 10px #059669,0 0 5px #059669"
+          />
           {children}
           <Toaster position="top-right" richColors closeButton />
         </main>
