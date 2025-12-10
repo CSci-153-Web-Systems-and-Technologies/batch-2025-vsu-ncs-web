@@ -8,6 +8,8 @@ import { Resend } from "resend";
 import {
   generateWelcomeEmail,
   generateConductNotificationEmail,
+  generateStudentInfractionResolutionEmail,
+  generateReporterNotificationEmail,
 } from "./email";
 import { headers } from "next/headers";
 import { z } from "zod";
@@ -371,30 +373,30 @@ export async function submitConductReport(prevState: any, formData: FormData) {
     const studentEmail = studentUser.user.email as string;
     const studentName = `${studentProfile.first_name} ${studentProfile.last_name}`;
     const resend = new Resend(process.env.RESEND_API_KEY);
-  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
-    ? process.env.NEXT_PUBLIC_SITE_URL
-    : process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000";
+    const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+      ? process.env.NEXT_PUBLIC_SITE_URL
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
 
-  try {
-    await resend.emails.send({
-      from: "VSU NCS <notifications@resend.dev>",
-      to: studentEmail,
-      subject: `New ${category.toUpperCase()} Record Logged`,
-      html: generateConductNotificationEmail(
-        studentName,
-        category as "merit" | "demerit" | "serious",
-        description,
-        new Date().toLocaleDateString(),
-        facultyName,
-        `${loginUrl}`
-      ),
-    });
-    console.log(`Notification sent to ${studentEmail}`);
-  } catch (emailError) {
-    console.error("Failed to send notification email:", emailError);
-  }
+    try {
+      await resend.emails.send({
+        from: "VSU NCS <notifications@resend.dev>",
+        to: studentEmail,
+        subject: `New ${category.toUpperCase()} Record Logged`,
+        html: generateConductNotificationEmail(
+          studentName,
+          category as "merit" | "demerit" | "serious",
+          description,
+          new Date().toLocaleDateString(),
+          facultyName,
+          `${loginUrl}`
+        ),
+      });
+      console.log(`Notification sent to ${studentEmail}`);
+    } catch (emailError) {
+      console.error("Failed to send notification email:", emailError);
+    }
   }
 
   revalidatePath("/protected/faculty/dashboard");
@@ -453,6 +455,99 @@ export async function submitInfractionResponse(
   if (updateError) {
     console.error("Supabase Error:", updateError);
     return { error: "Failed to update report: " + updateError.message };
+  }
+
+  const supabaseAdmin = await createAdminClient();
+  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
+
+  let verdictString = "";
+  if (final_sanction_days > 0) {
+    verdictString = `${final_sanction_days} days demerit deduction`;
+  }
+  if (final_sanction_other) {
+    if (verdictString) verdictString += " AND ";
+    verdictString += final_sanction_other;
+  }
+  if (!verdictString) verdictString = "No Sanction Imposed";
+
+  const [
+    studentUserData,
+    studentProfileData,
+    facultyUserData,
+    facultyProfileData,
+  ] = await Promise.all([
+    supabaseAdmin.auth.admin.getUserById(report.student_id as string),
+    supabase
+      .from("student_profiles")
+      .select("first_name, last_name")
+      .eq("id", report.student_id as string)
+      .single(),
+    supabaseAdmin.auth.admin.getUserById(report.faculty_id as string),
+    supabase
+      .from("staff_profiles")
+      .select("first_name, last_name, title")
+      .eq("id", report.faculty_id as string)
+      .single(),
+  ]);
+
+  const studentName = studentProfileData.data
+    ? `${studentProfileData.data.first_name} ${studentProfileData.data.last_name}`
+    : "Student";
+
+  const facultyName = facultyProfileData.data
+    ? `${facultyProfileData.data.title || ""} ${
+        facultyProfileData.data.first_name
+      } ${facultyProfileData.data.last_name}`.trim()
+    : "Faculty Member";
+
+  try {
+    const emailPromises = [];
+
+    if (studentUserData.data?.user?.email) {
+      emailPromises.push(
+        resend.emails.send({
+          from: "VSU NCS Admin <notifications@resend.dev>",
+          to: "jamirandrade4270@gmail.com",
+          subject: "Action Required: Serious Infraction Case Update",
+          html: generateStudentInfractionResolutionEmail(
+            studentName,
+            new Date(report.created_at).toLocaleDateString(),
+            verdictString,
+            notes,
+            loginUrl
+          ),
+        })
+      );
+    }
+
+    if (facultyUserData.data?.user?.email) {
+      emailPromises.push(
+        resend.emails.send({
+          from: "VSU NCS Admin <notifications@resend.dev>",
+          to: "jamirandrade4270@gmail.com",
+          subject: "Case Resolved: Status Update on Filed Report",
+          html: generateReporterNotificationEmail(
+            facultyName,
+            studentName,
+            new Date(report.created_at).toLocaleDateString(),
+            verdictString,
+            notes,
+            loginUrl
+          ),
+        })
+      );
+    }
+
+    await Promise.all(emailPromises);
+    console.log("Notifications sent to Student and Reporter.");
+  } catch (emailError) {
+    console.error("Failed to send resolution emails:", emailError);
   }
 
   revalidatePath("/protected/admin/serious-infractions");
