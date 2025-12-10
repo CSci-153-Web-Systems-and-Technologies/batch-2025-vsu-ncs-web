@@ -43,7 +43,10 @@ export default function AppSidebar({ items, profile, role }: AppSidebarProps) {
           <SidebarMenu>
             {items.map(({ title, url, icon: Icon }) => (
               <SidebarMenuItem key={title}>
-                <SidebarMenuButton asChild>
+                <SidebarMenuButton
+                  asChild
+                  className="h-10 hover:bg-emerald-50 hover:text-emerald-700 transition-all duration-200 ease-in-out group"
+                >
                   <Link href={url} className="flex items-center">
                     <Icon className="mr-3 h-5 w-5" />
                     <span className="text-[16px]">{title}</span>

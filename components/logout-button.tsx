@@ -17,7 +17,11 @@ export function LogoutButton() {
 
   return (
     <Suspense>
-      <Button className="w-full font-semibold" variant="ghost" onClick={logout}>
+      <Button
+        className="w-full justify-center gap-3 hover:bg-red-50 hover:text-red-600 transition-colors duration-200"
+        variant="ghost"
+        onClick={logout}
+      >
         <LogOut />
         Logout
       </Button>
