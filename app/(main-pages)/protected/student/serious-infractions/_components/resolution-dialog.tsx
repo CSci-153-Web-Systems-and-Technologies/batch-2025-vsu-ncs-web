@@ -42,7 +42,6 @@ export default function StudentResolutionDialog({
         </DialogHeader>
 
         <div className="grid gap-4 py-4">
-          {/* 1. The Verdict */}
           <div className="space-y-2">
             <h4 className="text-sm font-medium text-slate-500">
               Final Sanction
@@ -64,7 +63,6 @@ export default function StudentResolutionDialog({
             </div>
           </div>
 
-          {/* 2. Admin Notes */}
           {response.notes && (
             <div className="space-y-2">
               <h4 className="text-sm font-medium text-slate-500">
@@ -81,7 +79,6 @@ export default function StudentResolutionDialog({
 
           <Separator />
 
-          {/* 3. Footer Info */}
           <div className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
             <User className="w-3 h-3" />
             <span>

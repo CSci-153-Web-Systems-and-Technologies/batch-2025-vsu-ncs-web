@@ -26,7 +26,6 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
-      {/* LEFT COLUMN (Branding) */}
       <div className="relative hidden lg:flex flex-col p-10 text-white dark:border-r bg-[#0A58A3]">
         <div className="absolute inset-0 bg-linear-to-b from-transparent to-black/20" />
         <div className="relative z-20 flex items-center text-lg font-medium gap-2">
@@ -44,7 +43,6 @@ export default function ForgotPasswordPage() {
         </div>
       </div>
 
-      {/* RIGHT COLUMN (Form) */}
       <div className="flex flex-col gap-4 p-6 md:p-10 justify-center items-center">
         <Card className="w-full max-w-md border-none shadow-none sm:border sm:shadow-sm">
           <CardHeader>

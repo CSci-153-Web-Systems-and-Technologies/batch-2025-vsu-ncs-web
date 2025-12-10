@@ -2,8 +2,6 @@
 
 A digital platform designed for the Visayas State University Faculty of Nursing to transparently manage student merit and demerit records. Developed as a final project for the Web Systems and Technologies course, this application digitalizes the traditional logbook system to ensure data integrity, accessibility, and real-time tracking of student conduct.
 
-- **Version:** v1.1.1
-
 ## Table of Contents
 
 - [Features](#features)
