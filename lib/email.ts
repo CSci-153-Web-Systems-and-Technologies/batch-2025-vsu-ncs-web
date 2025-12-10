@@ -32,7 +32,8 @@ export const generateConductNotificationEmail = (
   type: "merit" | "demerit" | "serious",
   description: string,
   date: string,
-  facultyName: string
+  facultyName: string,
+  loginURL: string
 ) => {
   const isGood = type === "merit";
   const color = isGood ? "#059669" : "#DC2626";
@@ -54,7 +55,7 @@ export const generateConductNotificationEmail = (
 
       <p>You can view your full record history by logging into the VSU NCS portal.</p>
       
-      <a href="${process.env.NEXT_PUBLIC_SITE_URL}/auth/login" style="background-color: ${color}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 10px;">
+      <a href="${loginURL}/auth/login" style="background-color: ${color}; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; display: inline-block; margin-top: 10px;">
         View My Portal
       </a>
     </div>

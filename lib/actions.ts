@@ -371,24 +371,30 @@ export async function submitConductReport(prevState: any, formData: FormData) {
     const studentEmail = studentUser.user.email as string;
     const studentName = `${studentProfile.first_name} ${studentProfile.last_name}`;
     const resend = new Resend(process.env.RESEND_API_KEY);
+  const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
 
-    try {
-      await resend.emails.send({
-        from: "VSU NCS <notifications@resend.dev>",
-        to: studentEmail,
-        subject: `New ${category.toUpperCase()} Record Logged`,
-        html: generateConductNotificationEmail(
-          studentName,
-          category as "merit" | "demerit" | "serious",
-          description,
-          new Date().toLocaleDateString(),
-          facultyName
-        ),
-      });
-      console.log(`Notification sent to ${studentEmail}`);
-    } catch (emailError) {
-      console.error("Failed to send notification email:", emailError);
-    }
+  try {
+    await resend.emails.send({
+      from: "VSU NCS <notifications@resend.dev>",
+      to: studentEmail,
+      subject: `New ${category.toUpperCase()} Record Logged`,
+      html: generateConductNotificationEmail(
+        studentName,
+        category as "merit" | "demerit" | "serious",
+        description,
+        new Date().toLocaleDateString(),
+        facultyName,
+        loginUrl
+      ),
+    });
+    console.log(`Notification sent to ${studentEmail}`);
+  } catch (emailError) {
+    console.error("Failed to send notification email:", emailError);
+  }
   }
 
   revalidatePath("/protected/faculty/dashboard");
