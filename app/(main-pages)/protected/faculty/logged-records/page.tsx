@@ -10,7 +10,6 @@ export default async function ReportsPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. FETCH RAW DATA
   const { data: rawData } = await supabase
     .from("conduct_reports")
     .select(
@@ -26,7 +25,6 @@ export default async function ReportsPage() {
     .eq("faculty_id", user?.id)
     .order("created_at", { ascending: false });
 
-  // 2. TRANSFORM DATA
   const records: ConductReportWithStudent[] = safeMap(
     rawData,
     transformReportForFaculty
