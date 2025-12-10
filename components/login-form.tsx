@@ -16,6 +16,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Loader2, AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 export function LoginForm({
   className,
@@ -29,9 +30,13 @@ export function LoginForm({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    const supabase = createClient();
-    setIsLoading(true);
+
+    toast.dismiss();
     setError(null);
+    setIsLoading(true);
+
+    const supabase = createClient();
+
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -51,12 +56,24 @@ export function LoginForm({
         })());
 
       if (finalRole) {
+        toast.success("Login successful!", {
+          description: "Redirecting to dashboard...",
+        });
         router.push(`/protected/${finalRole}/dashboard`);
       } else {
+        toast.error("Access Denied", {
+          description: "No role assigned to this account.",
+        });
         router.push(`/unauthorized`);
       }
     } catch (error: unknown) {
-      setError(error instanceof Error ? error.message : "An error occurred");
+      const errorMessage =
+        error instanceof Error ? error.message : "An error occurred";
+
+      setError(errorMessage);
+      toast.error("Login Failed", {
+        description: errorMessage,
+      });
     } finally {
       setIsLoading(false);
     }

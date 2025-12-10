@@ -1,29 +1,26 @@
-"use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ConductReportWithStudent } from "@/types"; // <--- NEW IMPORT
+import { ConductReportWithStudent } from "@/types";
 
 export type RecordCardProps = {
-  record: ConductReportWithStudent; // <--- NEW PROP
+  record: ConductReportWithStudent;
 };
 
 export default function RecordCard({ record }: RecordCardProps) {
-  // 1. LOGIC: Determine Colors
   let badgeColor = "";
   let borderColor = "";
 
   if (record.is_serious_infraction) {
-    badgeColor = "bg-[#FB2C36]"; // Red
+    badgeColor = "bg-[#FB2C36] hover:bg-[#FB2C36]/90";
     borderColor = "border-[#FB2C36]";
   } else if (record.type === "merit") {
-    badgeColor = "bg-[#00C950]"; // Green
+    badgeColor = "bg-[#00C950] hover:bg-[#00C950]/90";
     borderColor = "border-[#00C950]";
   } else {
-    badgeColor = "bg-[#FF6900]"; // Orange
+    badgeColor = "bg-[#FF6900] hover:bg-[#FF6900]/90";
     borderColor = "border-[#FF6900]";
   }
 
-  // 2. LOGIC: Determine Badge Text
   const value = Math.abs(record.sanction_days ?? 0);
   let badgeText = "";
 
@@ -38,28 +35,50 @@ export default function RecordCard({ record }: RecordCardProps) {
     badgeText = "Warning";
   }
 
-  // 3. LOGIC: Student Name & ID
   const studentName = record.student
     ? `${record.student.first_name} ${record.student.last_name}`
     : "Unknown Student";
 
   const studentId = record.student?.student_id || "No ID";
 
-  // 4. LOGIC: Date Formatting
-  const dateStr = new Date(record.created_at).toISOString().split("T")[0];
+  const formattedDate = new Date(record.created_at).toLocaleDateString(
+    "en-US",
+    {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    }
+  );
 
   return (
-    <div>
-      <Card className={`${borderColor} flex-1 gap-1 border-l-4`}>
-        <CardHeader className="pb-2">
-          <div className="flex flex-row justify-between">
-            <CardTitle>{`${studentName} · (${studentId})`}</CardTitle>
-            <Badge className={`${badgeColor}`}>{badgeText}</Badge>
+    <div className="w-full">
+      <Card
+        className={`${borderColor} flex-1 gap-1 border-l-4 shadow-sm h-full`}
+      >
+        <CardHeader className="pb-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <CardTitle className="text-lg font-semibold leading-snug">
+              {studentName}
+              <span className="block text-sm font-normal text-muted-foreground sm:inline sm:ml-2">
+                {studentId}
+              </span>
+            </CardTitle>
+
+            <Badge
+              className={`${badgeColor} text-white w-fit shrink-0 border-transparent px-3 py-1`}
+            >
+              {badgeText}
+            </Badge>
           </div>
         </CardHeader>
+
         <CardContent className="flex flex-col gap-2">
-          <h1>{record.description}</h1>
-          <p className="text-[#6C757D]">{dateStr}</p>
+          <p className="font-medium text-foreground leading-relaxed">
+            {record.description}
+          </p>
+          <p className="text-sm text-muted-foreground">
+            Reported on {formattedDate}
+          </p>
         </CardContent>
       </Card>
     </div>

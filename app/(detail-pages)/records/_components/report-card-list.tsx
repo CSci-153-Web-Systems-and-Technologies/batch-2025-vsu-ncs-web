@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import RecordCard from "./record-card"; // Ensure this path points to your refactored RecordCard
+import RecordCard from "./record-card";
 import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
@@ -12,12 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search, SlidersHorizontal } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ConductReportWithStudent } from "@/types"; // <--- NEW IMPORT
+import { ConductReportWithStudent } from "@/types";
 
 type ReportCardListProps = {
-  data: ConductReportWithStudent[]; // <--- NEW TYPE
+  data: ConductReportWithStudent[];
 };
 
 export default function ReportCardList({ data }: ReportCardListProps) {
@@ -26,20 +26,18 @@ export default function ReportCardList({ data }: ReportCardListProps) {
   const [reports, setReports] = useState(data);
   const [reportCount, setReportCount] = useState(data.length);
 
-  // Combined filter function
   const applyFilters = useCallback(
     (search: string, filterType: string) => {
       const lowerSearch = search.toLowerCase();
 
       const filtered = data.filter((item) => {
-        // 1. Search Filter (Safe Navigation for student object)
         const s = item.student;
         const matchesSearch =
           search === "" ||
           (s?.student_id || "").includes(search) ||
           (s?.first_name || "").toLowerCase().includes(lowerSearch) ||
           (s?.last_name || "").toLowerCase().includes(lowerSearch);
-        // 2. Type Filter (Using strict 'type' field)
+
         const matchesType =
           filterType === "All Types"
             ? true
@@ -77,25 +75,40 @@ export default function ReportCardList({ data }: ReportCardListProps) {
   );
 
   return (
-    <div className="flex flex-col gap-4">
-      <div className="flex flex-row justify-between">
-        <div className="text-[18px]">
-          <h1 className="font-semibold">Conduct Reports</h1>
-          <p className="text-[#6C757D]">{`${reportCount} record(s) found`}</p>
+    <div className="flex flex-col gap-6">
+      <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-end">
+        <div className="space-y-1">
+          <h1 className="font-semibold text-lg md:text-xl tracking-tight">
+            Conduct Reports
+          </h1>
+          <p className="text-sm text-muted-foreground">{`${reportCount} record(s) found`}</p>
         </div>
-        <div className="flex flex-row gap-4">
-          <Input
-            placeholder="Search by id or name..."
-            value={searchQuery}
-            onChange={(event) => handleSearch(event.target.value ?? "")}
-          />
+
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center w-full sm:w-auto">
+          <div className="relative w-full sm:w-[250px]">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              placeholder="Search by ID or name..."
+              value={searchQuery}
+              onChange={(event) => handleSearch(event.target.value ?? "")}
+              className="pl-9 w-full"
+            />
+          </div>
+
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" className="w-full sm:w-auto">
-                {type} <ChevronDown className="ml-2 h-4 w-4" />
+              <Button
+                variant="outline"
+                className="w-full sm:w-auto justify-between sm:justify-center"
+              >
+                <span className="flex items-center gap-2">
+                  <SlidersHorizontal className="h-4 w-4 sm:hidden" />
+                  {type}
+                </span>
+                <ChevronDown className="ml-2 h-4 w-4 opacity-50" />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[200px]">
+            <DropdownMenuContent align="end" className="w-[200px]">
               <DropdownMenuLabel>Filter by Type</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuCheckboxItem
@@ -126,13 +139,17 @@ export default function ReportCardList({ data }: ReportCardListProps) {
           </DropdownMenu>
         </div>
       </div>
+
       <div className="flex flex-col gap-4">
         {reports.map((item) => (
-          // UPDATED: Now passing the whole object to the refactored RecordCard
           <RecordCard key={item.id} record={item} />
         ))}
         {reports.length === 0 && (
-          <p className="text-center text-gray-500">No records found.</p>
+          <div className="py-12 text-center">
+            <p className="text-muted-foreground">
+              No records found matching your filters.
+            </p>
+          </div>
         )}
       </div>
     </div>
