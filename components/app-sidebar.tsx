@@ -62,10 +62,14 @@ export default function AppSidebar({ items, profile, role }: AppSidebarProps) {
         <SidebarMenu>
           {" "}
           <div className="w-full">
-            <Card className="h-fit py-0">
+            <Card className="h-fit py-0 group transition-all duration-300 ease-out hover:-translate-y-1 hover:scale-[1.02] hover:shadow-lg hover:shadow-emerald-500/20 hover:border-emerald-500/40 cursor-pointer">
               <CardHeader>
-                <CardTitle>{profile}</CardTitle>
-                <CardDescription>{role}</CardDescription>
+                <CardTitle className="transition-colors duration-300 group-hover:text-emerald-700">
+                  {profile}
+                </CardTitle>
+                <CardDescription className="transition-colors duration-300 group-hover:text-emerald-600/80">
+                  {role}
+                </CardDescription>
               </CardHeader>
             </Card>
           </div>
