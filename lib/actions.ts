@@ -5,6 +5,7 @@ import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { Resend } from "resend";
+import { sendEmail } from "./email-transporter";
 
 import { generateWelcomeEmail } from "./email-template/welcome-email";
 import { generateConductNotificationEmail } from "./email-template/conduct-report-email";
@@ -160,10 +161,21 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
     : process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
-  const resend = new Resend(process.env.RESEND_API_KEY);
+
+  //const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
-    await resend.emails.send({
+    await sendEmail(
+      email,
+      "Your VSU NCS Account Credentials",
+      generateWelcomeEmail(
+        first_name,
+        email,
+        temp_password,
+        `${loginUrl}/auth/login`
+      )
+    );
+    /*await resend.emails.send({
       from: "VSU NCS <onboarding@resend.dev>",
       to: "jamirandrade4270@gmail.com",
       subject: "Your VSU NCS Account Credentials",
@@ -173,7 +185,7 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
         temp_password,
         `${loginUrl}/auth/login`
       ),
-    });
+    });*/
   } catch (emailError) {
     console.error("Failed to send email:", emailError);
   }
@@ -274,7 +286,17 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
   const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
-    await resend.emails.send({
+    await sendEmail(
+      email,
+      "Your VSU NCS Account Credentials",
+      generateWelcomeEmail(
+        first_name,
+        email,
+        temp_password,
+        `${loginUrl}/auth/login`
+      )
+    );
+    /*await resend.emails.send({
       from: "VSU NCS <onboarding@resend.dev>",
       to: "jamirandrade4270@gmail.com",
       subject: "Your VSU NCS Account Credentials",
@@ -284,7 +306,7 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
         temp_password,
         `${loginUrl}/auth/login`
       ),
-    });
+    });*/
   } catch (emailError) {
     console.error("Failed to send email:", emailError);
   }
