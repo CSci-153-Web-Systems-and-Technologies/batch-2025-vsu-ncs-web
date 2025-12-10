@@ -8,21 +8,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ConductReportWithReporter } from "@/types";
+import { SeriousInfractionTicket } from "@/types";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import StudentResolutionDialog from "./resolution-dialog";
 
 type SeriousInfractionCardProps = {
-  record: ConductReportWithReporter;
+  record: SeriousInfractionTicket;
 };
 
 export default function SeriousInfractionCard({
   record,
 }: SeriousInfractionCardProps) {
-  // 1. Status Logic
   const isResolved = record.status === "Resolved";
 
-  // 2. Formatting
   const formattedDate = new Date(record.created_at).toLocaleDateString(
     "en-US",
     { month: "long", day: "numeric", year: "numeric" }

@@ -11,7 +11,6 @@ export default async function ConductRecords() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. FETCH RAW DATA (with joins)
   const { data: rawData } = await supabase
     .from("conduct_reports")
     .select(
@@ -30,7 +29,6 @@ export default async function ConductRecords() {
     .eq("student_id", user?.id)
     .order("created_at", { ascending: false });
 
-  // 2. TRANSFORM DATA (using util)
   const data: ConductReportWithReporter[] = safeMap(
     rawData,
     transformReportForStudent
@@ -45,11 +43,9 @@ export default async function ConductRecords() {
         </p>
       </div>
       <div className="hidden md:block container mx-auto p-4">
-        {/* Pass new 'data' and 'columns' */}
         <ConductRecordsTable columns={columns} data={data} />
       </div>
       <div className="md:hidden">
-        {/* Pass new 'data' */}
         <ConductCardList data={data} />
       </div>
     </div>

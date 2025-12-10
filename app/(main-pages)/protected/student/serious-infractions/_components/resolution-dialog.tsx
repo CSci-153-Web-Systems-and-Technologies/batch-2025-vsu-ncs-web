@@ -12,13 +12,13 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { FileText, User, Quote } from "lucide-react";
 
-import { ConductReportWithReporter } from "@/types";
+import { SeriousInfractionTicket } from "@/types";
 import { useState } from "react";
 
 export default function StudentResolutionDialog({
   record,
 }: {
-  record: ConductReportWithReporter;
+  record: SeriousInfractionTicket;
 }) {
   const [open, setOpen] = useState(false);
   const response = record.response;
@@ -50,6 +50,16 @@ export default function StudentResolutionDialog({
             <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
               <span className="font-semibold text-green-800">
                 {response.final_sanction || "No sanction applied"}
+              </span>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h4 className="text-sm font-medium text-slate-500">
+              Other Sanctions
+            </h4>
+            <div className="p-4 bg-green-50 border border-green-200 rounded-md flex justify-between items-center">
+              <span className="font-semibold text-green-800">
+                {response.final_sanction_other || "No sanction applied"}
               </span>
             </div>
           </div>

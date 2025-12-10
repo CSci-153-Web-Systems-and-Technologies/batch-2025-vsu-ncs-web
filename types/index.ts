@@ -133,6 +133,7 @@ export interface SeriousInfractionTicket extends ConductReport {
     admin_name: string;
     resolved_at: string;
     final_sanction: string | null;
+    final_sanction_other: string | null;
     notes: string | null;
   } | null;
 }
