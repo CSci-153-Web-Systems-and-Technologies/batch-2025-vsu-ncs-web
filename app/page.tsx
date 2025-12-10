@@ -41,7 +41,6 @@ export default function HomePage() {
             </span>
           </div>
           <nav className="flex items-center gap-4">
-            <ThemeSwitcher />
             <Link href="/auth/login">
               <Button
                 variant="default"
