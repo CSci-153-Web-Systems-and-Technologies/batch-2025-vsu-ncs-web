@@ -28,31 +28,25 @@ export default function ConductCardList({ data }: ConductCardListProps) {
   const [context, setContext] = React.useState<FilterContext>("All Context");
 
   const filteredRecords = React.useMemo(() => {
-    return (
-      data
-        // Filter by Type
-        .filter((record) => {
-          if (type === "All Types") return true;
-          if (type === "Serious Infraction")
-            return record.is_serious_infraction;
-          if (type === "Merit")
-            return !record.is_serious_infraction && record.type === "merit";
-          if (type === "Demerit")
-            return !record.is_serious_infraction && record.type === "demerit";
-          return true;
-        })
-        // Filter by Context
-        .filter((record) => {
-          if (context === "All Context") return true;
-          return record.sanction_context === context;
-        })
-    );
+    return data
+      .filter((record) => {
+        if (type === "All Types") return true;
+        if (type === "Serious Infraction") return record.is_serious_infraction;
+        if (type === "Merit")
+          return !record.is_serious_infraction && record.type === "merit";
+        if (type === "Demerit")
+          return !record.is_serious_infraction && record.type === "demerit";
+        return true;
+      })
+      .filter((record) => {
+        if (context === "All Context") return true;
+        return record.sanction_context === context;
+      });
   }, [data, type, context]);
 
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col sm:flex-row gap-4">
-        {/* Type Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full">
@@ -76,7 +70,6 @@ export default function ConductCardList({ data }: ConductCardListProps) {
           </DropdownMenuContent>
         </DropdownMenu>
 
-        {/* Context Filter */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="w-full">
@@ -113,7 +106,6 @@ export default function ConductCardList({ data }: ConductCardListProps) {
         </DropdownMenu>
       </div>
 
-      {/* Render Cards */}
       {filteredRecords.map((record) => (
         <ConductCard key={record.id} record={record} />
       ))}
