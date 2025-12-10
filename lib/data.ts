@@ -10,9 +10,6 @@ import {
   InfractionStatus,
 } from "@/types";
 
-// ==============================================================================
-// 1. TRANSFORMER: Student Summary (The Math Logic)
-// ==============================================================================
 export function transformStudentSummary(
   raw: any
 ): StudentConductSummary | null {
@@ -195,15 +192,8 @@ export function transformSeriousTicket(
   }
 }
 
-// ==============================================================================
-// 5. UTILITY: Safe Mapping Helper
-// ==============================================================================
-/**
- * Applies a transformer function to an array of raw data 
- * and filters out any null results (failures).
- */
 export function safeMap<Raw, Transformed>(
-  data: Raw[] | null, 
+  data: Raw[] | null,
   transformer: (item: Raw) => Transformed | null
 ): Transformed[] {
   if (!data || !Array.isArray(data)) return [];
@@ -212,11 +202,7 @@ export function safeMap<Raw, Transformed>(
     .map(transformer)
     .filter((item): item is Transformed => item !== null);
 }
-// ... existing imports ...
 
-// ==============================================================================
-// 6. TRANSFORMER: Staff Profile (Simple Identity Mapping + Safety)
-// ==============================================================================
 export function transformStaffProfile(raw: any): StaffProfile | null {
   try {
     if (!raw) return null;

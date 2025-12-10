@@ -36,7 +36,7 @@ export default function StudentCard({
             <CardDescription>{student_id || "No ID"}</CardDescription>
           </div>
           <Button asChild size="sm">
-            <Link href={`/protected/faculty/student/${id}`}>View</Link>
+            <Link href={`/records/students/${id}`}>View</Link>
           </Button>
         </div>
       </CardHeader>

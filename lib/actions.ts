@@ -10,7 +10,6 @@ import { generateWelcomeEmail } from "./email-template/welcome-email";
 import { generateConductNotificationEmail } from "./email-template/conduct-report-email";
 import { generateStudentInfractionResolutionEmail } from "./email-template/infraction-review-email";
 import { generateReporterNotificationEmail } from "./email-template/infraction-review-email";
-import { headers } from "next/headers";
 import { z } from "zod";
 
 const ConductFormSchema = z.object({
@@ -611,8 +610,13 @@ export async function forgotPasswordAction(prevState: any, formData: FormData) {
   const email = formData.get("email") as string;
   const supabase = await createClient();
 
-  const origin = (await headers()).get("origin");
-  const callbackUrl = `${origin}/auth/callback?next=/auth/reset-password`;
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL
+    ? process.env.NEXT_PUBLIC_SITE_URL
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000";
+
+  const callbackUrl = `${siteUrl}/auth/callback?next=/auth/reset-password`;
 
   const { error } = await supabase.auth.resetPasswordForEmail(email, {
     redirectTo: callbackUrl,
