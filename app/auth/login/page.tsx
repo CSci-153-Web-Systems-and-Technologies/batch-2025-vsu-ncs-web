@@ -4,6 +4,8 @@ import logo from "../../assets/logo.png";
 import { ShieldCheck } from "lucide-react";
 import Link from "next/link";
 import { Toaster } from "sonner";
+import { PrivacyDialog } from "@/components/privacy-policy";
+import { TermsDialog } from "@/components/terms-of-service";
 
 export default function LoginPage() {
   return (
@@ -90,21 +92,8 @@ export default function LoginPage() {
               <LoginForm />
 
               <p className="px-8 text-center text-sm text-muted-foreground">
-                By clicking login, you agree to our{" "}
-                <a
-                  href="#"
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Terms of Service
-                </a>{" "}
-                and{" "}
-                <a
-                  href="#"
-                  className="underline underline-offset-4 hover:text-primary"
-                >
-                  Privacy Policy
-                </a>
-                .
+                By clicking login, you agree to our <TermsDialog /> and{" "}
+                <PrivacyDialog />.
               </p>
             </div>
           </div>

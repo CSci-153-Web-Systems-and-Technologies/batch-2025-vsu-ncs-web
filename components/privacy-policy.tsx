@@ -12,7 +12,7 @@ export function PrivacyDialog({ children }: { children?: React.ReactNode }) {
     <Dialog>
       <DialogTrigger asChild>
         {children || (
-          <span className="cursor-pointer hover:underline text-muted-foreground text-xs">
+          <span className="cursor-pointer hover:underline text-muted-foreground text-s underline underline-offset-4 hover:text-primary">
             Privacy Policy
           </span>
         )}

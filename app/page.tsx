@@ -22,6 +22,7 @@ import {
   Gavel,
   History,
 } from "lucide-react";
+import { PrivacyDialog } from "@/components/privacy-policy";
 
 export default function HomePage() {
   return (
@@ -303,9 +304,9 @@ export default function HomePage() {
             >
               Login
             </Link>
-            <a href="#" className="hover:text-emerald-600 transition-colors">
-              Privacy Policy
-            </a>
+            <div className="hover:text-emerald-600 transition-colors">
+              <PrivacyDialog />
+            </div>
             <a
               href="https://vsu.edu.ph"
               target="_blank"
