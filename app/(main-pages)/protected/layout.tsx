@@ -17,7 +17,7 @@ import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
 import { parseName } from "@/lib/utils";
 import { Toaster } from "sonner";
-import { redirect } from "next/navigation"; //export const dynamic = "force-dynamic";
+import { redirect } from "next/navigation";
 export default async function StudentLayout({
   children,
 }: Readonly<{

@@ -27,7 +27,7 @@ export default async function QuickActionCard() {
     id: s.id,
     student_id: s.student_id || "No ID",
     full_name: `${s.first_name} ${s.last_name}`,
-  }));
+  })); 
   return (
     <Card className="flex-1">
       <CardHeader>

@@ -11,6 +11,7 @@ import { generateConductNotificationEmail } from "./email-template/conduct-repor
 import { generateStudentInfractionResolutionEmail } from "./email-template/infraction-review-email";
 import { generateReporterNotificationEmail } from "./email-template/infraction-review-email";
 import { z } from "zod";
+import { generateServiceNotificationEmail } from "./email-template/service-notification-email";
 
 const ConductFormSchema = z.object({
   student_uuid: z.string().uuid({ message: "Invalid Student ID" }),
@@ -655,4 +656,97 @@ export async function resetPasswordAction(prevState: any, formData: FormData) {
   const role = user?.app_metadata?.role || "student";
 
   redirect(`/protected/${role}/dashboard`);
+}
+
+export async function submitServiceLog(prevState: any, formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Unauthorized" };
+
+  const validatedFields = ServiceFormSchema.safeParse({
+    student_uuid: formData.get("student_uuid"),
+    sanction_days: formData.get("sanction_days"),
+    description: formData.get("description"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      error: "Invalid form data. Please check inputs.",
+    };
+  }
+
+  const { student_uuid, sanction_days, description } = validatedFields.data;
+
+  const { data: facultyProfile } = await supabase
+    .from("staff_profiles")
+    .select("first_name, last_name, title")
+    .eq("id", user.id)
+    .single();
+
+  const facultyName = facultyProfile
+    ? `${facultyProfile.title || ""} ${facultyProfile.first_name} ${
+        facultyProfile.last_name
+      }`.trim()
+    : "Faculty Member";
+
+  const finalDescription =
+    description && description.trim() !== ""
+      ? description
+      : "Extension duty served";
+
+  const { error } = await supabase.from("service_logs").insert({
+    student_id: student_uuid,
+    faculty_id: user.id,
+    days_deducted: sanction_days,
+    description: finalDescription,
+  });
+
+  if (error) {
+    console.error("Supabase Error:", error);
+    return { error: "Failed to log service: " + error.message };
+  }
+
+  const supabaseAdmin = await createAdminClient();
+  const { data: studentUser } = await supabaseAdmin.auth.admin.getUserById(
+    student_uuid
+  );
+
+  const { data: studentProfile } = await supabase
+    .from("student_profiles")
+    .select("first_name, last_name")
+    .eq("id", student_uuid)
+    .single();
+
+  if (studentUser && studentUser.user && studentProfile) {
+    const studentEmail = studentUser.user.email as string;
+    const studentName = `${studentProfile.first_name} ${studentProfile.last_name}`;
+
+    const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+      ? process.env.NEXT_PUBLIC_SITE_URL
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
+    await sendEmail(
+      studentEmail,
+      "Service Record Logged - VSU NCS",
+      generateServiceNotificationEmail(
+        studentName,
+        sanction_days,
+        finalDescription,
+        new Date().toLocaleDateString(),
+        facultyName,
+        `${loginUrl}/protected/student/service-history`
+      )
+    );
+  }
+
+  revalidatePath("/protected/faculty/records");
+  revalidatePath(`/protected/faculty/students/${student_uuid}`);
+
+  return { success: true, message: "Service logged successfully" };
 }
