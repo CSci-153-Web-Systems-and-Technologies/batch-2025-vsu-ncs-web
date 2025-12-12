@@ -163,3 +163,22 @@ export interface SeriousInfractionTicket extends ConductReport {
     notes: string | null;
   } | null;
 }
+
+export type ActivityLog = {
+  id: string;
+  created_at: string;
+  type: "merit" | "demerit" | "serious" | "service"; // Added 'service'
+  description: string | null;
+  student: {
+    first_name: string;
+    last_name: string;
+    student_id: string;
+  } | null;
+
+  // Specific to Conduct Report
+  is_serious_infraction?: boolean;
+  sanction_days?: number;
+
+  // Specific to Service Log
+  days_deducted?: number;
+};
