@@ -26,6 +26,14 @@ const InfractionResponseFormSchema = z.object({
   notes: z.string().min(1, { message: "Note is required" }),
 });
 
+const ServiceFormSchema = z.object({
+  student_uuid: z.string().uuid({ message: "Invalid Student ID" }),
+  sanction_days: z.coerce
+    .number()
+    .min(1, { message: "Must deduct at least 1 day" }),
+  description: z.string().optional(),
+});
+
 const StudentAccountSchema = z.object({
   student_id: z
     .string()
