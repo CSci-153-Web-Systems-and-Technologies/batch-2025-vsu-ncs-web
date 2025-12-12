@@ -32,10 +32,8 @@ export default function SeriousInfractionList({
     const lowerSearch = searchQuery.toLowerCase();
 
     return data.filter((record) => {
-      // 1. Status Filter
       const matchesStatus = status === "All" || record.status === status;
 
-      // 2. Search Filter (Check Student Name AND Reporter Name)
       const studentName = record.student
         ? `${record.student.first_name} ${record.student.last_name}`.toLowerCase()
         : "";
@@ -60,7 +58,6 @@ export default function SeriousInfractionList({
         </h2>
 
         <div className="flex flex-row gap-3 w-full sm:w-auto">
-          {/* SEARCH INPUT */}
           <div className="relative w-full sm:w-[250px]">
             <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
@@ -71,7 +68,6 @@ export default function SeriousInfractionList({
             />
           </div>
 
-          {/* STATUS FILTER */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="outline" className="min-w-[140px]">
@@ -97,7 +93,6 @@ export default function SeriousInfractionList({
         </div>
       </div>
 
-      {/* Render Cards */}
       <div className="space-y-4">
         {filteredRecords.map((record) => (
           <SeriousInfractionCard key={record.id} record={record} />
