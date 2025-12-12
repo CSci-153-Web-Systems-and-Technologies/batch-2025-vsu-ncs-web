@@ -10,7 +10,7 @@ export default async function StudentListPage() {
 
   const { data: rawData } = await supabase
     .from("student_profiles")
-    .select("*, conduct_reports(*)")
+    .select("*, conduct_reports(*), service_logs(*)")
     .order("last_name", { ascending: true });
 
   const data: StudentConductSummary[] = safeMap(

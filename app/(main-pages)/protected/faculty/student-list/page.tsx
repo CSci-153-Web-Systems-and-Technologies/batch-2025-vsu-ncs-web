@@ -8,13 +8,11 @@ import { StudentConductSummary } from "@/types";
 export default async function StudentListPage() {
   const supabase = await createClient();
 
-  // 1. Fetch Raw Data + Reports
   const { data: rawData } = await supabase
     .from("student_profiles")
-    .select("*, conduct_reports(*)")
+    .select("*, conduct_reports(*), service_logs(*)")
     .order("last_name", { ascending: true });
 
-  // 2. Transform into Summary Shape
   const data: StudentConductSummary[] = safeMap(
     rawData,
     transformStudentSummary
