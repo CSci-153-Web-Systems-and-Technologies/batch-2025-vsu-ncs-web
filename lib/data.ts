@@ -8,6 +8,7 @@ import {
   ConductReportWithStudent,
   SeriousInfractionTicket,
   InfractionStatus,
+  ServiceLog,
 } from "@/types";
 
 export function transformStudentSummary(
@@ -223,5 +224,20 @@ export function transformStaffProfile(raw: any): StaffProfile | null {
   } catch (error) {
     console.error(`Error transforming staff profile ${raw?.id}:`, error);
     return null;
+  }
+}
+
+export function transformServiceLog(raw: any): ServiceLog | null {
+  try {
+    if(!raw) return null;
+
+    return {
+      id: raw.id,
+      student_id: raw.student_id,
+      faculty_id: raw.faculty_id,
+      days_deducted: raw.days_deducted,
+      description: raw.description,
+      created_at: raw.created_at,
+    }
   }
 }
