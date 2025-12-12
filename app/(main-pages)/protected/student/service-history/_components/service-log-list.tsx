@@ -1,72 +1,35 @@
 "use client";
 
-import SeriousInfractionCard from "./service-log-card";
-import { ServiceLogWithReporter, InfractionStatus } from "@/types";
-import * as React from "react";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-
-import { ChevronDown, Filter } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import ServiceLogCard from "./service-log-card";
+import { ServiceLogWithReporter } from "@/types";
+import { FileText } from "lucide-react";
 
 type ServiceLogListProps = {
   data: ServiceLogWithReporter[];
 };
 
-type FilterStatus = "All" | InfractionStatus;
-
 export default function ServiceLogList({ data }: ServiceLogListProps) {
-  const [status, setStatus] = React.useState<FilterStatus>("All");
-
-  const filteredRecords = React.useMemo(() => {
-    if (status === "All") return data;
-    return data.filter((record) => record.description === status);
-  }, [data, status]);
-
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-gray-700">Case History</h2>
-
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="min-w-[140px]">
-              <Filter className="mr-2 h-4 w-4" />
-              {status === "All" ? "All Status" : status}
-              <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-[180px]">
-            <DropdownMenuLabel>Filter by Status</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            {["All", "Pending", "Resolved"].map((s) => (
-              <DropdownMenuCheckboxItem
-                key={s}
-                checked={status === s}
-                onCheckedChange={() => setStatus(s as FilterStatus)}
-              >
-                {s === "All" ? "All Status" : s}
-              </DropdownMenuCheckboxItem>
-            ))}
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <h2 className="text-lg font-semibold text-gray-700">
+          Service Records ({data.length})
+        </h2>
       </div>
 
       <div className="space-y-4">
-        {filteredRecords.map((record) => (
-          <SeriousInfractionCard key={record.id} record={record} />
+        {data.map((record) => (
+          <ServiceLogCard key={record.id} record={record} />
         ))}
 
-        {filteredRecords.length === 0 && (
-          <div className="text-center py-10 border-2 border-dashed rounded-lg">
-            <p className="text-muted-foreground">
-              No serious infractions found matching this filter.
+        {data.length === 0 && (
+          <div className="flex flex-col items-center justify-center py-12 border-2 border-dashed rounded-lg bg-slate-50">
+            <div className="p-3 rounded-full bg-slate-100 mb-4">
+              <FileText className="w-6 h-6 text-slate-400" />
+            </div>
+            <h3 className="font-medium text-slate-900">No Service Logs</h3>
+            <p className="text-sm text-slate-500 mt-1">
+              You haven&apos;t logged any extension duties yet.
             </p>
           </div>
         )}
