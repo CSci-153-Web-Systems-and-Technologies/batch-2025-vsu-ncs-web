@@ -4,7 +4,6 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Resend } from "resend";
 import { sendEmail } from "./email-transporter";
 
 import { generateWelcomeEmail } from "./email-template/welcome-email";

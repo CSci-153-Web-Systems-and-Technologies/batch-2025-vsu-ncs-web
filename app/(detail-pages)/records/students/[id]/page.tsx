@@ -1,7 +1,8 @@
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
 import { columns } from "../../_components/conduct-records-column";
-import { ConductRecordsTable } from "../../_components/conduct-records-table"; // Updated import name if changed previously
+import { ConductRecordsTable } from "../../_components/conduct-records-table";
+import ServiceLogList from "@/app/(main-pages)/protected/student/service-history/_components/service-log-list";
 import ConductCardList from "../../_components/conduct-card-list";
 import TotalsCard from "../../_components/totals-card";
 import InfoCard from "../../_components/info-card";
@@ -12,14 +13,23 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { ConductReportWithReporter, StudentProfile } from "@/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs
+import {
+  ConductReportWithReporter,
+  ServiceLogWithReporter,
+  StudentProfile,
+} from "@/types";
 import { parseName } from "@/lib/utils";
-import { transformReportForStudent, safeMap } from "@/lib/data"; // <--- NEW UTILS
+import {
+  transformReportForStudent,
+  safeMap,
+  transformServiceLogForStudent,
+} from "@/lib/data";
 
 export default async function StudentRecordPage({
   params,
 }: {
-  params: Promise<{ id: string }>; // Updated for Next.js 15+ async params
+  params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
 
@@ -29,7 +39,6 @@ export default async function StudentRecordPage({
 
   const supabase = await createClient();
 
-  // 1. FETCH PROFILE
   const { data: profileData } = await supabase
     .from("student_profiles")
     .select("*")
@@ -41,8 +50,7 @@ export default async function StudentRecordPage({
   }
   const student = profileData as StudentProfile;
 
-  // 2. FETCH RAW RECORDS + TRANSFORM
-  const { data: rawData } = await supabase
+  const { data: conductRaw } = await supabase
     .from("conduct_reports")
     .select(
       `
@@ -60,14 +68,31 @@ export default async function StudentRecordPage({
     .eq("student_id", id)
     .order("created_at", { ascending: false });
 
-  // Transform using the same utility as the Student Dashboard
   const conductRecords: ConductReportWithReporter[] = safeMap(
-    rawData,
+    conductRaw,
     transformReportForStudent
   );
 
-  // 3. CALCULATE TOTALS (Updated for new Logic: RLE vs Office)
-  function calculateTotals(records: ConductReportWithReporter[]) {
+  const { data: serviceRaw } = await supabase
+    .from("service_logs")
+    .select(
+      `
+        *,
+        reporter:staff_profiles!faculty_id (first_name, last_name, title)
+      `
+    )
+    .eq("student_id", id)
+    .order("created_at", { ascending: false });
+
+  const serviceReports: ServiceLogWithReporter[] = safeMap(
+    serviceRaw,
+    transformServiceLogForStudent
+  );
+
+  function calculateTotals(
+    cRecords: ConductReportWithReporter[],
+    sLogs: ServiceLogWithReporter[]
+  ) {
     let totalMerits = 0;
     let totalDemerits = 0;
     let office_demerits = 0;
@@ -75,7 +100,7 @@ export default async function StudentRecordPage({
     let rle_demerits = 0;
     let rle_merits = 0;
 
-    for (const r of records) {
+    for (const r of cRecords) {
       const days = r.sanction_days ?? 0;
 
       if (r.type === "demerit") {
@@ -89,23 +114,23 @@ export default async function StudentRecordPage({
       }
     }
 
-    // Logic: Net = Demerits - Merits (clamped to 0)
+    const totalServed = sLogs.reduce((acc, log) => acc + log.days_deducted, 0);
+
     return {
       totalMerits,
       totalDemerits,
+      totalServed,
       netOffice: Math.max(0, office_demerits - office_merits),
       netRle: Math.max(0, rle_demerits - rle_merits),
+      remainingBalance: Math.max(0, totalDemerits - totalServed),
     };
   }
 
-  const totals = calculateTotals(conductRecords);
-
-  // Parse full name using your utility, passing the object directly if supported
-  // or passing fields individually as requested.
+  const totals = calculateTotals(conductRecords, serviceReports);
   const full_name = parseName(student);
 
   return (
-    <div className="flex flex-col p-10 gap-5">
+    <div className="flex flex-col p-10 gap-6">
       <div>
         <Card>
           <CardHeader>
@@ -113,7 +138,7 @@ export default async function StudentRecordPage({
             <CardDescription>
               Personal details and academic details
             </CardDescription>
-            <CardContent className="flex flex-col md:flex-row px-0 pt-4 justify-between ">
+            <CardContent className="flex flex-col md:flex-row px-0 pt-4 justify-between gap-4">
               <InfoCard
                 title={"Full Name"}
                 description={full_name || "Unknown"}
@@ -132,41 +157,56 @@ export default async function StudentRecordPage({
         </Card>
       </div>
 
-      {/* UPDATED CARDS to match the new separation of concerns */}
       <div className="flex flex-col sm:flex-row w-full gap-5">
         <TotalsCard
-          title="Net Office Sanction"
-          total={totals.netOffice}
-          color="text-[#FF6900]"
-          description={`Equivalent to ${totals.netOffice * 8} hours of service`}
+          title="Current Balance"
+          total={totals.remainingBalance}
+          color={
+            totals.remainingBalance > 0 ? "text-red-600" : "text-emerald-600"
+          }
+          description="Days remaining to serve"
         />
         <TotalsCard
-          title="Net RLE Sanction"
-          total={totals.netRle}
-          color="text-blue-600" // You might want to match the dashboard color
-          description={`Equivalent to ${totals.netRle * 8} hours of service`}
+          title="Total Served"
+          total={totals.totalServed}
+          color="text-blue-600"
+          description="Total extension days cleared"
         />
         <TotalsCard
           title="Total Demerits"
           total={totals.totalDemerits}
           color="text-[#0A58A3]"
-          description="This semester"
+          description="Lifetime accrued violations"
         />
         <TotalsCard
           title="Total Merits"
           total={totals.totalMerits}
           color="text-[#00C950]"
-          description="This semester"
+          description="Bonus points earned"
         />
       </div>
 
-      <div className="hidden md:block">
-        {/* Ensure you are importing ConductRecordsTable correctly from your refactor */}
-        <ConductRecordsTable columns={columns} data={conductRecords} />
-      </div>
-      <div className="md:hidden">
-        <ConductCardList data={conductRecords} />
-      </div>
+      <Tabs defaultValue="conduct" className="w-full">
+        <div className="flex items-center justify-between mb-4">
+          <TabsList>
+            <TabsTrigger value="conduct">Conduct History</TabsTrigger>
+            <TabsTrigger value="service">Service History</TabsTrigger>
+          </TabsList>
+        </div>
+
+        <TabsContent value="conduct">
+          <div className="hidden md:block">
+            <ConductRecordsTable columns={columns} data={conductRecords} />
+          </div>
+          <div className="md:hidden">
+            <ConductCardList data={conductRecords} />
+          </div>
+        </TabsContent>
+
+        <TabsContent value="service">
+          <ServiceLogList data={serviceReports} />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
