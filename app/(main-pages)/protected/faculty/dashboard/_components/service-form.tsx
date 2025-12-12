@@ -31,7 +31,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { submitConductReport } from "@/lib/actions";
+import { submitServiceLog } from "@/lib/actions";
 import { toast } from "sonner";
 
 export type StudentOption = {
@@ -45,10 +45,7 @@ type ServiceFormProps = {
 };
 
 export function ServiceForm({ students }: ServiceFormProps) {
-  const [state, formAction, isPending] = useActionState(
-    submitConductReport,
-    null
-  );
+  const [state, formAction, isPending] = useActionState(submitServiceLog, null);
 
   const [open, setOpen] = useState(false);
 
@@ -78,7 +75,7 @@ export function ServiceForm({ students }: ServiceFormProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="w-full bg-[#0A58A3] hover:bg-[#094b8a]">
-          Log Conduct
+          Log Service
         </Button>
       </DialogTrigger>
 
@@ -161,10 +158,10 @@ export function ServiceForm({ students }: ServiceFormProps) {
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="sanction_days">{"Service (Days)"}</Label>
+            <Label htmlFor="served_days">{"Service (Days)"}</Label>
             <Input
-              id="sanction_days"
-              name="sanction_days"
+              id="served_days"
+              name="served_days"
               type="number"
               placeholder="0"
               min={0}

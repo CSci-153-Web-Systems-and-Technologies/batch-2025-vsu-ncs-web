@@ -29,7 +29,7 @@ const InfractionResponseFormSchema = z.object({
 
 const ServiceFormSchema = z.object({
   student_uuid: z.string().uuid({ message: "Invalid Student ID" }),
-  sanction_days: z.coerce
+  served_days: z.coerce
     .number()
     .min(1, { message: "Must deduct at least 1 day" }),
   description: z.string().optional(),
@@ -669,7 +669,7 @@ export async function submitServiceLog(prevState: any, formData: FormData) {
 
   const validatedFields = ServiceFormSchema.safeParse({
     student_uuid: formData.get("student_uuid"),
-    sanction_days: formData.get("sanction_days"),
+    served_days: formData.get("served_days"),
     description: formData.get("description"),
   });
 
@@ -679,7 +679,7 @@ export async function submitServiceLog(prevState: any, formData: FormData) {
     };
   }
 
-  const { student_uuid, sanction_days, description } = validatedFields.data;
+  const { student_uuid, served_days, description } = validatedFields.data;
 
   const { data: facultyProfile } = await supabase
     .from("staff_profiles")
@@ -701,7 +701,7 @@ export async function submitServiceLog(prevState: any, formData: FormData) {
   const { error } = await supabase.from("service_logs").insert({
     student_id: student_uuid,
     faculty_id: user.id,
-    days_deducted: sanction_days,
+    days_deducted: served_days,
     description: finalDescription,
   });
 
@@ -736,7 +736,7 @@ export async function submitServiceLog(prevState: any, formData: FormData) {
       "Service Record Logged - VSU NCS",
       generateServiceNotificationEmail(
         studentName,
-        sanction_days,
+        served_days,
         finalDescription,
         new Date().toLocaleDateString(),
         facultyName,
