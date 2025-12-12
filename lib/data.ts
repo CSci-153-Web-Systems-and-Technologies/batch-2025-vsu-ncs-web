@@ -239,5 +239,8 @@ export function transformServiceLog(raw: any): ServiceLog | null {
       description: raw.description,
       created_at: raw.created_at,
     }
+  } catch(error) {
+    console.error(`Error transforming service log ${raw?.id}:`, error);
+    return null;
   }
 }
