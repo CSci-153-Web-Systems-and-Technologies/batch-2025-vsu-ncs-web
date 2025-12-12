@@ -11,6 +11,7 @@ import {
   GraduationCap,
   UserCog,
   Gavel,
+  CalendarCheck,
 } from "lucide-react";
 import { createClient } from "@/lib/supabase/server";
 import { SidebarProps } from "@/types";
@@ -61,7 +62,7 @@ export default async function StudentLayout({
       {
         title: "Service History",
         url: "/protected/student/service-history",
-        icon: MailWarning,
+        icon: CalendarCheck,
       },
     ];
   }

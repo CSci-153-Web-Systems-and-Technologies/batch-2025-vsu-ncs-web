@@ -2,7 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { transformServiceLogWithReporter, safeMap } from "@/lib/data"; // Or your utils path
 import { ServiceLogWithReporter } from "@/types";
 import ServiceLogList from "./_components/service-log-list";
-import { AlertTriangle } from "lucide-react";
+import { CalendarCheck } from "lucide-react";
 
 export default async function ServiceHistory() {
   const supabase = await createClient();
@@ -30,11 +30,11 @@ export default async function ServiceHistory() {
     <div className="flex flex-col w-full p-8 gap-8 max-w-5xl mx-auto">
       <div className="flex flex-col gap-2">
         <div className="flex items-center gap-2 text-slate-600">
-          <AlertTriangle className="w-8 h-8" />
+          <CalendarCheck className="w-8 h-8" />
           <h1 className="text-2xl font-bold">Service History</h1>
         </div>
         <p className="text-muted-foreground">
-          These are major violations that require administrative review.
+          These are service logs to fulfill demerits.
         </p>
       </div>
 
