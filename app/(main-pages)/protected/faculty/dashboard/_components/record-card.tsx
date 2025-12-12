@@ -1,14 +1,15 @@
 "use client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { ConductReportWithStudent } from "@/types";
+import { ActivityLog } from "@/types";
 export type RecordCardProps = {
-  record: ConductReportWithStudent;
+  record: ActivityLog;
 };
 
 export default function RecordCard({ record }: RecordCardProps) {
   let badgeColor = "";
   let borderColor = "";
+  let badgeText = "";
 
   if (record.is_serious_infraction) {
     badgeColor = "bg-[#FB2C36]";
@@ -16,13 +17,16 @@ export default function RecordCard({ record }: RecordCardProps) {
   } else if (record.type === "merit") {
     badgeColor = "bg-[#00C950]";
     borderColor = "border-[#00C950]";
+  } else if (record.type === "service") {
+    badgeColor = "bg-blue-500";
+    borderColor = "border-blue-500";
+    badgeText = `Cleared ${record.days_deducted} Day/s`;
   } else {
     badgeColor = "bg-[#FF6900]";
     borderColor = "border-[#FF6900]";
   }
 
   const value = Math.abs(record.sanction_days ?? 0);
-  let badgeText = "";
 
   if (record.is_serious_infraction) {
     badgeText = "Serious Infraction";
