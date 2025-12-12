@@ -8,10 +8,19 @@ import {
 } from "@/components/ui/card";
 
 import ConductCard from "@/app/(detail-pages)/records/_components/conduct-card";
+import ServiceLogCard from "../service-history/_components/service-log-card";
 import TotalsCard from "@/app/(detail-pages)/records/_components/totals-card";
-import { ConductReportWithReporter, StudentProfile } from "@/types";
+import {
+  ConductReportWithReporter,
+  StudentProfile,
+  ServiceLogWithReporter,
+} from "@/types";
 import { parseName } from "@/lib/utils";
-import { transformReportForStudent, safeMap } from "@/lib/data";
+import {
+  transformReportForStudent,
+  transformServiceLogForStudent,
+  safeMap,
+} from "@/lib/data";
 
 export default async function StudentDashBoard() {
   const supabase = await createClient();
@@ -19,7 +28,6 @@ export default async function StudentDashBoard() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. Fetch Profile
   const { data: profileData } = await supabase
     .from("student_profiles")
     .select("*")
@@ -28,7 +36,6 @@ export default async function StudentDashBoard() {
 
   const profile = profileData as StudentProfile;
 
-  // 2. Fetch Reports (Raw Data)
   const { data: rawReports } = await supabase
     .from("conduct_reports")
     .select(
@@ -47,46 +54,64 @@ export default async function StudentDashBoard() {
     .eq("student_id", user?.id)
     .order("created_at", { ascending: false });
 
-  // 3. Transform Data using our new Utility
-  const records: ConductReportWithReporter[] = safeMap(
+  const { data: rawServices } = await supabase
+    .from("service_logs")
+    .select(
+      `
+        *,
+        reporter:staff_profiles!faculty_id (first_name, last_name, title)
+      `
+    )
+    .eq("student_id", user?.id)
+    .order("created_at", { ascending: false });
+
+  const conductRecords: ConductReportWithReporter[] = safeMap(
     rawReports,
     transformReportForStudent
   );
 
-  // 4. Calculate Totals (Logic adapted to use strict types)
-  function calculateDashboardTotals(reports: ConductReportWithReporter[]) {
+  const serviceRecords: ServiceLogWithReporter[] = safeMap(
+    rawServices,
+    transformServiceLogForStudent
+  );
+
+  function calculateDashboardTotals(
+    cReports: ConductReportWithReporter[],
+    sLogs: ServiceLogWithReporter[]
+  ) {
     let totalMerits = 0;
     let totalDemerits = 0;
-    let office_demerits = 0;
-    let office_merits = 0;
-    let rle_demerits = 0;
-    let rle_merits = 0;
 
-    for (const r of reports) {
+    for (const r of cReports) {
       const days = r.sanction_days ?? 0;
-
       if (r.type === "demerit") {
         totalDemerits += days;
-        if (r.sanction_context === "office") office_demerits += days;
-        else if (r.sanction_context === "rle") rle_demerits += days;
       } else if (r.type === "merit") {
         totalMerits += days;
-        if (r.sanction_context === "office") office_merits += days;
-        else if (r.sanction_context === "rle") rle_merits += days;
       }
     }
 
-    // Logic: Net = Demerits - Merits (clamped to 0)
+    const totalServed = sLogs.reduce((acc, log) => acc + log.days_deducted, 0);
+
     return {
       totalMerits,
       totalDemerits,
-      netOffice: Math.max(0, office_demerits - office_merits),
-      netRle: Math.max(0, rle_demerits - rle_merits),
+      totalServed,
+      remainingBalance: Math.max(0, totalDemerits - totalServed - totalMerits),
     };
   }
 
-  const totals = calculateDashboardTotals(records);
-  const recentActivity = records.slice(0, 5);
+  const totals = calculateDashboardTotals(conductRecords, serviceRecords);
+
+  const combinedActivity = [
+    ...conductRecords.map((r) => ({ ...r, listType: "conduct" as const })),
+    ...serviceRecords.map((s) => ({ ...s, listType: "service" as const })),
+  ]
+    .sort(
+      (a, b) =>
+        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    )
+    .slice(0, 5);
 
   return (
     <div className="flex flex-col w-full p-8 gap-5">
@@ -99,30 +124,32 @@ export default async function StudentDashBoard() {
         </p>
       </div>
 
-      <div className="flex flex-col sm:flex-row w-full gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <TotalsCard
-          title="Net Office Sanction"
-          total={totals.netOffice}
-          color="text-[#FF6900]"
-          description={`Equivalent to ${totals.netOffice * 8} hours of service`}
+          title="Current Balance"
+          total={totals.remainingBalance}
+          color={
+            totals.remainingBalance > 0 ? "text-red-600" : "text-emerald-600"
+          }
+          description="Days remaining to serve"
         />
         <TotalsCard
-          title="Net RLE/Duty Sanction"
-          total={totals.netRle}
+          title="Total Served"
+          total={totals.totalServed}
+          color="text-blue-600"
+          description="Total extension days cleared"
+        />
+        <TotalsCard
+          title="Total Demerits"
+          total={totals.totalDemerits}
           color="text-[#0A58A3]"
-          description={`Equivalent to ${totals.netRle * 8} hours of service`}
+          description="Lifetime accrued violations"
         />
         <TotalsCard
           title="Total Merits"
           total={totals.totalMerits}
           color="text-[#00C950]"
-          description="This semester"
-        />
-        <TotalsCard
-          title="Total Demerits"
-          total={totals.totalDemerits}
-          color="text-red-600"
-          description="This semester"
+          description="Bonus points earned"
         />
       </div>
 
@@ -130,15 +157,33 @@ export default async function StudentDashBoard() {
         <Card className="flex-1">
           <CardHeader>
             <CardTitle>Recent Activity</CardTitle>
-            <CardDescription>Your latest merits and demerits</CardDescription>
+            <CardDescription>
+              Your latest reports and service logs
+            </CardDescription>
           </CardHeader>
-          <CardContent className="flex flex-col gap-5">
-            {recentActivity.map((conduct) => (
-              <ConductCard
-                key={conduct.id}
-                record={conduct} // Now perfectly matches the type
-              />
-            ))}
+          <CardContent className="flex flex-col gap-4">
+            {combinedActivity.map((item) => {
+              if (item.listType === "service") {
+                return (
+                  <ServiceLogCard
+                    key={`service-${item.id}`}
+                    record={item as ServiceLogWithReporter}
+                  />
+                );
+              }
+              return (
+                <ConductCard
+                  key={`conduct-${item.id}`}
+                  record={item as ConductReportWithReporter}
+                />
+              );
+            })}
+
+            {combinedActivity.length === 0 && (
+              <p className="text-center text-muted-foreground py-8">
+                No recent activity found.
+              </p>
+            )}
           </CardContent>
         </Card>
       </div>

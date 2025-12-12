@@ -15,15 +15,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
-import { AlertCircle, Check, Loader2, ChevronsUpDown } from "lucide-react";
+import { Check, Loader2, ChevronsUpDown } from "lucide-react";
 import {
   Command,
   CommandEmpty,
@@ -38,7 +31,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { submitConductReport } from "@/lib/actions";
+import { submitServiceLog } from "@/lib/actions";
 import { toast } from "sonner";
 
 export type StudentOption = {
@@ -47,30 +40,19 @@ export type StudentOption = {
   full_name: string;
 };
 
-type FormCategory = "merit" | "demerit" | "serious";
-type SanctionContext = "office" | "rle";
-
-type RecordFormProps = {
+type ServiceFormProps = {
   students: StudentOption[];
 };
 
-export function RecordForm({ students }: RecordFormProps) {
-  const [state, formAction, isPending] = useActionState(
-    submitConductReport,
-    null
-  );
+export function ServiceForm({ students }: ServiceFormProps) {
+  const [state, formAction, isPending] = useActionState(submitServiceLog, null);
 
   const [open, setOpen] = useState(false);
-  const [category, setCategory] = useState<FormCategory>("demerit");
-  const [context, setContext] = useState<SanctionContext>("office");
 
   const [comboboxOpen, setComboboxOpen] = useState(false);
   const [selectedStudent, setSelectedStudent] = useState<StudentOption | null>(
     null
   );
-
-  const isSerious = category === "serious";
-  const isMerit = category === "merit";
 
   useEffect(() => {
     let timer: NodeJS.Timeout;
@@ -81,8 +63,6 @@ export function RecordForm({ students }: RecordFormProps) {
       timer = setTimeout(() => {
         setOpen(false);
         setSelectedStudent(null);
-        setCategory("demerit");
-        setContext("office");
       }, 1000);
     } else if (state?.error) {
       toast.error(state.error);
@@ -94,16 +74,16 @@ export function RecordForm({ students }: RecordFormProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full bg-[#FF6900] hover:bg-[#ff5e00]">
-          Log Conduct
+        <Button className="w-full bg-[#0A58A3] hover:bg-[#094b8a]">
+          Log Service
         </Button>
       </DialogTrigger>
 
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Log Conduct Report</DialogTitle>
+          <DialogTitle>Log Service</DialogTitle>
           <DialogDescription>
-            Search for a student and submit a new record.
+            Search for a student and submit a new extension service.
           </DialogDescription>
         </DialogHeader>
 
@@ -113,8 +93,6 @@ export function RecordForm({ students }: RecordFormProps) {
             name="student_uuid"
             value={selectedStudent?.id || ""}
           />
-          <input type="hidden" name="category" value={category} />
-          <input type="hidden" name="context" value={context} />
 
           <div className="grid gap-2 relative">
             <Label>Student</Label>
@@ -179,69 +157,17 @@ export function RecordForm({ students }: RecordFormProps) {
             </Popover>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="grid gap-2">
-              <Label>Category</Label>
-              <Select
-                value={category}
-                onValueChange={(v) => setCategory(v as FormCategory)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="demerit">Demerit (Minor)</SelectItem>
-                  <SelectItem value="serious">Serious Infraction</SelectItem>
-                  <SelectItem value="merit">Merit</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid gap-2">
-              <Label>Context</Label>
-              <Select
-                value={context}
-                onValueChange={(v) => setContext(v as SanctionContext)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="office">Office</SelectItem>
-                  <SelectItem value="rle">RLE / Duty</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="grid gap-2">
+            <Label htmlFor="served_days">{"Service (Days)"}</Label>
+            <Input
+              id="served_days"
+              name="served_days"
+              type="number"
+              placeholder="0"
+              min={0}
+              required
+            />
           </div>
-
-          {!isSerious && (
-            <div className="grid gap-2">
-              <Label htmlFor="sanction_days">
-                {isMerit ? "Merit Points" : "Demerit Days / Hours"}
-              </Label>
-              <Input
-                id="sanction_days"
-                name="sanction_days"
-                type="number"
-                placeholder="0"
-                min={0}
-                required
-              />
-            </div>
-          )}
-
-          {isSerious && (
-            <div className="flex items-start gap-3 bg-red-50 text-red-800 p-4 rounded-md text-sm border border-red-100">
-              <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
-              <div className="flex flex-col gap-1">
-                <span className="font-semibold">Admin Review Required</span>
-                <span className="text-red-700/80 leading-relaxed">
-                  No immediate sanction will be applied. This report will be
-                  queued for investigation.
-                </span>
-              </div>
-            </div>
-          )}
 
           <div className="grid gap-2">
             <Label htmlFor="description">Description</Label>
@@ -250,7 +176,6 @@ export function RecordForm({ students }: RecordFormProps) {
               name="description"
               placeholder="Describe the incident..."
               className="resize-none h-24"
-              required
             />
           </div>
 
@@ -263,14 +188,10 @@ export function RecordForm({ students }: RecordFormProps) {
             <Button
               type="submit"
               disabled={isPending || !selectedStudent}
-              className={
-                isSerious
-                  ? "bg-red-600 hover:bg-red-700"
-                  : "bg-[#0A58A3] hover:bg-[#094b8a]"
-              }
+              className="bg-[#0A58A3] hover:bg-[#094b8a]"
             >
               {isPending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isSerious ? "Submit for Review" : "Log Record"}
+              {"Log Service"}
             </Button>
           </DialogFooter>
         </form>

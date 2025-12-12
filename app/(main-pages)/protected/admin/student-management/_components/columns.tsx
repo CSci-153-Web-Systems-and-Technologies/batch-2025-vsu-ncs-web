@@ -1,14 +1,13 @@
 "use client";
 
 import { ColumnDef } from "@tanstack/react-table";
-import { StudentConductSummary } from "@/types"; // <--- Updated Import
+import { StudentConductSummary } from "@/types";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { ArrowUpDown } from "lucide-react";
 
 export const columns: ColumnDef<StudentConductSummary>[] = [
   {
-    // Combine names for sorting/filtering
     id: "full_name",
     accessorFn: (row) =>
       `${row.last_name}, ${row.first_name} ${row.middle_name || ""}`,
@@ -43,31 +42,19 @@ export const columns: ColumnDef<StudentConductSummary>[] = [
     header: "Sex",
   },
   {
-    accessorKey: "net_office_sanction",
-    header: "Net Office",
+    accessorKey: "extension_days",
+    header: "Extension (Days)",
     cell: ({ row }) => {
-      const amount = row.getValue("net_office_sanction") as number;
+      const amount = row.getValue("extension_days") as number;
       return (
         <span
           className={
-            amount > 0 ? "text-orange-600 font-medium" : "text-gray-500"
+            amount > 0
+              ? "text-red-600 font-bold"
+              : "text-emerald-600 font-medium"
           }
         >
-          {amount}
-        </span>
-      );
-    },
-  },
-  {
-    accessorKey: "net_rle_sanction",
-    header: "Net RLE",
-    cell: ({ row }) => {
-      const amount = row.getValue("net_rle_sanction") as number;
-      return (
-        <span
-          className={amount > 0 ? "text-blue-600 font-medium" : "text-gray-500"}
-        >
-          {amount}
+          {amount > 0 ? `${amount} Days` : "Cleared"}
         </span>
       );
     },

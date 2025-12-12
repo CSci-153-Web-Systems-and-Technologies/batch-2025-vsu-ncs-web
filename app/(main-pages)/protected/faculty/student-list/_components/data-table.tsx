@@ -41,13 +41,10 @@ export function DataTable<TData, TValue>({
   columns,
   data,
 }: DataTableProps<TData, TValue>) {
-  // 1. STATE: Standard Table States
   const [sorting, setSorting] = React.useState<SortingState>([]);
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
 
-  // 2. STATE: Global Filter (Replaces searchStudentByNameOrID)
-  // We use a simple string state to hold the search query
   const [globalFilter, setGlobalFilter] = React.useState("");
 
   const table = useReactTable({
@@ -56,9 +53,8 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    getFilteredRowModel: getFilteredRowModel(), // Enables filtering
+    getFilteredRowModel: getFilteredRowModel(),
 
-    // 3. CONFIG: Hook up state
     onSortingChange: setSorting,
     onColumnVisibilityChange: setColumnVisibility,
     onGlobalFilterChange: setGlobalFilter,
@@ -66,19 +62,14 @@ export function DataTable<TData, TValue>({
     state: {
       sorting,
       columnVisibility,
-      globalFilter, // Pass the filter value here
+      globalFilter,
     },
 
-    // 4. CONFIG: Search Behavior
-    // This function runs against all columns.
-    // Since your columns include "full_name" and "student_id",
-    // this automatically implements "Search by Name OR ID".
     globalFilterFn: "includesString",
   });
 
   return (
     <div className="w-full">
-      {/* 5. INPUT: Controls the globalFilter state */}
       <div className="flex items-center py-4 gap-2">
         <Input
           placeholder="Search by name or ID..."
@@ -87,7 +78,6 @@ export function DataTable<TData, TValue>({
           className="max-w-sm"
         />
 
-        {/* Optional: Column Visibility Toggle */}
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" className="ml-auto">
@@ -108,7 +98,6 @@ export function DataTable<TData, TValue>({
                       column.toggleVisibility(!!value)
                     }
                   >
-                    {/* Clean up column IDs for display (e.g., net_office_sanction -> net office sanction) */}
                     {column.id.replace(/_/g, " ")}
                   </DropdownMenuCheckboxItem>
                 );
@@ -168,7 +157,6 @@ export function DataTable<TData, TValue>({
         </Table>
       </div>
 
-      {/* 6. PAGINATION CONTROLS */}
       <div className="flex items-center justify-end space-x-2 py-4">
         <div className="flex-1 text-sm text-muted-foreground">
           {table.getFilteredRowModel().rows.length} row(s) total.

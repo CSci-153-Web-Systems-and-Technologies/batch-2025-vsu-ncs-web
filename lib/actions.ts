@@ -4,7 +4,6 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import { SeriousInfractionTicket } from "@/types";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { Resend } from "resend";
 import { sendEmail } from "./email-transporter";
 
 import { generateWelcomeEmail } from "./email-template/welcome-email";
@@ -12,6 +11,7 @@ import { generateConductNotificationEmail } from "./email-template/conduct-repor
 import { generateStudentInfractionResolutionEmail } from "./email-template/infraction-review-email";
 import { generateReporterNotificationEmail } from "./email-template/infraction-review-email";
 import { z } from "zod";
+import { generateServiceNotificationEmail } from "./email-template/service-notification-email";
 
 const ConductFormSchema = z.object({
   student_uuid: z.string().uuid({ message: "Invalid Student ID" }),
@@ -25,6 +25,14 @@ const InfractionResponseFormSchema = z.object({
   final_sanction_days: z.coerce.number().optional().default(0),
   final_sanction_other: z.string(),
   notes: z.string().min(1, { message: "Note is required" }),
+});
+
+const ServiceFormSchema = z.object({
+  student_uuid: z.string().uuid({ message: "Invalid Student ID" }),
+  served_days: z.coerce
+    .number()
+    .min(1, { message: "Must deduct at least 1 day" }),
+  description: z.string().optional(),
 });
 
 const StudentAccountSchema = z.object({
@@ -162,8 +170,6 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
 
-  //const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
     await sendEmail(
       email,
@@ -175,17 +181,6 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
         `${loginUrl}/auth/login`
       )
     );
-    /*await resend.emails.send({
-      from: "VSU NCS <onboarding@resend.dev>",
-      to: "jamirandrade4270@gmail.com",
-      subject: "Your VSU NCS Account Credentials",
-      html: generateWelcomeEmail(
-        first_name,
-        email,
-        temp_password,
-        `${loginUrl}/auth/login`
-      ),
-    });*/
   } catch (emailError) {
     console.error("Failed to send email:", emailError);
   }
@@ -283,7 +278,6 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
     : process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
-  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     await sendEmail(
@@ -296,17 +290,6 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
         `${loginUrl}/auth/login`
       )
     );
-    /*await resend.emails.send({
-      from: "VSU NCS <onboarding@resend.dev>",
-      to: "jamirandrade4270@gmail.com",
-      subject: "Your VSU NCS Account Credentials",
-      html: generateWelcomeEmail(
-        first_name,
-        email,
-        temp_password,
-        `${loginUrl}/auth/login`
-      ),
-    });*/
   } catch (emailError) {
     console.error("Failed to send email:", emailError);
   }
@@ -392,7 +375,6 @@ export async function submitConductReport(prevState: any, formData: FormData) {
   if (studentUser && studentUser.user && studentProfile) {
     const studentEmail = studentUser.user.email as string;
     const studentName = `${studentProfile.first_name} ${studentProfile.last_name}`;
-    //const resend = new Resend(process.env.RESEND_API_KEY);
     const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
       ? process.env.NEXT_PUBLIC_SITE_URL
       : process.env.VERCEL_URL
@@ -412,19 +394,6 @@ export async function submitConductReport(prevState: any, formData: FormData) {
           `${loginUrl}`
         )
       );
-      /*await resend.emails.send({
-        from: "VSU NCS <notifications@resend.dev>",
-        to: studentEmail,
-        subject: `New ${category.toUpperCase()} Record Logged`,
-        html: generateConductNotificationEmail(
-          studentName,
-          category as "merit" | "demerit" | "serious",
-          description,
-          new Date().toLocaleDateString(),
-          facultyName,
-          `${loginUrl}`
-        ),
-      });*/
       console.log(`Notification sent to ${studentEmail}`);
     } catch (emailError) {
       console.error("Failed to send notification email:", emailError);
@@ -490,7 +459,6 @@ export async function submitInfractionResponse(
   }
 
   const supabaseAdmin = await createAdminClient();
-  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? process.env.NEXT_PUBLIC_SITE_URL
@@ -688,4 +656,97 @@ export async function resetPasswordAction(prevState: any, formData: FormData) {
   const role = user?.app_metadata?.role || "student";
 
   redirect(`/protected/${role}/dashboard`);
+}
+
+export async function submitServiceLog(prevState: any, formData: FormData) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) return { error: "Unauthorized" };
+
+  const validatedFields = ServiceFormSchema.safeParse({
+    student_uuid: formData.get("student_uuid"),
+    served_days: formData.get("served_days"),
+    description: formData.get("description"),
+  });
+
+  if (!validatedFields.success) {
+    return {
+      error: "Invalid form data. Please check inputs.",
+    };
+  }
+
+  const { student_uuid, served_days, description } = validatedFields.data;
+
+  const { data: facultyProfile } = await supabase
+    .from("staff_profiles")
+    .select("first_name, last_name, title")
+    .eq("id", user.id)
+    .single();
+
+  const facultyName = facultyProfile
+    ? `${facultyProfile.title || ""} ${facultyProfile.first_name} ${
+        facultyProfile.last_name
+      }`.trim()
+    : "Faculty Member";
+
+  const finalDescription =
+    description && description.trim() !== ""
+      ? description
+      : "Extension duty served";
+
+  const { error } = await supabase.from("service_logs").insert({
+    student_id: student_uuid,
+    faculty_id: user.id,
+    days_deducted: served_days,
+    description: finalDescription,
+  });
+
+  if (error) {
+    console.error("Supabase Error:", error);
+    return { error: "Failed to log service: " + error.message };
+  }
+
+  const supabaseAdmin = await createAdminClient();
+  const { data: studentUser } = await supabaseAdmin.auth.admin.getUserById(
+    student_uuid
+  );
+
+  const { data: studentProfile } = await supabase
+    .from("student_profiles")
+    .select("first_name, last_name")
+    .eq("id", student_uuid)
+    .single();
+
+  if (studentUser && studentUser.user && studentProfile) {
+    const studentEmail = studentUser.user.email as string;
+    const studentName = `${studentProfile.first_name} ${studentProfile.last_name}`;
+
+    const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
+      ? process.env.NEXT_PUBLIC_SITE_URL
+      : process.env.VERCEL_URL
+      ? `https://${process.env.VERCEL_URL}`
+      : "http://localhost:3000";
+
+    await sendEmail(
+      studentEmail,
+      "Service Record Logged - VSU NCS",
+      generateServiceNotificationEmail(
+        studentName,
+        served_days,
+        finalDescription,
+        new Date().toLocaleDateString(),
+        facultyName,
+        `${loginUrl}/protected/student/service-history`
+      )
+    );
+  }
+
+  revalidatePath("/protected/faculty/records");
+  revalidatePath(`/protected/faculty/students/${student_uuid}`);
+
+  return { success: true, message: "Service logged successfully" };
 }

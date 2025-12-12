@@ -1,9 +1,19 @@
+"use client";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShieldAlert, ArrowLeft, LockKeyhole } from "lucide-react";
+import { createClient } from "@/lib/supabase/client";
+import { useRouter } from "next/navigation";
 
 export default function Unauthorized() {
+  const router = useRouter();
+
+  const logout = async () => {
+    const supabase = createClient();
+    await supabase.auth.signOut();
+    router.push("/auth/login");
+  };
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-gray-50 dark:bg-zinc-900 p-4">
       <Card className="max-w-md w-full shadow-xl border-none ring-1 ring-gray-200 dark:ring-gray-800">
@@ -26,12 +36,14 @@ export default function Unauthorized() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 justify-center mt-6">
-            <Link href="/auth/login" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full gap-2">
-                <LockKeyhole className="h-4 w-4" />
-                Login as different user
-              </Button>
-            </Link>
+            <Button
+              variant="outline"
+              className="w-full gap-2 sm:w-auto"
+              onClick={logout}
+            >
+              <LockKeyhole className="h-4 w-4" />
+              Login as different user
+            </Button>
 
             <Link href="/" className="w-full sm:w-auto">
               <Button className="w-full gap-2 bg-[#0A58A3] hover:bg-[#094b8a]">

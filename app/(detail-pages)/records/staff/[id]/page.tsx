@@ -9,6 +9,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ConductReportWithStudent, StaffProfile } from "@/types";
 import { parseName } from "@/lib/utils";
 import { transformReportForFaculty, safeMap } from "@/lib/data";
@@ -26,7 +27,6 @@ export default async function FacultyRecordPage({
 
   const supabase = await createClient();
 
-  // 1. FETCH FACULTY PROFILE
   const { data: profileData } = await supabase
     .from("staff_profiles")
     .select("*")
@@ -38,8 +38,7 @@ export default async function FacultyRecordPage({
   }
   const faculty = profileData as StaffProfile;
 
-  // 2. FETCH REPORTS
-  const { data: rawData } = await supabase
+  const { data: conductRaw } = await supabase
     .from("conduct_reports")
     .select(
       `
@@ -54,23 +53,53 @@ export default async function FacultyRecordPage({
     .eq("faculty_id", id)
     .order("created_at", { ascending: false });
 
-  // 3. TRANSFORM
-  const records: ConductReportWithStudent[] = safeMap(
-    rawData,
+  const { data: serviceRaw } = await supabase
+    .from("service_logs")
+    .select(
+      `
+      *,
+      student:student_profiles(*)
+    `
+    )
+    .eq("faculty_id", id)
+    .order("created_at", { ascending: false });
+
+  const conductRecords: ConductReportWithStudent[] = safeMap(
+    conductRaw,
     transformReportForFaculty
   );
 
-  // 4. PARSE NAME & TITLE
-  // We get the base name from the utility
+  const serviceRecords: ConductReportWithStudent[] = (serviceRaw || []).map(
+    (log: any) => ({
+      id: log.id,
+      created_at: log.created_at,
+      type: "service",
+      is_serious_infraction: false,
+      sanction_context: "office",
+      description: log.description || "Extension duty served",
+      sanction_days: -log.days_deducted,
+      sanction_other: null,
+      status: "Resolved",
+      faculty_id: log.faculty_id,
+      student_id: log.student_id,
+      student: log.student
+        ? {
+            first_name: log.student.first_name,
+            last_name: log.student.last_name,
+            student_id: log.student.student_id,
+            year_level: log.student.year_level,
+          }
+        : null,
+    })
+  );
+
   const baseName = parseName(faculty);
-  // We prepend the title if it exists (e.g. "Dr. " + "Juan Cruz")
   const fullNameWithTitle = faculty.title
     ? `${faculty.title} ${baseName}`.trim()
     : baseName;
 
   return (
-    <div className="flex flex-col p-10 gap-5">
-      {/* SECTION 1: FACULTY INFORMATION */}
+    <div className="flex flex-col p-10 gap-6">
       <div>
         <Card>
           <CardHeader>
@@ -78,13 +107,11 @@ export default async function FacultyRecordPage({
             <CardDescription>
               Personal details and employment information
             </CardDescription>
-            <CardContent className="flex flex-col md:flex-row px-0 pt-4 justify-between ">
-              {/* UPDATED: Displays "Dr. First Last" */}
+            <CardContent className="flex flex-col md:flex-row px-0 pt-4 justify-between gap-4">
               <InfoCard
                 title={"Full Name"}
                 description={fullNameWithTitle || "Unknown"}
               />
-
               <InfoCard
                 title={"Employee ID"}
                 description={faculty.employee_id || "-"}
@@ -101,13 +128,27 @@ export default async function FacultyRecordPage({
         </Card>
       </div>
 
-      {/* SECTION 2: LOGGED RECORDS */}
       <div className="flex flex-col gap-2">
-        <h2 className="text-[#0A58A3] text-xl font-semibold">Logged History</h2>
-        <p className="text-[#6C757D] mb-2">
-          Records created by this faculty member.
+        <h2 className="text-[#0A58A3] text-xl font-semibold">Activity Log</h2>
+        <p className="text-[#6C757D] mb-4">
+          Complete history of reports filed and services cleared by this
+          faculty.
         </p>
-        <ReportCardList data={records} />
+
+        <Tabs defaultValue="conduct" className="w-full">
+          <TabsList className="mb-4">
+            <TabsTrigger value="conduct">Conduct Reports</TabsTrigger>
+            <TabsTrigger value="service">Service Clearances</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="conduct">
+            <ReportCardList data={conductRecords} />
+          </TabsContent>
+
+          <TabsContent value="service">
+            <ReportCardList data={serviceRecords} />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );
