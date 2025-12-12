@@ -15,7 +15,7 @@ export default async function ServiceHistory() {
     .select(
       `
       *,
-      reporter:staff_profiles!faculty_id (first_name, last_name, title),
+      reporter:staff_profiles!faculty_id (first_name, last_name, title)
     `
     )
     .eq("student_id", user?.id)
