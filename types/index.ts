@@ -84,6 +84,23 @@ export interface StudentConductSummary extends StudentProfile {
   net_office_sanction: number;
 }
 
+export interface ServiceLogWithReporter extends ServiceLog {
+  reporter: {
+    first_name: string;
+    last_name: string;
+    title: string | null;
+  } | null;
+}
+
+export interface ServiceLogWithStudent extends ServiceLog {
+  student: {
+    first_name: string;
+    last_name: string;
+    student_id: string | null;
+    year_level: number | null;
+  } | null;
+}
+
 export interface ConductReportWithReporter extends ConductReport {
   reporter: {
     first_name: string;
