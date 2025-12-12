@@ -1,7 +1,7 @@
 "use client";
 
-import SeriousInfractionCard from "./serious-infraction-card";
-import { SeriousInfractionTicket, InfractionStatus } from "@/types";
+import SeriousInfractionCard from "./service-log-card";
+import { ServiceLogWithReporter, InfractionStatus } from "@/types";
 import * as React from "react";
 import {
   DropdownMenu,
@@ -15,20 +15,18 @@ import {
 import { ChevronDown, Filter } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
-type SeriousInfractionListProps = {
-  data: SeriousInfractionTicket[];
+type ServiceLogListProps = {
+  data: ServiceLogWithReporter[];
 };
 
 type FilterStatus = "All" | InfractionStatus;
 
-export default function SeriousInfractionList({
-  data,
-}: SeriousInfractionListProps) {
+export default function SeriousInfractionList({ data }: ServiceLogListProps) {
   const [status, setStatus] = React.useState<FilterStatus>("All");
 
   const filteredRecords = React.useMemo(() => {
     if (status === "All") return data;
-    return data.filter((record) => record.status === status);
+    return data.filter((record) => record.description === status);
   }, [data, status]);
 
   return (
