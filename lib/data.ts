@@ -34,7 +34,6 @@ export function transformStudentSummary(
     const totalService = sumServiceDays(serviceLogs);
 
     const balance = Math.max(0, totalDemerits - (totalService + totalMerits));
-    console.log(balance);
 
     return {
       ...raw,

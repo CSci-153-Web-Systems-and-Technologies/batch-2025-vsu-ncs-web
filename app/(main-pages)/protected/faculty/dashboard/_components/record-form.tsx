@@ -94,7 +94,7 @@ export function RecordForm({ students }: RecordFormProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full bg-[#0A58A3] hover:bg-[#094b8a]">
+        <Button className="w-full bg-[#FF6900] hover:bg-[#ff5e00]">
           Log Conduct
         </Button>
       </DialogTrigger>
