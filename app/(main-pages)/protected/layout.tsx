@@ -58,6 +58,11 @@ export default async function StudentLayout({
         url: "/protected/student/serious-infractions",
         icon: MailWarning,
       },
+      {
+        title: "Service History",
+        url: "/protected/student/service-history",
+        icon: MailWarning,
+      },
     ];
   }
 

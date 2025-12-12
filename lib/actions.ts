@@ -162,8 +162,6 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
 
-  //const resend = new Resend(process.env.RESEND_API_KEY);
-
   try {
     await sendEmail(
       email,
@@ -175,17 +173,6 @@ export async function createStudentAccount(prevState: any, formData: FormData) {
         `${loginUrl}/auth/login`
       )
     );
-    /*await resend.emails.send({
-      from: "VSU NCS <onboarding@resend.dev>",
-      to: "jamirandrade4270@gmail.com",
-      subject: "Your VSU NCS Account Credentials",
-      html: generateWelcomeEmail(
-        first_name,
-        email,
-        temp_password,
-        `${loginUrl}/auth/login`
-      ),
-    });*/
   } catch (emailError) {
     console.error("Failed to send email:", emailError);
   }
@@ -283,7 +270,6 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
     : process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
-  const resend = new Resend(process.env.RESEND_API_KEY);
 
   try {
     await sendEmail(
@@ -296,17 +282,6 @@ export async function createStaffAccount(prevState: any, formData: FormData) {
         `${loginUrl}/auth/login`
       )
     );
-    /*await resend.emails.send({
-      from: "VSU NCS <onboarding@resend.dev>",
-      to: "jamirandrade4270@gmail.com",
-      subject: "Your VSU NCS Account Credentials",
-      html: generateWelcomeEmail(
-        first_name,
-        email,
-        temp_password,
-        `${loginUrl}/auth/login`
-      ),
-    });*/
   } catch (emailError) {
     console.error("Failed to send email:", emailError);
   }
@@ -392,7 +367,6 @@ export async function submitConductReport(prevState: any, formData: FormData) {
   if (studentUser && studentUser.user && studentProfile) {
     const studentEmail = studentUser.user.email as string;
     const studentName = `${studentProfile.first_name} ${studentProfile.last_name}`;
-    //const resend = new Resend(process.env.RESEND_API_KEY);
     const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
       ? process.env.NEXT_PUBLIC_SITE_URL
       : process.env.VERCEL_URL
@@ -412,19 +386,6 @@ export async function submitConductReport(prevState: any, formData: FormData) {
           `${loginUrl}`
         )
       );
-      /*await resend.emails.send({
-        from: "VSU NCS <notifications@resend.dev>",
-        to: studentEmail,
-        subject: `New ${category.toUpperCase()} Record Logged`,
-        html: generateConductNotificationEmail(
-          studentName,
-          category as "merit" | "demerit" | "serious",
-          description,
-          new Date().toLocaleDateString(),
-          facultyName,
-          `${loginUrl}`
-        ),
-      });*/
       console.log(`Notification sent to ${studentEmail}`);
     } catch (emailError) {
       console.error("Failed to send notification email:", emailError);
@@ -490,7 +451,6 @@ export async function submitInfractionResponse(
   }
 
   const supabaseAdmin = await createAdminClient();
-  const resend = new Resend(process.env.RESEND_API_KEY);
 
   const loginUrl = process.env.NEXT_PUBLIC_SITE_URL
     ? process.env.NEXT_PUBLIC_SITE_URL
