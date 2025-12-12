@@ -13,7 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"; // Import Tabs
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   ConductReportWithReporter,
   ServiceLogWithReporter,
@@ -122,7 +122,7 @@ export default async function StudentRecordPage({
       totalServed,
       netOffice: Math.max(0, office_demerits - office_merits),
       netRle: Math.max(0, rle_demerits - rle_merits),
-      remainingBalance: Math.max(0, totalDemerits - totalServed),
+      remainingBalance: Math.max(0, totalDemerits - totalServed - totalMerits),
     };
   }
 
