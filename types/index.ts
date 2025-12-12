@@ -50,6 +50,15 @@ export interface ConductReport {
   type: ConductReportType;
 }
 
+export interface ServiceLog {
+  id: string;
+  student_id: string;
+  faculty_id: string;
+  days_deducted: number;
+  description: string | null;
+  created_at: string;
+}
+
 export interface InfractionResponse {
   id: number | null;
   report_id: string | null;
