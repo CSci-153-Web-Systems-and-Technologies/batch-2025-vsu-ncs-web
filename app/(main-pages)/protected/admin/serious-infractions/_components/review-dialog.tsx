@@ -16,11 +16,12 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { SeriousInfractionTicket } from "@/types";
-import { useActionState, useState, useEffect } from "react";
+import { useActionState, useState, useEffect, startTransition } from "react";
 import { Separator } from "@/components/ui/separator";
 import { submitInfractionResponse } from "@/lib/actions";
 import { toast } from "sonner";
 import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import ReviewModal from "@/components/review-modal";
 
 export default function ReviewDialog({
   record,
@@ -35,6 +36,9 @@ export default function ReviewDialog({
     null
   );
   const [open, setOpen] = useState(false);
+  const [isReviewOpen, setIsReviewOpen] = useState(false);
+  const [reviewData, setReviewData] = useState<FormData | null>(null);
+  const [previewDetails, setPreviewDetails] = useState<Record<string, any>>({});
 
   const formattedDate = new Date(record.created_at).toLocaleDateString(
     "en-US",
@@ -50,16 +54,40 @@ export default function ReviewDialog({
 
     if (state?.success) {
       toast.success(state.message);
+      setIsReviewOpen(false);
 
       timer = setTimeout(() => {
         setOpen(false);
       }, 3000);
     } else if (state?.error) {
       toast.error(state.error);
+      setIsReviewOpen(false);
     }
 
     return () => clearTimeout(timer);
   }, [state]);
+
+  const handleInitialSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    setReviewData(formData);
+    setPreviewDetails({
+      Student: studentName,
+      "Final Sanction Days": formData.get("final_sanction_days") || "0",
+      "Other Sanctions": formData.get("final_sanction_other") || "None",
+      "Official Notes": formData.get("notes"),
+    });
+
+    setIsReviewOpen(true);
+  };
+
+  const handleFinalConfirm = () => {
+    if (reviewData) {
+      startTransition(() => {
+        formAction(reviewData);
+      });
+    }
+  };
 
   const getButtonContent = () => {
     if (isPending) {
@@ -97,134 +125,147 @@ export default function ReviewDialog({
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button className="bg-red-600 hover:bg-red-700 text-white gap-2">
-          <Gavel className="w-4 h-4" />
-          Review Case
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Gavel className="w-5 h-5 text-red-600" />
-            Admin Adjudication
-          </DialogTitle>
-          <DialogDescription>
-            Finalize the verdict for the serious infraction committed by{" "}
-            <span className="font-semibold text-foreground">{studentName}</span>
-            .
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="flex flex-col gap-6 py-4">
-          <div className="rounded-lg border bg-muted/40 p-4 space-y-4 text-sm">
-            <div className="flex items-center justify-between">
-              <h4 className="font-semibold flex items-center gap-2">
-                <FileText className="w-4 h-4" /> Original Report Details
-              </h4>
-              <span className="text-muted-foreground text-xs">
-                {formattedDate}
+    <>
+      <ReviewModal
+        isOpen={isReviewOpen}
+        onClose={() => setIsReviewOpen(false)}
+        onConfirm={handleFinalConfirm}
+        isPending={isPending}
+        data={previewDetails}
+        title="Confirm Adjudication"
+        warningText="You are about to finalize a serious infraction. This will be permanently recorded."
+      />
+      <Dialog open={open} onOpenChange={setOpen}>
+        <DialogTrigger asChild>
+          <Button className="bg-red-600 hover:bg-red-700 text-white gap-2">
+            <Gavel className="w-4 h-4" />
+            Review Case
+          </Button>
+        </DialogTrigger>
+        <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Gavel className="w-5 h-5 text-red-600" />
+              Admin Adjudication
+            </DialogTitle>
+            <DialogDescription>
+              Finalize the verdict for the serious infraction committed by{" "}
+              <span className="font-semibold text-foreground">
+                {studentName}
               </span>
+              .
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="flex flex-col gap-6 py-4">
+            <div className="rounded-lg border bg-muted/40 p-4 space-y-4 text-sm">
+              <div className="flex items-center justify-between">
+                <h4 className="font-semibold flex items-center gap-2">
+                  <FileText className="w-4 h-4" /> Original Report Details
+                </h4>
+                <span className="text-muted-foreground text-xs">
+                  {formattedDate}
+                </span>
+              </div>
+
+              <Separator />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <p className="text-muted-foreground text-xs font-medium uppercase">
+                    Reporter
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <User className="w-3 h-3 text-muted-foreground" />
+                    <span>
+                      {record.reporter?.first_name} {record.reporter?.last_name}
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1">
+                  <p className="text-muted-foreground text-xs font-medium uppercase">
+                    Context
+                  </p>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-3 h-3 text-muted-foreground" />
+                    <span className="capitalize">
+                      {record.sanction_context === "rle"
+                        ? "RLE / Duty"
+                        : "Office"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <p className="text-muted-foreground text-xs font-medium uppercase">
+                  Description of Incident
+                </p>
+                <p className="text-foreground leading-relaxed">
+                  {record.description || "No description provided."}
+                </p>
+              </div>
             </div>
 
             <Separator />
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <p className="text-muted-foreground text-xs font-medium uppercase">
-                  Reporter
-                </p>
-                <div className="flex items-center gap-2">
-                  <User className="w-3 h-3 text-muted-foreground" />
-                  <span>
-                    {record.reporter?.first_name} {record.reporter?.last_name}
-                  </span>
+            <form onSubmit={handleInitialSubmit}>
+              <div className="space-y-4">
+                <h4 className="font-semibold text-sm">Verdict & Sanctions</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="days">Final Sanction Days</Label>
+                    <Input
+                      id="days"
+                      type="number"
+                      name="final_sanction_days"
+                      placeholder={record.sanction_days?.toString() || "0"}
+                    />
+                    <p className="text-[0.8rem] text-muted-foreground">
+                      Leave 0 if not applicable.
+                    </p>
+                  </div>
                 </div>
-              </div>
 
-              <div className="space-y-1">
-                <p className="text-muted-foreground text-xs font-medium uppercase">
-                  Context
-                </p>
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-3 h-3 text-muted-foreground" />
-                  <span className="capitalize">
-                    {record.sanction_context === "rle"
-                      ? "RLE / Duty"
-                      : "Office"}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-muted-foreground text-xs font-medium uppercase">
-                Description of Incident
-              </p>
-              <p className="text-foreground leading-relaxed">
-                {record.description || "No description provided."}
-              </p>
-            </div>
-          </div>
-
-          <Separator />
-          <form action={formAction}>
-            <div className="space-y-4">
-              <h4 className="font-semibold text-sm">Verdict & Sanctions</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="days">Final Sanction Days</Label>
-                  <Input
-                    id="days"
-                    type="number"
-                    name="final_sanction_days"
-                    placeholder={record.sanction_days?.toString() || "0"}
+                  <Label htmlFor="other_sanction">
+                    Other Sanctions / Actions
+                  </Label>
+                  <Textarea
+                    id="other_sanction"
+                    name="final_sanction_other"
+                    placeholder="E.g., Suspension, Community Service, Referral to Guidance..."
+                    className="h-[80px]"
                   />
-                  <p className="text-[0.8rem] text-muted-foreground">
-                    Leave 0 if not applicable.
-                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="notes">Official Resolution Notes</Label>
+                  <Textarea
+                    id="notes"
+                    name="notes"
+                    placeholder="Enter the official justification or notes for this decision..."
+                    className="h-[100px]"
+                  />
                 </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="other_sanction">
-                  Other Sanctions / Actions
-                </Label>
-                <Textarea
-                  id="other_sanction"
-                  name="final_sanction_other"
-                  placeholder="E.g., Suspension, Community Service, Referral to Guidance..."
-                  className="h-[80px]"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="notes">Official Resolution Notes</Label>
-                <Textarea
-                  id="notes"
-                  name="notes"
-                  placeholder="Enter the official justification or notes for this decision..."
-                  className="h-[100px]"
-                />
-              </div>
-            </div>
-            <div className="my-6"></div>
-            <DialogFooter>
-              <DialogClose asChild>
-                <Button variant="outline">Cancel</Button>
-              </DialogClose>
-              <Button
-                type="submit"
-                className={`transition-all duration-300 ${getButtonClass()}`}
-                disabled={isPending || state?.success}
-              >
-                {getButtonContent()}
-              </Button>
-            </DialogFooter>
-          </form>
-        </div>
-      </DialogContent>
-    </Dialog>
+              <div className="my-6"></div>
+              <DialogFooter>
+                <DialogClose asChild>
+                  <Button variant="outline">Cancel</Button>
+                </DialogClose>
+                <Button
+                  type="submit"
+                  className={`transition-all duration-300 ${getButtonClass()}`}
+                  disabled={isPending || state?.success}
+                >
+                  {getButtonContent()}
+                </Button>
+              </DialogFooter>
+            </form>
+          </div>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
