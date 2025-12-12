@@ -121,6 +121,12 @@ export default function ReportCardList({ data }: ReportCardListProps) {
               >
                 Serious Infraction
               </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={type === "Service"}
+                onCheckedChange={() => handleTypeFilter("Service")}
+              >
+                Service
+              </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
