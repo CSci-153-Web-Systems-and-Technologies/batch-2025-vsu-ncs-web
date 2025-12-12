@@ -1,13 +1,14 @@
 import {
   ConductReport,
-  StudentProfile,
   StaffProfile,
-  InfractionResponse,
   StudentConductSummary,
   ConductReportWithReporter,
   ConductReportWithStudent,
   SeriousInfractionTicket,
   InfractionStatus,
+  ServiceLogWithReporter,
+  ServiceLogWithStudent,
+  ServiceLog,
 } from "@/types";
 
 export function transformStudentSummary(
@@ -17,33 +18,29 @@ export function transformStudentSummary(
     if (!raw) return null;
 
     const reports: ConductReport[] = raw.conduct_reports || [];
+    const serviceLogs: ServiceLog[] = raw.service_logs || [];
+
+    const sumSanctionDays = (arr: ConductReport[]) =>
+      arr.reduce((acc, curr) => acc + (curr.sanction_days || 0), 0);
+
+    const sumServiceDays = (arr: ServiceLog[]) =>
+      arr.reduce((acc, curr) => acc + (curr.days_deducted || 0), 0);
 
     const merits = reports.filter((r) => r.type === "merit");
     const demerits = reports.filter((r) => r.type === "demerit");
 
-    const rleDemerits = demerits.filter((r) => r.sanction_context === "rle");
-    const officeDemerits = demerits.filter(
-      (r) => r.sanction_context === "office"
-    );
+    const totalMerits = sumSanctionDays(merits);
+    const totalDemerits = sumSanctionDays(demerits);
+    const totalService = sumServiceDays(serviceLogs);
 
-    const sumDays = (arr: ConductReport[]) =>
-      arr.reduce((acc, curr) => acc + (curr.sanction_days || 0), 0);
-
-    const totalMerits = sumDays(merits);
-    const totalDemerits = sumDays(demerits);
-    const totalRleDemerits = sumDays(rleDemerits);
-    const totalOfficeDemerits = sumDays(officeDemerits);
-
-    const netRle = Math.max(0, totalRleDemerits - totalMerits);
-
-    const netOffice = totalOfficeDemerits;
+    const balance = Math.max(0, totalDemerits - (totalService + totalMerits));
 
     return {
       ...raw,
       total_merits: totalMerits,
       total_demerits: totalDemerits,
-      net_rle_sanction: netRle,
-      net_office_sanction: netOffice,
+      total_service: totalService,
+      extension_days: balance,
     };
   } catch (error) {
     console.error(
@@ -222,6 +219,61 @@ export function transformStaffProfile(raw: any): StaffProfile | null {
     };
   } catch (error) {
     console.error(`Error transforming staff profile ${raw?.id}:`, error);
+    return null;
+  }
+}
+
+export function transformServiceLogForStudent(
+  raw: any
+): ServiceLogWithReporter | null {
+  try {
+    if (!raw) return null;
+
+    return {
+      id: raw.id,
+      student_id: raw.student_id,
+      faculty_id: raw.faculty_id,
+      days_deducted: raw.days_deducted,
+      description: raw.description,
+      created_at: raw.created_at,
+      reporter: raw.reporter
+        ? {
+            first_name: raw.reporter.first_name,
+            last_name: raw.reporter.last_name,
+            title: raw.reporter.title,
+          }
+        : null,
+    };
+  } catch (error) {
+    console.error(`Error transforming service log ${raw?.id}:`, error);
+    return null;
+  }
+}
+
+export function transformServiceLogForFaculty(
+  raw: any
+): ServiceLogWithStudent | null {
+  try {
+    if (!raw) return null;
+
+    return {
+      id: raw.id,
+      student_id: raw.student_id,
+      faculty_id: raw.faculty_id,
+      days_deducted: raw.days_deducted,
+      description: raw.description,
+      created_at: raw.created_at,
+      student: raw.student
+        ? {
+            first_name: raw.student.first_name,
+            last_name: raw.student.last_name,
+            student_id: raw.student.student_id,
+            year_level: raw.year_level,
+          }
+        : null,
+    };
+  } catch (error) {
+    console.error(`Error transforming service log ${raw?.id}:`, error);
     return null;
   }
 }

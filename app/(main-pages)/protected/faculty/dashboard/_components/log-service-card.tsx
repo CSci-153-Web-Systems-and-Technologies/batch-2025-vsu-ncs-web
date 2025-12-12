@@ -5,17 +5,10 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { RecordForm } from "./record-form";
+import { ServiceForm } from "./service-form";
 import { createClient } from "@/lib/supabase/server";
 
-/*type QuickActionCardProps = {
-  title: string;
-  total: number;
-  color: string;
-  description: string;
-};*/
-
-export default async function QuickActionCard() {
+export default async function LogServiceCard() {
   const supabase = await createClient();
 
   const { data: studentsRaw } = await supabase
@@ -27,15 +20,16 @@ export default async function QuickActionCard() {
     id: s.id,
     student_id: s.student_id || "No ID",
     full_name: `${s.first_name} ${s.last_name}`,
-  })); 
+  }));
+
   return (
     <Card className="flex-1">
       <CardHeader>
-        <CardTitle>Log Merit/Demerit</CardTitle>
-        <CardDescription>Record student conduct.</CardDescription>
+        <CardTitle>Log Service</CardTitle>
+        <CardDescription>Record student service.</CardDescription>
       </CardHeader>
       <CardContent className="flex flex-col">
-        <RecordForm students={studentOptions} />
+        <ServiceForm students={studentOptions} />
       </CardContent>
     </Card>
   );

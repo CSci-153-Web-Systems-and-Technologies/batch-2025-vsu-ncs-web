@@ -10,8 +10,8 @@ import {
 import TotalsCard from "./_components/totals-card";
 import QuickActionCard from "./_components/quick-action-card";
 import RecordCard from "./_components/record-card";
-import { StaffProfile, ConductReportWithStudent } from "@/types";
-import { transformReportForFaculty, safeMap } from "@/lib/data";
+import { StaffProfile, ActivityLog } from "@/types";
+import LogServiceCard from "./_components/log-service-card";
 
 export default async function FacultyDashboard() {
   const supabase = await createClient();
@@ -19,7 +19,6 @@ export default async function FacultyDashboard() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. Fetch Profile
   const { data: profileData } = await supabase
     .from("staff_profiles")
     .select("*")
@@ -27,35 +26,45 @@ export default async function FacultyDashboard() {
     .single();
   const profile = profileData as StaffProfile;
 
-  // 2. Fetch Faculty Reports (History)
-  const { data: rawReports } = await supabase
+  const { data: conductRaw } = await supabase
     .from("conduct_reports")
-    .select(
-      `
-      *,
-      student:student_profiles(*),
-      infraction_responses (
-        created_at,
-        admin:staff_profiles(first_name, last_name)
-      )
-    `
-    )
-    .eq("faculty_id", user?.id)
-    .order("created_at", { ascending: false });
+    .select(`*, student:student_profiles(*)`)
+    .eq("faculty_id", user?.id);
 
-  // 3. Transform Reports
-  const records: ConductReportWithStudent[] = safeMap(
-    rawReports,
-    transformReportForFaculty
+  const { data: serviceRaw } = await supabase
+    .from("service_logs")
+    .select(`*, student:student_profiles(*)`)
+    .eq("faculty_id", user?.id);
+
+  const conductLogs: ActivityLog[] = (conductRaw || []).map((r) => ({
+    id: r.id,
+    created_at: r.created_at,
+    type: r.is_serious_infraction ? "serious" : r.type,
+    description: r.description,
+    student: r.student,
+    is_serious_infraction: r.is_serious_infraction,
+    sanction_days: r.sanction_days,
+  }));
+
+  const serviceLogs: ActivityLog[] = (serviceRaw || []).map((r) => ({
+    id: r.id,
+    created_at: r.created_at,
+    type: "service",
+    description: r.description || "Extension duty served",
+    student: r.student,
+    days_deducted: r.days_deducted,
+  }));
+
+  const combinedLogs = [...conductLogs, ...serviceLogs].sort(
+    (a, b) =>
+      new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
   );
 
-  // 4. Fetch Total Students Count
-  // (We use count option instead of fetching all rows for performance)
   const { count: studentCount } = await supabase
     .from("student_profiles")
     .select("*", { count: "exact", head: true });
 
-  const recentRecordArr = records.slice(0, 5);
+  const recentRecordArr = combinedLogs.slice(0, 5);
 
   return (
     <div className="flex flex-col w-full p-8 gap-5">
@@ -69,9 +78,10 @@ export default async function FacultyDashboard() {
       </div>
       <div className="flex flex-col sm:flex-row w-full gap-5">
         <QuickActionCard />
+        <LogServiceCard />
         <TotalsCard
           title="Total Reports Logged"
-          total={records.length}
+          total={combinedLogs.length}
           color="text-[#FF6900]"
           description="This semester"
         />

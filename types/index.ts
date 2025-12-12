@@ -6,7 +6,7 @@ export interface SidebarProps {
   icon: React.ComponentType<LucideProps>;
 }
 
-export type ConductReportType = "merit" | "demerit";
+export type ConductReportType = "merit" | "demerit" | "service";
 export type SanctionContext = "office" | "rle";
 export type InfractionStatus = "Pending" | "Resolved";
 
@@ -50,6 +50,15 @@ export interface ConductReport {
   type: ConductReportType;
 }
 
+export interface ServiceLog {
+  id: string;
+  student_id: string;
+  faculty_id: string;
+  days_deducted: number;
+  description: string | null;
+  created_at: string;
+}
+
 export interface InfractionResponse {
   id: number | null;
   report_id: string | null;
@@ -71,8 +80,25 @@ export interface DashboardMetrics {
 export interface StudentConductSummary extends StudentProfile {
   total_merits: number;
   total_demerits: number;
-  net_rle_sanction: number;
-  net_office_sanction: number;
+  total_service: number;
+  extension_days: number;
+}
+
+export interface ServiceLogWithReporter extends ServiceLog {
+  reporter: {
+    first_name: string;
+    last_name: string;
+    title: string | null;
+  } | null;
+}
+
+export interface ServiceLogWithStudent extends ServiceLog {
+  student: {
+    first_name: string;
+    last_name: string;
+    student_id: string | null;
+    year_level: number | null;
+  } | null;
 }
 
 export interface ConductReportWithReporter extends ConductReport {
@@ -137,3 +163,21 @@ export interface SeriousInfractionTicket extends ConductReport {
     notes: string | null;
   } | null;
 }
+
+export type ActivityLog = {
+  id: string;
+  created_at: string;
+  type: "merit" | "demerit" | "serious" | "service";
+  description: string | null;
+  student: {
+    first_name: string;
+    last_name: string;
+    student_id: string;
+  } | null;
+
+  is_serious_infraction?: boolean;
+  sanction_days?: number;
+  sanction_other?: string;
+
+  days_deducted?: number;
+};

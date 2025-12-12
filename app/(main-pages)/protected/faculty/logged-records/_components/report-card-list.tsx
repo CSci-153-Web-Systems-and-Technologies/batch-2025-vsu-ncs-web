@@ -14,10 +14,10 @@ import {
 
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ConductReportWithStudent } from "@/types";
+import { ActivityLog } from "@/types";
 
 type ReportCardListProps = {
-  data: ConductReportWithStudent[];
+  data: ActivityLog[];
 };
 
 export default function ReportCardList({ data }: ReportCardListProps) {
@@ -40,6 +40,8 @@ export default function ReportCardList({ data }: ReportCardListProps) {
         const matchesType =
           filterType === "All Types"
             ? true
+            : filterType === "Service"
+            ? item.type === "service"
             : filterType === "Serious Infraction"
             ? item.is_serious_infraction
             : filterType === "Merit"
@@ -118,6 +120,12 @@ export default function ReportCardList({ data }: ReportCardListProps) {
                 onCheckedChange={() => handleTypeFilter("Serious Infraction")}
               >
                 Serious Infraction
+              </DropdownMenuCheckboxItem>
+              <DropdownMenuCheckboxItem
+                checked={type === "Service"}
+                onCheckedChange={() => handleTypeFilter("Service")}
+              >
+                Service
               </DropdownMenuCheckboxItem>
             </DropdownMenuContent>
           </DropdownMenu>

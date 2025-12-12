@@ -20,8 +20,7 @@ export default function StudentCard({
   student_id,
   year_level,
   sex,
-  net_office_sanction,
-  net_rle_sanction,
+  extension_days,
 }: StudentConductSummary) {
   const fullName = `${last_name}, ${first_name} ${middle_name?.[0] || ""}. ${
     suffix || ""
@@ -32,30 +31,33 @@ export default function StudentCard({
       <CardHeader>
         <div className="flex justify-between items-start">
           <div>
-            <CardTitle>{fullName}</CardTitle>
+            <CardTitle className="text-lg">{fullName}</CardTitle>
             <CardDescription>{student_id || "No ID"}</CardDescription>
           </div>
-          <Button asChild size="sm">
+          <Button asChild size="sm" variant="outline">
             <Link href={`/records/students/${id}`}>View</Link>
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="grid grid-cols-2 gap-4">
-        <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">Net Office</span>
-          <span className="text-xl font-bold text-orange-600">
-            {net_office_sanction}
+
+      <CardContent>
+        <div className="flex flex-col gap-1">
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            Extension Balance
           </span>
-        </div>
-        <div className="flex flex-col">
-          <span className="text-xs text-muted-foreground">Net RLE</span>
-          <span className="text-xl font-bold text-blue-600">
-            {net_rle_sanction}
+          <span
+            className={`text-2xl font-bold ${
+              extension_days > 0 ? "text-red-600" : "text-emerald-600"
+            }`}
+          >
+            {extension_days > 0 ? `${extension_days} Days` : "Cleared"}
           </span>
         </div>
       </CardContent>
-      <CardFooter className="flex flex-col items-start text-sm text-muted-foreground">
-        <p>{`Year Level: ${year_level ?? "-"}`}</p>
+
+      <CardFooter className="flex flex-row gap-4 text-sm text-muted-foreground border-t pt-4">
+        <p>{`Year: ${year_level ?? "-"}`}</p>
+        <div className="h-4 w-[1px] bg-border" />
         <p>{`Sex: ${sex ?? "-"}`}</p>
       </CardFooter>
     </Card>
