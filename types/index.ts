@@ -6,7 +6,7 @@ export interface SidebarProps {
   icon: React.ComponentType<LucideProps>;
 }
 
-export type ConductReportType = "merit" | "demerit";
+export type ConductReportType = "merit" | "demerit" | "service";
 export type SanctionContext = "office" | "rle";
 export type InfractionStatus = "Pending" | "Resolved";
 
