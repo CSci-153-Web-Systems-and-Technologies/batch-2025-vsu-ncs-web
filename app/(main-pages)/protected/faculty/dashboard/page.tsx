@@ -12,6 +12,7 @@ import QuickActionCard from "./_components/quick-action-card";
 import RecordCard from "./_components/record-card";
 import { StaffProfile, ConductReportWithStudent } from "@/types";
 import { transformReportForFaculty, safeMap } from "@/lib/data";
+import LogServiceCard from "./_components/log-service-card";
 
 export default async function FacultyDashboard() {
   const supabase = await createClient();
@@ -19,7 +20,6 @@ export default async function FacultyDashboard() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  // 1. Fetch Profile
   const { data: profileData } = await supabase
     .from("staff_profiles")
     .select("*")
@@ -27,7 +27,6 @@ export default async function FacultyDashboard() {
     .single();
   const profile = profileData as StaffProfile;
 
-  // 2. Fetch Faculty Reports (History)
   const { data: rawReports } = await supabase
     .from("conduct_reports")
     .select(
@@ -43,14 +42,11 @@ export default async function FacultyDashboard() {
     .eq("faculty_id", user?.id)
     .order("created_at", { ascending: false });
 
-  // 3. Transform Reports
   const records: ConductReportWithStudent[] = safeMap(
     rawReports,
     transformReportForFaculty
   );
 
-  // 4. Fetch Total Students Count
-  // (We use count option instead of fetching all rows for performance)
   const { count: studentCount } = await supabase
     .from("student_profiles")
     .select("*", { count: "exact", head: true });
@@ -69,6 +65,7 @@ export default async function FacultyDashboard() {
       </div>
       <div className="flex flex-col sm:flex-row w-full gap-5">
         <QuickActionCard />
+        <LogServiceCard />
         <TotalsCard
           title="Total Reports Logged"
           total={records.length}
