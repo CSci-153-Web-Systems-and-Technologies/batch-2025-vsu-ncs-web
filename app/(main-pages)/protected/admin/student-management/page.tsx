@@ -1,20 +1,18 @@
 import { createClient } from "@/lib/supabase/server";
 import { columns } from "./_components/columns";
-import { DataTable } from "./_components/data-table"; // Assumes you have this generic component
+import { DataTable } from "./_components/data-table";
 import StudentCardList from "./_components/student-card-list";
-import { transformStudentSummary, safeMap } from "@/lib/data"; // <--- NEW UTILS
+import { transformStudentSummary, safeMap } from "@/lib/data";
 import { StudentConductSummary } from "@/types";
 
 export default async function StudentListPage() {
   const supabase = await createClient();
 
-  // 1. Fetch Raw Data + Reports
   const { data: rawData } = await supabase
     .from("student_profiles")
     .select("*, conduct_reports(*)")
     .order("last_name", { ascending: true });
 
-  // 2. Transform into Summary Shape
   const data: StudentConductSummary[] = safeMap(
     rawData,
     transformStudentSummary
