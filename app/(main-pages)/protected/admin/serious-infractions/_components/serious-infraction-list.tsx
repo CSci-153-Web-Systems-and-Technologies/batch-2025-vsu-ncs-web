@@ -25,7 +25,7 @@ type FilterStatus = "All" | InfractionStatus;
 export default function SeriousInfractionList({
   data,
 }: SeriousInfractionListProps) {
-  const [status, setStatus] = React.useState<FilterStatus>("All");
+  const [status, setStatus] = React.useState<FilterStatus>("Pending");
   const [searchQuery, setSearchQuery] = React.useState(""); // <--- Added Search State
 
   const filteredRecords = React.useMemo(() => {
