@@ -1,8 +1,14 @@
 "use client";
 
 import React from "react";
-import { Loader2, AlertTriangle, Check, X } from "lucide-react";
+import { Loader2, AlertTriangle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 
 interface ReviewModalProps {
   isOpen: boolean;
@@ -23,23 +29,19 @@ export default function ReviewModal({
   title = "Confirm Submission",
   warningText = "This action cannot be undone immediately.",
 }: ReviewModalProps) {
-  if (!isOpen) return null;
-
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-2xl border border-slate-200 overflow-hidden animate-in zoom-in-95 duration-200">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="sm:max-w-md z-[55] overflow-hidden p-0 gap-0">
         <div className="px-6 py-4 bg-slate-50 border-b border-slate-100 flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-800 flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <Check className="w-5 h-5 text-emerald-600" />
-            {title}
-          </h3>
-          <button
-            onClick={onClose}
-            disabled={isPending}
-            className="text-slate-400 hover:text-slate-600"
-          >
-            <X className="w-5 h-5" />
-          </button>
+            <DialogTitle className="text-lg font-semibold text-slate-800">
+              {title}
+            </DialogTitle>
+          </div>
+          <DialogDescription className="sr-only">
+            Review the details of your submission.
+          </DialogDescription>
         </div>
 
         <div className="p-6 space-y-6">
@@ -66,13 +68,19 @@ export default function ReviewModal({
         </div>
 
         <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end gap-3">
-          <Button variant="outline" onClick={onClose} disabled={isPending}>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={isPending}
+            type="button"
+          >
             Edit
           </Button>
           <Button
             onClick={onConfirm}
             disabled={isPending}
             className="bg-emerald-600 hover:bg-emerald-700 text-white"
+            type="button"
           >
             {isPending ? (
               <>
@@ -83,7 +91,7 @@ export default function ReviewModal({
             )}
           </Button>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
