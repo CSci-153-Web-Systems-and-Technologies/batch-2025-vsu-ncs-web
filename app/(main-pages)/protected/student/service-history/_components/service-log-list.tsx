@@ -21,7 +21,7 @@ type ServiceLogListProps = {
 
 type FilterStatus = "All" | InfractionStatus;
 
-export default function SeriousInfractionList({ data }: ServiceLogListProps) {
+export default function ServiceLogList({ data }: ServiceLogListProps) {
   const [status, setStatus] = React.useState<FilterStatus>("All");
 
   const filteredRecords = React.useMemo(() => {

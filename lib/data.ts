@@ -9,6 +9,7 @@ import {
   SeriousInfractionTicket,
   InfractionStatus,
   ServiceLog,
+  ServiceLogWithReporter,
 } from "@/types";
 
 export function transformStudentSummary(
@@ -227,9 +228,11 @@ export function transformStaffProfile(raw: any): StaffProfile | null {
   }
 }
 
-export function transformServiceLog(raw: any): ServiceLog | null {
+export function transformServiceLogWithReporter(
+  raw: any
+): ServiceLogWithReporter | null {
   try {
-    if(!raw) return null;
+    if (!raw) return null;
 
     return {
       id: raw.id,
@@ -238,8 +241,15 @@ export function transformServiceLog(raw: any): ServiceLog | null {
       days_deducted: raw.days_deducted,
       description: raw.description,
       created_at: raw.created_at,
-    }
-  } catch(error) {
+      reporter: raw.reporter
+        ? {
+            first_name: raw.reporter.first_name,
+            last_name: raw.reporter.last_name,
+            title: raw.reporter.title,
+          }
+        : null,
+    };
+  } catch (error) {
     console.error(`Error transforming service log ${raw?.id}:`, error);
     return null;
   }
