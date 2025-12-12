@@ -28,7 +28,12 @@ export default function RecordCard({ record }: RecordCardProps) {
 
   const value = Math.abs(record.sanction_days ?? 0);
 
-  if (record.is_serious_infraction) {
+  const serviceValue = Math.abs(record.days_deducted ?? 0);
+
+  if (serviceValue != 0) {
+    const typeText = "day/s";
+    badgeText = `${serviceValue} ${typeText}`;
+  } else if (record.is_serious_infraction) {
     badgeText = "Serious Infraction";
   } else if (value > 0) {
     const typeText = record.type === "merit" ? "merit/s" : "demerit/s";
