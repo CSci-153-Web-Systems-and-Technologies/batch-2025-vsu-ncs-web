@@ -80,8 +80,8 @@ export interface DashboardMetrics {
 export interface StudentConductSummary extends StudentProfile {
   total_merits: number;
   total_demerits: number;
-  net_rle_sanction: number;
-  net_office_sanction: number;
+  total_service: number;
+  extension_days: number;
 }
 
 export interface ServiceLogWithReporter extends ServiceLog {
