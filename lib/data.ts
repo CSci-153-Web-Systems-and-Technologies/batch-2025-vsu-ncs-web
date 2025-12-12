@@ -1,15 +1,13 @@
 import {
   ConductReport,
-  StudentProfile,
   StaffProfile,
-  InfractionResponse,
   StudentConductSummary,
   ConductReportWithReporter,
   ConductReportWithStudent,
   SeriousInfractionTicket,
   InfractionStatus,
-  ServiceLog,
   ServiceLogWithReporter,
+  ServiceLogWithStudent,
 } from "@/types";
 
 export function transformStudentSummary(
@@ -228,7 +226,7 @@ export function transformStaffProfile(raw: any): StaffProfile | null {
   }
 }
 
-export function transformServiceLogWithReporter(
+export function transformServiceLogForStudent(
   raw: any
 ): ServiceLogWithReporter | null {
   try {
@@ -246,6 +244,34 @@ export function transformServiceLogWithReporter(
             first_name: raw.reporter.first_name,
             last_name: raw.reporter.last_name,
             title: raw.reporter.title,
+          }
+        : null,
+    };
+  } catch (error) {
+    console.error(`Error transforming service log ${raw?.id}:`, error);
+    return null;
+  }
+}
+
+export function transformServiceLogForFaculty(
+  raw: any
+): ServiceLogWithStudent | null {
+  try {
+    if (!raw) return null;
+
+    return {
+      id: raw.id,
+      student_id: raw.student_id,
+      faculty_id: raw.faculty_id,
+      days_deducted: raw.days_deducted,
+      description: raw.description,
+      created_at: raw.created_at,
+      student: raw.student
+        ? {
+            first_name: raw.student.first_name,
+            last_name: raw.student.last_name,
+            student_id: raw.student.student_id,
+            year_level: raw.year_level,
           }
         : null,
     };

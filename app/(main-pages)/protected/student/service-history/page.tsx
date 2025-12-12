@@ -1,5 +1,5 @@
 import { createClient } from "@/lib/supabase/server";
-import { transformServiceLogWithReporter, safeMap } from "@/lib/data"; // Or your utils path
+import { transformServiceLogForStudent, safeMap } from "@/lib/data"; // Or your utils path
 import { ServiceLogWithReporter } from "@/types";
 import ServiceLogList from "./_components/service-log-list";
 import { CalendarCheck } from "lucide-react";
@@ -23,7 +23,7 @@ export default async function ServiceHistory() {
 
   const serviceReports: ServiceLogWithReporter[] = safeMap(
     rawData,
-    transformServiceLogWithReporter
+    transformServiceLogForStudent
   );
 
   return (
