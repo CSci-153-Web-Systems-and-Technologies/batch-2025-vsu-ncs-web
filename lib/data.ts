@@ -11,6 +11,10 @@ import {
   ServiceLog,
 } from "@/types";
 
+/**
+ * Transformer functions here are used to transform raw fetched data into usable data that utilizes created interfaces
+ */
+
 export function transformStudentSummary(
   raw: any
 ): StudentConductSummary | null {

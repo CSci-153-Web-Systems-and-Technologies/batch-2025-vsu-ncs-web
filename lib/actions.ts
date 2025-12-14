@@ -59,7 +59,7 @@ const StaffAccountSchema = z.object({
   employee_id: z
     .string()
     .min(1, { message: "Student ID required" })
-    .regex(/^2\d-1-\d{5}$/, {
+    .regex(/^2\d-\d-\d{5}$/, {
       message: "Invalid Student ID. Must be like 23-1-12345.",
     }),
   title: z.string().optional().default(""),
