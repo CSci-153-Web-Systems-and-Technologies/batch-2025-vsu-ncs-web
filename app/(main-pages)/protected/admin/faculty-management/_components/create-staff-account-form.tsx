@@ -67,7 +67,6 @@ export function CreateStaffDialog() {
         </DialogHeader>
 
         <form action={formAction} className="grid gap-6 py-4">
-          {/* --- ROW 1: ID & Email --- */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="employee_id">Employee ID</Label>
@@ -90,7 +89,6 @@ export function CreateStaffDialog() {
             </div>
           </div>
 
-          {/* --- ROW 2: First & Last Name --- */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="first_name">First Name</Label>
@@ -112,7 +110,6 @@ export function CreateStaffDialog() {
             </div>
           </div>
 
-          {/* --- ROW 3: Middle Name & Suffix --- */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="middle_name">
@@ -134,11 +131,10 @@ export function CreateStaffDialog() {
                   (Optional)
                 </span>
               </Label>
-              <Input id="suffix" name="suffix" placeholder="e.g. PhD, RN" />
+              <Input id="suffix" name="suffix" placeholder="e.g. Jr, Sr, III" />
             </div>
           </div>
 
-          {/* --- ROW 4: Title & Sex --- */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="title">Title</Label>
