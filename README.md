@@ -23,7 +23,7 @@ A digital platform designed for the Visayas State University Faculty of Nursing 
 ### For Students
 
 - **Digital Conduct Record:** View personal history of merits, demerits, and infractions 24/7.
-- **Real-time Notifications:** Receive automated emails via Resend when a new record is logged.
+- **Real-time Notifications:** Receive automated emails via Google SMTP with nodemailer when a new record is logged.
 - **Secure Access:** Personal dashboard protected by role-based authentication.
 - **Transparency:** View details of reported "Serious Infractions" and their resolutions.
 
@@ -53,7 +53,7 @@ A digital platform designed for the Visayas State University Faculty of Nursing 
 - Frontend: Next.js 16 (App Router), React 18, TypeScript
 - Backend: Supabase (PostgreSQL, Auth, Real-time)
 - Styling: Tailwind CSS with shadcn/ui components
-- Email: Resend API
+- Email: Google SMTP (nodemailer)
 - State Management: React Server Actions (no client-side global state store)
 - Deployment: Vercel
 
@@ -63,7 +63,7 @@ Before you begin, ensure you have:
 
 - Node.js 18+
 - A Supabase account and project
-- A Resend account (for emails)
+- A Google account (for emails)
 - Git installed
 
 ## Installation
@@ -86,7 +86,7 @@ Create a `.env.local` file in the project root and add the following variables:
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_project_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
 SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_for_admin_actions
-RESEND_API_KEY=your_resend_api_key
+GMAIL_APP_PASSWORD=your_google_app_password
 ```
 
 ## Database Setup
@@ -222,6 +222,6 @@ This project is licensed under the MIT License.
 - Visayas State University — For the academic opportunity
 - shadcn/ui — Accessible component library
 - Supabase — Backend infrastructure
-- Resend — Email delivery
+- Goodle SMTP (nodemailer) — Email delivery
 
 VSU NCS — Integrity & Accountability
