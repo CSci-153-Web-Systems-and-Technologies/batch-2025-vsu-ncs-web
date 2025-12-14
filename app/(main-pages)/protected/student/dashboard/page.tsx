@@ -126,7 +126,7 @@ export default async function StudentDashBoard() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <TotalsCard
-          title="Current Balance"
+          title="Current Demerit Balance"
           total={totals.remainingBalance}
           color={
             totals.remainingBalance > 0 ? "text-red-600" : "text-emerald-600"

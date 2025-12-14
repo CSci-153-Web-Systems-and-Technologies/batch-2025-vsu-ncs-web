@@ -110,9 +110,7 @@ export function RecordForm({ students }: RecordFormProps) {
       Type: context.toUpperCase(),
       Value: isSerious
         ? "Under Review"
-        : `${formData.get("sanction_days")} ${
-            isMerit ? "Points" : "Days/Hours"
-          }`,
+        : `${formData.get("sanction_days")} ${isMerit ? "Points" : "Days"}`,
       Description: formData.get("description"),
     });
 
@@ -268,7 +266,7 @@ export function RecordForm({ students }: RecordFormProps) {
             {!isSerious && (
               <div className="grid gap-2">
                 <Label htmlFor="sanction_days">
-                  {isMerit ? "Merit Points" : "Demerit Days / Hours"}
+                  {isMerit ? "Merit Points" : "Demerit Days"}
                 </Label>
                 <Input
                   id="sanction_days"

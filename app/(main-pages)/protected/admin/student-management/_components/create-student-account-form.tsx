@@ -20,9 +20,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"; // ✅ Added Select imports
+} from "@/components/ui/select";
 import { Loader2, UserPlus } from "lucide-react";
-import { toast } from "sonner"; // Removed local Toaster (using global layout toaster)
+import { toast } from "sonner";
 import { createStudentAccount } from "@/lib/actions";
 
 export function CreateStudentDialog() {
@@ -41,7 +41,7 @@ export function CreateStudentDialog() {
 
       timer = setTimeout(() => {
         setOpen(false);
-      }, 2000); // 2 seconds is usually enough
+      }, 2000);
     } else if (state?.error) {
       toast.error(state.error);
     }
@@ -68,7 +68,6 @@ export function CreateStudentDialog() {
         </DialogHeader>
 
         <form action={formAction} className="grid gap-6 py-4">
-          {/* --- ROW 1: ID & Email (Primary Identifiers) --- */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="student_id">Student ID</Label>
@@ -91,7 +90,6 @@ export function CreateStudentDialog() {
             </div>
           </div>
 
-          {/* --- ROW 2: First & Last Name --- */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="first_name">First Name</Label>
@@ -113,7 +111,6 @@ export function CreateStudentDialog() {
             </div>
           </div>
 
-          {/* --- ROW 3: Middle Name & Suffix (Optional) --- */}
           <div className="grid grid-cols-2 gap-4">
             <div className="grid gap-2">
               <Label htmlFor="middle_name">
